@@ -1,0 +1,140 @@
+{% extends '::base.html.twig' %}
+{% block title %}{% endblock %}
+{% block keywords %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% set week_days = {'1': 'Luni', '2': 'Marti', '3': 'Miercuri', '4': 'Joi', '5': 'Vineri', '6': 'Simbata', '7': 'Duminica'} %}
+
+{% block body %}
+    <h2>Course details</h2>
+    <table style="width:35%">
+        <tr>
+            <td>
+                Course name:
+            </td>
+            <td>
+                {{ course_details.object_ro }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Course start date:
+            </td>
+            <td>
+                {{ course_details.starts_on }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Course finish date:
+            </td>
+            <td>
+                {{ course_details.finish_on }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Number of places:
+            </td>
+            <td>
+                {{ course_details.max_nr_students }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Number of students enrolled:
+            </td>
+            <td>
+                {{ course_details.cnt_enrolled }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Teach language:
+            </td>
+            <td>
+                {{ course_details.language }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Course topics:
+            </td>
+            <td>
+                {{ course_details.course_topics }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Other details:
+            </td>
+            <td>
+                {{ course_details.course_details }}
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                Course schedule:
+            </td>
+            <td style="width:200px;">
+                <table style="width:100%">
+                    {% for item in course_schedule %}
+                        <tr>
+                            <td>
+                                {{ week_days[item.day] }}
+                            </td>
+                            <td>
+                                {{ item.start_hour }} - {{ item.end_hour }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div class="sep"></div>
+    <h2>Teacher details</h2>
+    <table>
+        <tr>
+            <td valign="top">
+                <img src="/uploads/th_{{ teacher_details.teacher_data.photo }}" />
+            </td>
+            <td align="top">
+                {{ teacher_details.teacher_data.f_name }} {{ teacher_details.teacher_data.f_name }}
+                <br />
+                <table border="1">
+                    <tr>
+                        <td>
+                            Object
+                        </td>
+                        <td>
+                            Experience
+                        </td>
+                    </tr>
+                    {% for object in teacher_details.teacher_objects %}
+                        <tr>
+                            <td>
+                                {{ object.object_ro }}
+                            </td>
+                            <td>
+                                {{ object.experience_years }} years
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <br />
+            </td>
+        </tr>
+    </table>
+    
+    {% if course_details.max_nr_students == course_details.cnt_enrolled %}
+        <a href="javascript:;" class="btn btn-success disabled"><i class="icon-shopping-cart"></i> Enroll</a> - You cannot enroll on this course because it has reached maximum number of students.
+    {% elseif course_details.course_status == 'ongoing' or course_details.course_status == 'finished' %}
+        <a href="javascript:;" class="btn btn-success disabled"><i class="icon-shopping-cart"></i> Enroll</a> - You cannot enroll on this course because it has started.
+    {% elseif is_student_enrolled_on_course %}
+        <a href="javascript:;" class="btn btn-success disabled"><i class="icon-shopping-cart"></i> Enroll</a> - You are already enrolled on this course.
+    {% else %}
+        <a href="{{ enroll_url }}" class="btn btn-success"><i class="icon-shopping-cart"></i> Enroll</a>
+    {% endif %}
+    
+{% endblock %}

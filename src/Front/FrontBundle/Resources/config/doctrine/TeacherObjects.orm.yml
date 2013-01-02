@@ -1,0 +1,40 @@
+Front\FrontBundle\Entity\TeacherObjects:
+    type: entity
+    table: teacher_objects
+    repositoryClass: Front\FrontBundle\Repository\TeacherObjectsRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        experienceYears:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: experience_years
+        added:
+            type: date
+            nullable: true
+    manyToOne:
+        teacher:
+            targetEntity: Teachers
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                teacher_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        obiect:
+            targetEntity: SystemObjects
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                obiect_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

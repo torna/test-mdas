@@ -1,0 +1,39 @@
+Front\FrontBundle\Entity\CourseSchedule:
+    type: entity
+    table: course_schedule
+    repositoryClass: Front\FrontBundle\Repository\CourseScheduleRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        day:
+            type: integer
+            unsigned: false
+            nullable: true
+        startHour:
+            type: string
+            length: 5
+            fixed: false
+            nullable: true
+            column: start_hour
+        endHour:
+            type: string
+            length: 5
+            fixed: false
+            nullable: true
+            column: end_hour
+    manyToOne:
+        course:
+            targetEntity: AvailableCourses
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                course_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

@@ -1,0 +1,98 @@
+homepage:
+    pattern:  /
+    defaults: { _controller: FrontFrontBundle:Default:index }
+
+register:
+    pattern:  /register
+    defaults: { _controller: FrontFrontBundle:User:register }
+
+execute_register:
+    pattern:  /do-register
+    defaults: { _controller: FrontFrontBundle:User:registerStep2 }
+
+execute_login:
+    pattern:  /do-login
+    defaults: { _controller: FrontFrontBundle:User:executeLogin }
+
+register_step_3:
+  pattern: /register-account-data
+  defaults: { _controller: FrontFrontBundle:User:registerStep3 }
+
+captcha:
+    pattern:  /captcha
+    defaults: { _controller: FrontFrontBundle:Default:captcha }
+
+logout:
+  pattern: /logout
+  defaults: { _controller: FrontFrontBundle:User:logout }
+
+email_activation:
+  pattern: /activate-email
+  defaults: { _controller: FrontFrontBundle:User:activateEmail }
+  
+resend_activation_hash:
+  pattern: /resend-activation-hash
+  defaults: { _controller: FrontFrontBundle:User:resendActivationEmail }
+
+password_recovery:
+  pattern: /password-recovery
+  defaults: { _controller: FrontFrontBundle:User:passwordRecovery }
+
+teacher_list:
+  pattern: /teachers
+  defaults: { _controller: FrontFrontBundle:Default:techerList }
+
+course_list:
+  pattern: /courses
+  defaults: { _controller: FrontFrontBundle:Default:courseList }
+
+course_details:
+  pattern: /course-details
+  defaults: { _controller: FrontFrontBundle:Default:courseDetails }
+
+enroll:
+  pattern: /enroll
+  defaults: { _controller: FrontFrontBundle:Student:enroll }
+
+# account teacher
+account_teacher:
+  pattern: /teacher-account
+  defaults: { _controller: FrontFrontBundle:Teacher:account }
+
+account_teacher_object:
+  pattern: /teacher-objects
+  defaults: { _controller: FrontFrontBundle:Teacher:teacherObjects }
+
+account_teacher_courses:
+  pattern: /teacher-courses
+  defaults: { _controller: FrontFrontBundle:Teacher:teacherCourses }
+
+account_teacher_course_schedule:
+  pattern: /teacher-course-schedule
+  defaults: { _controller: FrontFrontBundle:Teacher:courseSchedule }
+
+account_teacher_schedule:
+  pattern: /teacher-schedule
+  defaults: { _controller: FrontFrontBundle:Teacher:teacherSchedule }
+  
+# account student
+account_student:
+  pattern: /student-account
+  defaults: { _controller: FrontFrontBundle:Student:account }
+
+account_student_courses:
+  pattern: /my-courses
+  defaults: { _controller: FrontFrontBundle:Student:studentCourses }
+  
+account_student_schedule:
+  pattern: /my-schedule
+  defaults: { _controller: FrontFrontBundle:Student:studentSchedule }
+  
+# ongoing courses
+account_pre_course:
+  pattern: /pre-course
+  defaults: { _controller: FrontFrontBundle:User:preCourse }
+
+account_ongoing_course:
+  pattern: /classroom
+  defaults: { _controller: FrontFrontBundle:OngoingCourse:classroom }

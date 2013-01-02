@@ -1,0 +1,46 @@
+Front\FrontBundle\Entity\Enrolled:
+    type: entity
+    table: enrolled
+    repositoryClass: Front\FrontBundle\Repository\EnrolledRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        payId:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+            column: pay_id
+        isPayed:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: is_payed
+        added:
+            type: date
+            nullable: true
+    manyToOne:
+        course:
+            targetEntity: AvailableCourses
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                course_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        student:
+            targetEntity: Students
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                student_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

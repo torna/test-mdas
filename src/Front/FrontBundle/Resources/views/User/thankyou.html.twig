@@ -1,0 +1,6 @@
+{% extends '::base.html.twig' %}
+{% block body %}
+    Thank you.
+    <br />
+    A confirmation email had been sent to you. If you did not receive the email within 15 minutes please use <a href="{{ path('resend_activation_hash') }}">Resend confirmation code</a> form.
+{% endblock %}

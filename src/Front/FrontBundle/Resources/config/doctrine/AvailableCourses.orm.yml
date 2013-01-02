@@ -1,0 +1,58 @@
+Front\FrontBundle\Entity\AvailableCourses:
+    type: entity
+    table: available_courses
+    repositoryClass: Front\FrontBundle\Repository\AvailableCoursesRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        maxNrStudents:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: max_nr_students
+        courseTopics:
+            type: text
+            nullable: true
+            column: course_topics
+        courseDetails:
+            type: text
+            nullable: true
+            column: course_details
+        startsOn:
+            type: date
+            nullable: true
+            column: starts_on
+        courseStatus:
+            type: string
+            length: 10
+            fixed: false
+            nullable: true
+            column: course_status
+        added:
+            type: date
+            nullable: true
+    manyToOne:
+        teacher:
+            targetEntity: Teachers
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                teacher_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        object:
+            targetEntity: SystemObjects
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                object_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

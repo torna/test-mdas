@@ -1,0 +1,67 @@
+{% extends '::base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="../css/jquery.validation.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/jquery.validation.js') }}"></script>
+    <script src="{{ asset('js/validation.rules-en.js') }}"></script>
+    <script src="{{ asset('js/pages/login_register.js') }}"></script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <table align="center">
+            <tr>
+                <td valign="top">
+                    <h2>Login</h2>
+                    <div class="sep"></div>
+                    <form action="{{ path('execute_login') }}" method="post">
+                        <label for="login_email">Email</label>
+                        <input type="email" name="login_email" id="login_email" required="required" />
+                        <div class="sep"></div>
+                        <label for="login_pass">Password</label>
+                        <input type="password" name="login_pass" id="login_pass" required="required" />
+                        <div class="sep"></div>
+                        <a href="{{ path('password_recovery') }}">Password recovery</a><br />
+                        <a href="{{ path('resend_activation_hash') }}">Resend activation code</a>
+                        <div class="sep"></div>
+                        <input type="submit" class="btn btn-success" value="Login">
+                        {% if app.request.get('next_url') %}
+                            <input type="hidden" name="next_url" value="{{ app.request.get('next_url') }}">
+                        {% endif %}
+                    </form>
+                </td>
+                <td style="width:360px;">
+                    <div class="or_word">OR</div>
+                </td>
+                <td>
+                    <h2>Register</h2>
+                    <div class="sep"></div>
+                    <form action="{{ path('execute_register') }}" method="post" id="register_form">
+                        <label for="reg_type">Registration type:</label>
+                        <select name="registration_type" id="reg_type" class="validate[required]" required="required">
+                            <option value="">[Choose]</option>
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                        <div class="sep"></div>
+                        <label for="register_email">Email</label>
+                        <input type="email" name="register_email" id="register_email" class="popup_focus" data-original-title="Required" data-content="You will receive a confirmation code on this email." required="required"/>
+                        <div class="sep"></div>
+                        <label for="register_pass">Password</label>
+                        <input type="password" name="register_pass" id="register_pass" class="popup_focus validate[required,minSize[6]]" data-original-title="Required" data-content="Please choose a strong passoword that contains numbers and letters. <br /><i>Not less than 6 characters</i>." required="required" />
+                        <div class="sep"></div>
+                        <label for="register_repass">rePassword</label>
+                        <input type="password" name="register_repass" id="register_repass" class="popup_focus validate[required,minSize[6], equals[register_pass]]" data-original-title="Required" data-content="Please repeat the password." required="required" />
+                        <div class="sep"></div>
+                        <img src="{{ path('captcha') }}" onclick="refreshCaptcha(this, '{{ path('captcha') }}')">
+                        <input type="text" name="captcha" class="validate[required]" style="width:104px;" required="required">
+                        <div class="sep"></div>
+                        <input type="submit" class="btn btn-success" value="Next step >>">
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

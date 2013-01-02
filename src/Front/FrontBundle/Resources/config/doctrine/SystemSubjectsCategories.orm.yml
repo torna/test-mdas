@@ -1,0 +1,38 @@
+Front\FrontBundle\Entity\SystemSubjectsCategories:
+    type: entity
+    table: system_subjects_categories
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        objectCategoryRo:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_category_ro
+        objectCategoryRu:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_category_ru
+        objectCategoryEn:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_category_en
+        isActive:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: is_active
+        added:
+            type: date
+            nullable: true
+    lifecycleCallbacks: {  }

@@ -1,0 +1,126 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <a href="javascript:;" onclick="jQuery('#add_course').toggle();" class="btn btn-success">Create course</a>
+    <div style="display:none;" id="add_course">
+        <fieldset>
+            <legend>Create course</legend>
+        </fieldset>
+        <form action="" method="post">
+            <label for="objects">Object:</label>
+            <select name="object_id" id="objects">
+                {% for item in teacher_objects %}
+                    <option value="{{ item.object_id }}">{{ item.object_ro }}</option>
+                {% endfor %}
+            </select>
+            <div class="sep"></div>
+            
+            <label for="language">Teaching language:</label>
+            <select name="language_id" id="language">
+                {% for item in languages %}
+                    <option value="{{ item.id }}">{{ item.language }}</option>
+                {% endfor %}
+            </select>
+            <div class="sep"></div>
+            
+            <label for="group_name">Group name:</label>
+            <input type="text" name="group_name" id="group_name" value="" required="required">
+            <div class="sep"></div>
+            
+            <label for="max_nr_students">Maximum students for this course:</label>
+            <input type="text" name="max_nr_students" id="max_nr_students" value="" required="required">
+            <div class="sep"></div>
+            
+            <label for="course_topics">Course topics:</label>
+            <textarea name="course_topics" id="course_topics" required="required"></textarea>
+            <div class="sep"></div>
+            
+            <label for="course_details">Course details:</label>
+            <textarea name="course_details" id="course_details" required="required"></textarea>
+            <div class="sep"></div>
+            
+            <label for="starts_on">Starts on:</label>
+            <input type="text" name="starts_on" class="datepicker" id="starts_on" required="required">
+            <div class="sep"></div>
+            
+            <label for="starts_on">Finishes on:</label>
+            <input type="text" name="finish_on" class="datepicker" id="finish_on" required="required">
+            <div class="sep"></div>
+            
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% if teacher_courses|length %}
+    <div class="sep"></div>
+    <table class="table">
+        <tr>
+            <th>
+                Object name
+            </th>
+            <th>
+                Teaching language
+            </th>
+            <th>
+                Enrolled students
+            </th>
+            <th>
+                Max students
+            </th>
+            <th>
+                Period
+            </th>
+            <th>
+                Course status
+            </th>
+            <th>
+                Added
+            </th>
+            <th>
+                Options
+            </th>
+        </tr>
+        {% for item in teacher_courses %}
+            <tr>
+                <td>
+                    {{ item.object_ro }}
+                </td>
+                <td>
+                    {{ item.language }}
+                </td>
+                <td>
+                    {{ item.cnt_enrolled }}
+                </td>
+                <td>
+                    {{ item.max_nr_students }}
+                </td>
+                <td>
+                    {{ item.starts_on }} - {{ item.finish_on }}
+                </td>
+                <td>
+                    {{ item.course_status }}
+                </td>
+                <td>
+                    {{ item.added }}
+                </td>
+                <td>
+                    <a href="?delete_course_id={{ item.course_id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
+                    <div class="sep"></div>
+                    <a href="{{ path('account_teacher_course_schedule') }}?course_id={{ item.course_id }}" class="btn btn-info"><i class="icon-calendar"></i> Schedule</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="/css/jquery-ui-1.8.22.custom.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/jquery-ui-1.8.22.custom.min_datepicker.js') }}"></script>
+    <script>
+        jQuery(document).ready(function(){
+            jQuery('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
+        });
+    </script>
+{% endblock %}

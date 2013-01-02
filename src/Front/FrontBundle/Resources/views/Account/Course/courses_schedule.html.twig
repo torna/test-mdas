@@ -1,0 +1,83 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    Schedule for course: {{ course_data.object_ro }}
+    <div class="sep"></div>
+    <a href="javascript:;" onclick="jQuery('#add_course').toggle();" class="btn btn-success">Add item</a>
+    <div style="display:none;" id="add_course">
+        <fieldset>
+            <legend>Add schedule item</legend>
+        </fieldset>
+        <form action="" method="post">
+            <input type="hidden" name="course_id" value="{{ app.request.get('course_id') }}">
+            <span id="schedule_item">
+                <label>Day:</label>
+                <select name="schedule[day][]" required="required">
+                    <option value="1">Luni</option>
+                    <option value="2">Marti</option>
+                    <option value="3">Miercuri</option>
+                    <option value="4">Joi</option>
+                    <option value="5">Vineri</option>
+                    <option value="6">Simbata</option>
+                    <option value="7">Duminica</option>
+                </select>
+                <div class="sep"></div>
+
+                <label>Start hour:</label>
+                <input type="text" name="schedule[start_hour][]" value="" required="required">
+                <div class="sep"></div>
+
+                <label>Finish hour:</label>
+                <input type="text" name="schedule[finish_hour][]" value="" required="required">
+                <div class="sep"></div>
+            </span>
+            <span id="course_reper"></span>
+            <hr />
+            <a href="javascript:;" onclick="addScheduleItem()"><i class="icon-plus"></i>&nbsp;add item</a>
+            <div class="sep"></div>
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% set week_days = {'1': 'Luni', '2': 'Marti', '3': 'Miercuri', '4': 'Joi', '5': 'Vineri', '6': 'Simbata', '7': 'Duminica'} %}
+    {% if course_schedule|length %}
+        <div class="sep"></div>
+        <table class="table">
+            <tr>
+                <th>
+                    Day
+                </th>
+                <th>
+                    Start hour
+                </th>
+                <th>
+                    End hour
+                </th>
+                <th>
+                    Options
+                </th>
+            </tr>
+            {% for item in course_schedule %}
+                <tr>
+                    <td>
+                        {{ week_days[item.day] }}
+                    </td>
+                    <td>
+                        {{ item.start_hour }}
+                    </td>
+                    <td>
+                        {{ item.end_hour }}
+                    </td>
+                    <td>
+                        <a href="?delete_schedule_item={{ item.id }}&course_id={{ item.course_id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/pages/course_schedule.js') }}"></script>
+{% endblock %}

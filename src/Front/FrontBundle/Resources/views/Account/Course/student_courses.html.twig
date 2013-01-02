@@ -1,0 +1,78 @@
+{% extends '::base_account_student.html.twig' %}
+{% block body %}
+    <h3>My courses</h3>
+    <a href="{{ path('course_list') }}" class="btn btn-success">Browse all courses</a>
+    {% if student_courses|length %}
+        <div class="sep"></div>
+        <table class="table">
+            <tr>
+                <th>
+                    Object name
+                </th>
+                <th>
+                    Is payed
+                </th>
+                <th>
+                    Teaching language
+                </th>
+                <th>
+                    Enrolled students
+                </th>
+                <th>
+                    Max students
+                </th>
+                <th>
+                    Period
+                </th>
+                <th>
+                    Course status
+                </th>
+                <th>
+                    Added
+                </th>
+                <th>
+                    Options
+                </th>
+            </tr>
+            {% for item in student_courses %}
+                <tr>
+                    <td>
+                        {{ item.object_ro }}
+                    </td>
+                    <td>
+                        {% if item.is_payed %}Yes{% else %}No{% endif %}
+                    </td>
+                    <td>
+                        {{ item.language }}
+                    </td>
+                    <td>
+                        {{ item.cnt_enrolled }}
+                    </td>
+                    <td>
+                        {{ item.max_nr_students }}
+                    </td>
+                    <td>
+                        {{ item.starts_on }} - {{ item.finish_on }}
+                    </td>
+                    <td>
+                        {{ item.course_status }}
+                    </td>
+                    <td>
+                        {{ item.added }}
+                    </td>
+                    <td>
+                        <a href="?delete_course_id={{ item.id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Un-enroll</a>
+                        <div class="sep"></div>
+                        <a href="{{ path('course_details') }}?course_id={{ item.id }}" class="btn btn-info"><i class="icon-calendar"></i> Details</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends '::base.html.twig' %}
+{% block title %}{% endblock %}
+{% block keywords %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% block body %}
+    <h3>Course list</h3>
+    <fieldset>
+        <legend>Filter</legend>
+        Object: 
+        <select name="object_id" onchange="window.location='?object_id='+this.value">
+            <option value="">All</option>
+            {% for category_name, objects in objects_and_cateogries %}
+                <optgroup label="{{ category_name }}">
+                    {% for item in objects %}
+                        <option value="{{ item.id }}" {% if app.request.get('object_id')==item.id %}selected="selected"{% endif %}>{{ item.object_ro }}</option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <div class="sep"></div>
+    <table class="table">
+        <tr>
+            <th>
+                Object
+            </th>
+            <th>
+                Number of places
+            </th>
+            <th>
+                Available places
+            </th>
+            <th>
+                Teach language
+            </th>
+            <th>
+                Period
+            </th>
+            <th>
+                Options
+            </th>
+        </tr>
+        {% for item in course_list %}
+            <tr>
+                <td>
+                    {{ item.object_ro }}
+                </td>
+                <td>
+                    {{ item.max_nr_students }}
+                </td>
+                <td>
+                    {{ item.max_nr_students - item.cnt_enrolled }}
+                </td>
+                <td>
+                    {{ item.language }}
+                </td>
+                <td>
+                    {{ item.starts_on }} - {{ item.finish_on }}
+                </td>
+                <td>
+                    <a href="{{ path('course_details') }}?course_id={{ item.id }}" class="btn btn-info"><i class="icon-circle-arrow-right"></i> Details</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

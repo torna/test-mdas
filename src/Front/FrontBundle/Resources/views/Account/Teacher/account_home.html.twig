@@ -1,0 +1,14 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    Welcome!
+    {% if teacher_objects_cnt == 0 %}
+        <br />
+        Looks like you don't have any objects, <a href="{{ path('account_teacher_object') }}">Create some</a>
+    {% endif %}
+    {% if teacher_courses_cnt == 0 %}
+        <br />
+        Looks like you don't have any courses, <a href="{{ path('account_teacher_courses') }}">Create some</a>
+    {% endif %}
+    {# Next courses #}
+    {# System alerts #}
+{% endblock %}

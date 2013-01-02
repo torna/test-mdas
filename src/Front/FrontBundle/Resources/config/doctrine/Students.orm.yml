@@ -1,0 +1,83 @@
+Front\FrontBundle\Entity\Students:
+    type: entity
+    table: students
+    repositoryClass: Front\FrontBundle\Repository\StudentsRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        fName:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+            column: f_name
+        lName:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+            column: l_name
+        email:
+            type: string
+            length: 50
+            fixed: false
+            nullable: true
+        pass:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+        age:
+            type: integer
+            unsigned: false
+            nullable: true
+        country:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+        city:
+            type: string
+            length: 45
+            fixed: false
+            nullable: true
+        address:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+        photo:
+            type: string
+            length: 100
+            fixed: false
+            nullable: true
+        homePhone:
+            type: string
+            length: 20
+            fixed: false
+            nullable: true
+            column: home_phone
+        mobilePhone:
+            type: string
+            length: 20
+            fixed: false
+            nullable: true
+            column: mobile_phone
+        lastLogin:
+            type: datetime
+            nullable: true
+            column: last_login
+        isDeleted:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: is_deleted
+        added:
+            type: date
+            nullable: true
+    lifecycleCallbacks: {  }

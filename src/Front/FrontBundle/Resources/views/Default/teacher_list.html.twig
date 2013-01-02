@@ -1,0 +1,41 @@
+{% extends '::base.html.twig' %}
+{% block title %}{% endblock %}
+{% block keywords %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% block body %}
+    <table>
+        {% for item in teacher_list %}
+            <tr>
+                <td valign="top">
+                    <img src="/uploads/th_{{ item.teacher_data.photo }}" />
+                </td>
+                <td valign="top">
+                    {{ item.teacher_data.f_name }} {{ item.teacher_data.f_name }}
+                    <br />
+                    <table border="1">
+                        <tr>
+                            <td>
+                                Object
+                            </td>
+                            <td>
+                                Experience
+                            </td>
+                        </tr>
+                        {% for object in item.teacher_objects %}
+                            <tr>
+                                <td>
+                                    {{ object.object_ro }}
+                                </td>
+                                <td>
+                                    {{ object.experience_years }} years
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <br />
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

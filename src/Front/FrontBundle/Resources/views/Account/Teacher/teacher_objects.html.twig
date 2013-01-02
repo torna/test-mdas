@@ -1,0 +1,58 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <a href="javascript:;" onclick="jQuery('#add_object').toggle();" class="btn btn-success">Add project</a>
+    <div style="display:none;" id="add_object">
+        <fieldset>
+            <legend>Add object</legend>
+        </fieldset>
+        <form action="" method="post">
+            <select name="" id="objects">
+                {% for category_name, objects in objects_and_cateogries %}
+                    <optgroup label="{{ category_name }}">
+                        {% for item in objects %}
+                            <option value="{{ item.id }}">{{ item.object_ro }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+            <input type="text" name="" value="" id="experience" class="input-mini" style="width:70px;" placeholder="experience">
+            <a href="javascript:;" onclick="addObject()"><i class="icon-plus"></i>&nbsp;add</a>
+            <div id="objects_containter"></div>
+            <div class="sep"></div>
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% if teacher_objects|length %}
+    <div class="sep"></div>
+    <table class="table">
+        <tr>
+            <th>
+                Object name
+            </th>
+            <th>
+                Experience (years)
+            </th>
+            <th>
+                Options
+            </th>
+        </tr>
+        {% for item in teacher_objects %}
+            <tr>
+                <td>
+                    {{ item.object_ro }}
+                </td>
+                <td>
+                    {{ item.experience_years }}
+                </td>
+                <td>
+                    <a href="?delete_object_id={{ item.object_id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/pages/teacher_objects.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    If you did not receive the activation email please enter your email below:
+    <form action="{{ path('resend_activation_hash') }}" method="post">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" required="required">
+        <br />
+        <input type="submit" class="btn btn-success" value="resend">
+    </form>
+{% endblock %}

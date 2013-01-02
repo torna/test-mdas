@@ -1,0 +1,40 @@
+{% extends '::base.html.twig' %}
+{% block body %}
+    <h2>Tell us more about you</h2>
+    <div class="sep"></div>
+    <div class="sep"></div>
+    <form action="{{ path('register_step_3') }}" method="post" enctype="multipart/form-data">
+        <label for="f_name">First name:</label>
+        <input type="text" name="f_name" id="f_name" required="required">
+        <div class="sep"></div>
+        <label for="l_name">Last name:</label>
+        <input type="text" name="l_name" id="l_name" required="required">
+        <div class="sep"></div>
+        
+        <label for="city">City/Village:</label>
+        <input type="text" name="city" id="city" required="required">
+        <div class="sep"></div>
+        
+        <label for="address">Address:</label>
+        <input type="text" name="address" id="city" required="required">
+        <div class="sep"></div>
+        
+        <label for="photo">Photo:</label>
+        <input type="file" name="photo" id="photo" required="required" accept="image/*">
+        <div class="sep"></div>
+        
+        <label for="home_phone">Home phone:</label>
+        <input type="text" name="home_phone" id="home_phone">
+        <div class="sep"></div>
+        
+        <label for="mobile_phone">Mobile phone:</label>
+        <input type="text" name="mobile_phone" id="mobile_phone" required="required">
+        <div class="sep"></div>
+        
+        <label for="desc">Tell us about yourself:</label>
+        <textarea name="description" id="desc" required="required"></textarea>
+        <div class="sep"></div>
+        
+        <input type="submit" value="Go to my account >>" class="btn btn-success">
+    </form>
+{% endblock %}

@@ -1,0 +1,22 @@
+Front\FrontBundle\Entity\StartedCourses:
+    type: entity
+    table: started_courses
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+    manyToOne:
+        course:
+            targetEntity: AvailableCourses
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                course_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

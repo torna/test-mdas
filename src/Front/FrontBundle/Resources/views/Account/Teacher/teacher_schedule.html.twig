@@ -1,0 +1,43 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <div id='calendar'></div>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="/css/fullcalendar.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/fullcalendar.js') }}"></script>
+    <script>
+        
+        $(document).ready(function() {
+	
+		var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+		
+		$('#calendar').fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    editable: false,
+                    events: [
+                        {% for index, item in teacher_schedule %}
+                            {
+                                title: ' {{ item.title }}',
+                                start: new Date('{{ item.year }}', '{{ item.month }}', '{{ item.day }}', {{ item.start_hour }}, {{ item.start_minute }}),
+                                allDay: false,
+                                url: '{{ path('course_details') }}?course_id={{ item.course_id }}'
+                            }
+                            {% if index!=(teacher_schedule|length)-1 %},{% endif %}
+                        {% endfor %}
+                    ]
+		});
+	});
+
+    </script>
+{% endblock %}

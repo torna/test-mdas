@@ -1,0 +1,49 @@
+Front\FrontBundle\Entity\SystemObjects:
+    type: entity
+    table: system_objects
+    repositoryClass: Front\FrontBundle\Repository\SystemObjectsRepository
+    fields:
+        id:
+            id: true
+            type: integer
+            unsigned: false
+            nullable: false
+            generator:
+                strategy: IDENTITY
+        objectRo:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_ro
+        objectRu:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_ru
+        objectEn:
+            type: string
+            length: 150
+            fixed: false
+            nullable: true
+            column: object_en
+        isActive:
+            type: integer
+            unsigned: false
+            nullable: true
+            column: is_active
+        added:
+            type: date
+            nullable: true
+    manyToOne:
+        objectCategory:
+            targetEntity: SystemSubjectsCategories
+            cascade: {  }
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                object_category:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

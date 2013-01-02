@@ -1,0 +1,14 @@
+.container{
+    width: 1150px !important;
+}
+
+.or_word {
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    color: #5A5A5A;
+}
+.sep{
+    display: block;
+    height: 10px;
+}

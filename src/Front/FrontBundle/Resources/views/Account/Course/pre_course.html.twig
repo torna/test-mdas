@@ -1,0 +1,21 @@
+{% extends '::base_account_student.html.twig' %}
+{% block body %}
+    <h2>Course details</h2>
+    Object: {{ course_details.object_ro }}
+    <br />
+    Topics:
+    <br />
+    {{ course_details.course_topics }}
+    <div class="sep"></div>
+    Students enrolled: {{ course_details.cnt_enrolled }}
+    <div class="sep"></div>
+    Don't forget to turn off skype, torrent programs, youtube, email before starting lesson.
+    <div class="sep"></div>
+    <input type="button" class="btn btn-success" onclick="window.location='{{ path('account_ongoing_course') }}?token={{ security_token }}'" value="Go to course >>">
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
