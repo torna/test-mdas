@@ -29,7 +29,7 @@ class OngoingCourseController extends Controller {
             die('No access to this course.');
         }
         
-        
+        return $this->render('FrontFrontBundle:Account/Course:ongoing_course.html.twig', array('token' => $token));
         
     }
 
