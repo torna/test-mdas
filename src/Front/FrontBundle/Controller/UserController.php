@@ -403,6 +403,23 @@ class UserController extends Controller {
             return $this->redirect($request->headers->get('referer'));
         }
         
+        $course_details = $em->getRepository('FrontFrontBundle:AvailableCourses')->getCourseById($course_id);
+        
+        return $this->render('FrontFrontBundle:Account/Course:pre_course.html.twig', array('course_details' => $course_details));
+    }
+    
+    public function redirectToClassroomAction() {
+        if (!Auth::isAuth()) {
+            return $this->redirect($this->generateUrl('register'));
+        }
+        $request = $this->getRequest();
+        $em = $this->getDoctrine()->getEntityManager();
+        
+        $course_id = $request->get('course_id');
+        if(!is_numeric($course_id)) {
+            $this->get('session')->setFlash('error', 'Wrong course id.');
+            return $this->redirect($request->headers->get('referer'));
+        }
         $is_teacher = 0;
         $token = md5(Auth::getAuthParam('account_type').Auth::getAuthParam('id').$course_id.rand(1,500));
         if(Auth::getAuthParam('account_type') == 'student') {
@@ -421,12 +438,8 @@ class UserController extends Controller {
                 return $this->redirect($request->headers->get('referer'));
             }
         }
-        
         $em->getRepository('FrontFrontBundle:AvailableCourses')->storeUserToken(Auth::getAuthParam('id'), $course_id, $token, $is_teacher);
-        $course_details = $em->getRepository('FrontFrontBundle:AvailableCourses')->getCourseById($course_id);
-        
-        return $this->render('FrontFrontBundle:Account/Course:pre_course.html.twig', array('course_details' => $course_details, 'security_token' => $token));
-        
+        return $this->redirect($this->generateUrl('account_ongoing_course').'?token='.$token);
     }
 
 }
