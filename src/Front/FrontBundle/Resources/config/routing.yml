@@ -96,3 +96,7 @@ account_pre_course:
 account_ongoing_course:
   pattern: /classroom
   defaults: { _controller: FrontFrontBundle:OngoingCourse:classroom }
+
+account_redirect_ongoing_course:
+  pattern: /redirect-to-classroom
+  defaults: { _controller: FrontFrontBundle:User:redirectToClassroom }
