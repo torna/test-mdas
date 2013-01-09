@@ -11,7 +11,7 @@
     <div class="sep"></div>
     Don't forget to turn off skype, torrent programs, youtube, email before starting lesson.
     <div class="sep"></div>
-    <input type="button" class="btn btn-success" onclick="window.location='{{ path('account_ongoing_course') }}?token={{ security_token }}'" value="Go to course >>">
+    <input type="button" class="btn btn-success" onclick="window.location='{{ path('account_redirect_ongoing_course') }}?course_id={{ app.request.get('course_id') }}'" value="Go to course >>">
 {% endblock %}
 {% block stylesheets %}
     {{ parent() }}
