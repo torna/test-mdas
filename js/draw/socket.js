@@ -5,7 +5,7 @@ window.socket_object = {
     initSocket: function() {
         this.socket_data = io.connect(this.socket_url);
         this.socket_data.emit('credentials',{
-            'hash': 'hash'
+            'hash': token
         });
         // drawing board objects
         this.socket_data.on('draw', function(data){
