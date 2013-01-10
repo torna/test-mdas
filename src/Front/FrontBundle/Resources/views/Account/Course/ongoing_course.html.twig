@@ -9,15 +9,30 @@
         <script src="../js/board/socket.js?t={{ now|date('m-d-i-s') }}"></script>
         <script src="../js/board/draw/client_drawer.js?t={{ now|date('m-d-i-s') }}"></script>
         <script src="../js/board/draw/drawing.js?t={{ now|date('m-d-i-s') }}"></script>
+        <script src="../js/board/board_manager.js?t={{ now|date('m-d-i-s') }}"></script>
         <script>
             var token = '{{ token }}';
             jQuery(document).ready(function(){
                 window.learn_draw.init();
+                window.board_manager.init();
             })
         </script>
     </head>
     <body style="position: relative;">
-        <table border="1" width="100%" height="100%">
+        <div style="height: 25px; border:1px solid black;">
+            {% if is_teacher %}
+                Add board type: 
+                <select id="board_types">
+                    <option value="draw">Drawing</option>
+                    <option value="programming">Programming</option>
+                    <option value="languages">Languages</option>
+                </select>
+                board name: <input type="text" id="board_name" value="">
+                <input type="button" id="add_board" value="Add">
+            {% endif %}
+        </div>
+        <div id="boards_tabs"></div>
+        <table border="1" width="100%" height="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td valign="top" width="50">
                     <div id="learn_colors"></div>
