@@ -1,6 +1,6 @@
 window.socket_object = new Object();
 window.socket_object = {
-    socket_url: 'http://localhost:8000', // url to socket server
+    socket_url: 'http://93.116.229.42:8000', // url to socket server
     socket_data: null, // socket object
     initSocket: function() {
         this.socket_data = io.connect(this.socket_url);
