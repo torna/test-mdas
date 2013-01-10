@@ -439,7 +439,7 @@ class UserController extends Controller {
             }
         }
         $em->getRepository('FrontFrontBundle:AvailableCourses')->storeUserToken(Auth::getAuthParam('id'), $course_id, $token, $is_teacher);
-        return $this->redirect($this->generateUrl('account_ongoing_course').'?token='.$token);
+        return $this->redirect($this->generateUrl('account_ongoing_course').'?token='.$token.'&course_id='.$course_id);
     }
 
 }
