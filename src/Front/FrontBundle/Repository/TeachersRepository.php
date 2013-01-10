@@ -7,6 +7,7 @@ class TeachersRepository extends UserRepository {
     public function addUserData($id, $params) {
         unset($params['age']);
         $params['teacher_folder'] = md5($id.rand(1, 9));
+        \Front\FrontBundle\Libs\CommonLib::createTeacherFolder($params['teacher_folder']);
         parent::addUserData($id, $params);
     }
 
