@@ -28,6 +28,18 @@ window.learn_draw = {
         this.initStrokeWidth();
         // init socket
         this.initSocket();
+        // mouse hidder
+        this.mouseHidder();
+    },
+    mouseHidder: function() {
+        jQuery('.board_cursor').css({'display':'none'});
+        var cursor_id = jQuery('div').filter(function() {return this.id.match(/curs_el_/);}).attr('id');
+        delete window.client_drawer.registered_cursors[window.client_drawer.registered_cursors.indexOf(cursor_id)];
+        jQuery('div').filter(function() {return this.id.match(/curs_el_/);}).remove();
+    
+        setTimeout(function() {
+            window.learn_draw.mouseHidder();
+        }, 6000);
     },
     initSocket: function() {
         window.socket_object.initSocket();
@@ -67,7 +79,10 @@ window.learn_draw = {
             window.learn_draw.stopDrawingEvent(event);
         });
         
-        jQuery('#'+this.svg_id).mousemove(function(event){
+        jQuery('body').mousemove(function(event){
+            if(event.ctrlKey) {
+                window.learn_draw.sendMousePointer(event);
+            }
             if(window.learn_draw.is_drawing) {
                 if(event.target.id == window.learn_draw.svg_id) { // check if mouse is moving inside the svg
                     window.learn_draw.doDrawing(event);
@@ -101,6 +116,8 @@ window.learn_draw = {
                 var add_value = 'L' + real_x + ',' + real_y;
                 window.learn_draw.realtime_emit.is_new = false;
                 window.learn_draw.realtime_emit.coord = add_value;
+                window.learn_draw.realtime_emit.x = real_x;
+                window.learn_draw.realtime_emit.y = real_y;
                 window.learn_draw.socketEmit('draw', window.learn_draw.realtime_emit);
                 d += add_value;
                 path.setAttributeNS(null, 'd', d);
@@ -135,6 +152,8 @@ window.learn_draw = {
                 
                 window.learn_draw.realtime_emit.is_new = false;
                 window.learn_draw.realtime_emit.r = radius_final;
+                window.learn_draw.realtime_emit.x = real_x;
+                window.learn_draw.realtime_emit.y = real_y;
                 window.learn_draw.socketEmit('draw', window.learn_draw.realtime_emit);
             } else {
                 // create element
@@ -178,6 +197,8 @@ window.learn_draw = {
                     window.learn_draw.realtime_emit.width = width;
                     window.learn_draw.realtime_emit.height = height;
                     window.learn_draw.realtime_emit.is_new = false;
+                    window.learn_draw.realtime_emit.x = real_x;
+                    window.learn_draw.realtime_emit.y = real_y;
                     window.learn_draw.socketEmit('draw', window.learn_draw.realtime_emit);
                 } else {
                     return;
@@ -262,10 +283,17 @@ window.learn_draw = {
             }
         }
     },
+    sendMousePointer: function(event) {
+        var real_x = event.clientX + jQuery(window).scrollLeft();;
+        var real_y = event.clientY + jQuery(window).scrollTop();;
+        
+        window.learn_draw.realtime_emit = new Object();
+        window.learn_draw.realtime_emit.el = 'cursor';
+        window.learn_draw.realtime_emit.x = real_x;
+        window.learn_draw.realtime_emit.y = real_y;
+        window.learn_draw.socketEmit('save_draw_element', window.learn_draw.realtime_emit);
+    },
     doDrawing: function(event) {
-        jQuery('#current_svg').css({
-            'cursor': 'crosshair'
-        });
         switch(this.current_instrument) {
             case 'path':
                 this.instruments.drawPath(this.element_id, event, {
