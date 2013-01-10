@@ -4,9 +4,16 @@
     height:15px; 
     margin-left:3px;
 }
-.board_cursor{
+.board_cursor {
     position:absolute;
     background-image: url(../../img/mouse-cursor.png);
     width: 12px;
     height: 20px;
+}
+#boards_tabs div {
+    padding: 3px;
+    margin: 2px;
+    border: 1px solid brown;
+    float: left;
+    background-color: #FADEC8;
 }
