@@ -4,6 +4,8 @@ namespace Front\FrontBundle\Libs;
 
 class CommonLib {
 
+    protected static $project_path = '/var/www/learn/learn_files/';
+    
     public static function formatDataForSchedule($schedule_data) {
         $formatted_data = array();
 
@@ -36,6 +38,11 @@ class CommonLib {
         }
         
         return $formatted_data;
+    }
+    
+    public static function createTeacherFolder($folder_name) {
+        $status = mkdir(self::$project_path.$folder_name, 777);
+        return $status;
     }
 
     protected static function getTiming($schedule_item) {
