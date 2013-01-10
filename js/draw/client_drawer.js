@@ -1,5 +1,6 @@
 window.client_drawer = Object();
 window.client_drawer = {
+    registered_cursors: [], // list of cursors in page
     doDrawing: function(data) {
         switch(data.el) {
             case 'path':
@@ -13,6 +14,9 @@ window.client_drawer = {
                 break;
             case 'rect':
                 this.drawRect(data);
+                break;
+            case 'cursor':
+                this.drawCursor(data);
                 break;
         }
     },
@@ -29,6 +33,7 @@ window.client_drawer = {
             var d = path.getAttributeNS(null, 'd');
             d += data.coord;
             path.setAttributeNS(null, 'd', d);
+            this.drawCursor({x:data.x+window.learn_draw.svg_left, y:data.y+window.learn_draw.svg_top, id: 'curs_'+data.id}); // show cursor while drawing
         }
     },
     drawCircle: function(data) {
@@ -48,6 +53,7 @@ window.client_drawer = {
         } else {
             var circle = document.getElementById(data.id);
             circle.setAttributeNS(null, 'r', data.r);
+            this.drawCursor({x:data.x+window.learn_draw.svg_left, y:data.y+window.learn_draw.svg_top, id: 'curs_'+data.id}); // show cursor while drawing
         }
     },
     drawLine: function(data) {
@@ -65,6 +71,7 @@ window.client_drawer = {
             var line = document.getElementById(data.id);
             line.setAttributeNS(null, "x2", data.x2);
             line.setAttributeNS(null, "y2", data.y2);
+            this.drawCursor({x:data.x2+window.learn_draw.svg_left, y:data.y2+window.learn_draw.svg_top, id: 'curs_'+data.id}); // show cursor while drawing
         }
     },
     drawRect: function(data) {
@@ -82,6 +89,15 @@ window.client_drawer = {
             var rect = document.getElementById(data.id);
             rect.setAttributeNS(null, "width", data.width);
             rect.setAttributeNS(null, "height", data.height);
+            this.drawCursor({x:data.x+window.learn_draw.svg_left, y:data.y+window.learn_draw.svg_top, id: 'curs_'+data.id}); // show cursor while drawing
+        }
+    },
+    drawCursor: function(data) {
+        if(window.client_drawer.registered_cursors.indexOf(data.id) >= 0) { // the cursor already exists
+            jQuery('#'+data.id).css({'top':(data.y-11), 'left':(data.x-11), 'display':'block'});
+        } else {
+            window.client_drawer.registered_cursors.push(data.id);
+            jQuery('body').append('<div class="board_cursor" id="'+data.id+'"></div>');
         }
     },
     addDrawElementAttributes: function(element, additional) {
