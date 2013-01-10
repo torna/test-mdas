@@ -4,3 +4,9 @@
     height:15px; 
     margin-left:3px;
 }
+.board_cursor{
+    position:absolute;
+    background-image: url(../../img/mouse-cursor.png);
+    width: 12px;
+    height: 20px;
+}
