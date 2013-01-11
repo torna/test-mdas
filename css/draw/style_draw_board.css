@@ -10,10 +10,24 @@
     width: 12px;
     height: 20px;
 }
-#boards_tabs div {
+#boards_tabs div, #board_items_tabs div {
     padding: 3px;
     margin: 2px;
     border: 1px solid brown;
     float: left;
     background-color: #FADEC8;
+    cursor: pointer;
+}
+.active_learn_tab, .active_wp3_tab {
+    background-color: #FAC296 !important;
+}
+.learn_board{
+    border: 1px solid red;
+}
+#boards_tabs{
+    display: block;
+    height: 35px;
+}
+.wb3_add_blank_file{
+    float: right;
 }
