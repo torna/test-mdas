@@ -100,3 +100,7 @@ account_ongoing_course:
 account_redirect_ongoing_course:
   pattern: /redirect-to-classroom
   defaults: { _controller: FrontFrontBundle:User:redirectToClassroom }
+
+ajax:
+  pattern: /ajax
+  defaults: { _controller: FrontFrontBundle:Ajax:index }
