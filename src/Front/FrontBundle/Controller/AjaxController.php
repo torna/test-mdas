@@ -16,7 +16,7 @@ class AjaxController extends Controller {
                 if (Auth::isAuth()) {
                     $board = $request->get('board');
                     if($board == 'programming') {
-                        return $this->render('FrontFrontBundle:Ajax:board_wb3.html.twig');
+                        return $this->render('FrontFrontBundle:Ajax:board_wb3.html.twig', array('board' => $board, 'teacher_folder' => Auth::getAuthParam('course_working_folder')));
                     } elseif($board == 'languages') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig');
                     } elseif($board == 'draw') {
@@ -27,6 +27,26 @@ class AjaxController extends Controller {
             case 'get_wb3_generic':
                 if (Auth::isAuth()) {
                     return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig');
+                }
+                break;
+            case 'save_file_for_execution':
+                if (Auth::isAuth()) {
+                    $status_arr = array();
+                    $file_name = $request->get('file_name');
+                    $working_folder = $request->get('namespace');
+                    $file_content = $request->get('file_content');
+                    $status = \Front\FrontBundle\Libs\CommonLib::createFileForExecution($working_folder, $file_name, $file_content);
+                    if($status) { // file was created successfully
+                        $status_arr['status'] = 'ok';
+                        $status_arr['file_path'] = $working_folder.'/'.$file_name;
+                    } else {
+                        $status_arr['status'] = 'fail';
+                        /**
+                         * @TODO 
+                         * log this error
+                         */
+                    }
+                    die(json_encode($status_arr));
                 }
                 break;
         }
