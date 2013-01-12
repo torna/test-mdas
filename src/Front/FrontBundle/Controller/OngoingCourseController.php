@@ -40,6 +40,10 @@ class OngoingCourseController extends Controller {
             return $this->redirect($this->generateUrl('account_redirect_ongoing_course').'?course_id='.$course_id);
         }
         
+        $course_data = $em->getRepository('FrontFrontBundle:AvailableCourses')->getCourseById($course_id);
+        $teacher_data = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherData($course_data['teacher_id']);
+        Auth::setAuthParam('course_working_folder', $teacher_data['teacher_folder']); // setting working folder. Is required for compiling files
+        
         return $this->render('FrontFrontBundle:Account/Course:ongoing_course.html.twig', array('token' => $token, 'is_teacher' => $is_teacher));
         
     }
