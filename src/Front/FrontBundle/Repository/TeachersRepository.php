@@ -6,7 +6,7 @@ class TeachersRepository extends UserRepository {
 
     public function addUserData($id, $params) {
         unset($params['age']);
-        $params['teacher_folder'] = md5($id.rand(1, 9));
+        $params['teacher_folder'] = md5($id . rand(1, 9));
         \Front\FrontBundle\Libs\CommonLib::createTeacherFolder($params['teacher_folder']);
         parent::addUserData($id, $params);
     }
@@ -51,7 +51,7 @@ class TeachersRepository extends UserRepository {
         }
 
         if (is_numeric($teacher_id)) {
-            $sql .= ' AND t.id='.$teacher_id;
+            $sql .= ' AND t.id=' . $teacher_id;
         }
         $query = "
             SELECT * 
@@ -76,6 +76,17 @@ class TeachersRepository extends UserRepository {
             $return[] = array('teacher_data' => $teacher_list[$i], 'teacher_objects' => $teacher_objects);
         }
         return $return;
+    }
+
+    public function getTeacherData($teacher_id) {
+        $query = "
+            SELECT t.*
+            FROM teachers t
+            WHERE t.id=:teacher_id
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':teacher_id' => $teacher_id));
+        $result = $q->fetch(2);
+        return $result;
     }
 
     /**
