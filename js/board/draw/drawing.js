@@ -26,8 +26,6 @@ window.learn_draw = {
         this.initSvg();
         // init stroke width
         this.initStrokeWidth();
-        // init socket
-        this.initSocket();
         // mouse hidder
         this.mouseHidder();
     },
@@ -40,9 +38,6 @@ window.learn_draw = {
         setTimeout(function() {
             window.learn_draw.mouseHidder();
         }, 6000);
-    },
-    initSocket: function() {
-        window.socket_object.initSocket();
     },
     socketEmit: function(ident, object) {
         window.socket_object.emit(ident, object);
