@@ -1,4 +1,5 @@
-window.wp3 = {
+window.wb3 = {
+    editors_list: [],
     init: function() {
         // bind elements events
         this.bindEvents();
@@ -17,7 +18,7 @@ window.wp3 = {
             // generating unique id
             var unique_id = parseInt(Math.random() * 9999999999999999);
             var tab_name = 'New file';
-            window.wp3.createTab(unique_id, tab_name);
+            window.wb3.createTab(unique_id, tab_name);
         });
     },
     bindDeleteTabEvent:function() {
@@ -26,7 +27,7 @@ window.wp3 = {
             var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
             jQuery(this).parent().parent().remove(); // delete the tab
             jQuery('#board_item_'+sheet_id).remove();
-            /**
+        /**
              * @TODO
              * emit deletion
              */
@@ -56,7 +57,7 @@ window.wp3 = {
             data: "todo=get_wb3_generic",
             type: "get",
             beforeSend: function() {
-                // loadior here
+            // loadior here
             },
             success: function(data) {
                 // setting zone id, i.e board id, so we could know where are we working
@@ -69,13 +70,13 @@ window.wp3 = {
                 });
                 jQuery('.wb3_board_item').hide(); // hide all wb3 boards
                 jQuery('#board_item_'+unique_id).show(); // showing created board
-                window.wp3.bindDeleteTabEvent();
-                window.wp3.bindTabSwitcher();
-                window.wp3.bindLanguageSwitcher();
+                window.wb3.bindDeleteTabEvent();
+                window.wb3.bindTabSwitcher();
+                window.wb3.bindLanguageSwitcher();
             }
         });
         
-        /**
+    /**
          * @TODO
          * emit tab creation
          */
@@ -85,13 +86,13 @@ window.wp3 = {
         jQuery('.set_language_button').click(function(){
             var zone_id = jQuery(this).attr('data-zone-id'); // get zone id
             var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
-            window.wp3.createHighlighter(chosen_language, zone_id);
+            var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
+            window.wb3.createHighlighter(chosen_language, mime, zone_id);
         });
     },
-    createHighlighter: function(chosen_language, zone_id) {
+    createHighlighter: function(chosen_language, mime, zone_id) {
         var javascripts = new Array();
-        javascripts.push('../js/highlighter/lib/codemirror.js');
-        if(chosen_language != 'clike') {
+        if(chosen_language != 'c' && chosen_language != 'cplus' && chosen_language != 'java') {
             javascripts.push('../js/highlighter/mode/'+chosen_language+'/'+chosen_language+'.js');
         }
         javascripts.push('../js/highlighter/mode/clike/clike.js');
@@ -103,29 +104,53 @@ window.wp3 = {
             existent_scripts.push(jQuery(jQuery('script')[i]).attr('src'));
         }
 
-        var included_script_counter = 0;
+        var loaded_script_counter = 0;
+        var included_scripts_cnt = false;
 
         for (var i = 0; i < javascripts.length; i++) {
             if(existent_scripts.indexOf(javascripts[i]) == -1) { // if script doesn't exist in DOM add it
+                included_scripts_cnt++;
                 var script = document.createElement("script");
                 script.type = "text/javascript";
                 script.src = javascripts[i];
                 document.getElementsByTagName("head")[0].appendChild(script); // add script to head
                 script.onload = function() {
-                    included_script_counter++;
-                    if(included_script_counter == javascripts.length) { // if all scripts had been loaded successfully do the binding
-                        var editor = CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
-                            lineNumbers: true,
-                            matchBrackets: true,
-//                            mode: "application/x-httpd-php",
-                            indentUnit: 4,
-                            indentWithTabs: true,
-                            enterMode: "keep",
-                            tabMode: "shift"
-                        });
+                    loaded_script_counter++;
+                    if(loaded_script_counter == included_scripts_cnt) { // if all scripts had been loaded successfully do the binding
+                        window.wb3.initHighlighter(zone_id, mime);
                     }
                 }
             }
         }
+        if(included_scripts_cnt == 0) { // if the scripts are already loaded
+            this.initHighlighter(zone_id, mime);
+        }
+    },
+    initHighlighter: function(zone_id, mime) {
+        var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
+            lineNumbers: true,
+            matchBrackets: true,
+            mode: mime,
+            indentUnit: 4,
+            indentWithTabs: true,
+            enterMode: "keep",
+            tabMode: "shift"
+        });
+        editor.zone_id = zone_id;
+        editor.on('change', function(instance, changeObj) {
+            console.log(changeObj); // changed object
+        });
+        editor.on('cursorActivity', function(instance) {
+            console.log(instance.getSelection()); // returns selected string
+            console.log(instance.getSelection()); // cursor movement
+        })
+        editor.on('viewportChange', function(instance) {
+            console.log('Viewport change'+instance);
+        })
+        /**
+         * @TODO
+         * emit editor changes
+         */
+        this.editors_list[zone_id] = editor;
     }
 }
