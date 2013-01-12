@@ -22,17 +22,20 @@ window.wb3 = {
             window.wb3.createTab(unique_id, tab_name);
         });
     },
-    bindDeleteTabEvent:function() {
-        jQuery('.delete_programming_sheet').unbind('click'); // unbind click from these elements to avoid multiplication of events
-        jQuery('.delete_programming_sheet').click(function(){
-            var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
-            jQuery(this).parent().parent().remove(); // delete the tab
+    bindDeleteTabEvent:function(sheet_id, caller) {
+        if(caller == 'socket') {
+            jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
             jQuery('#board_item_'+sheet_id).remove();
-        /**
-             * @TODO
-             * emit deletion
-             */
-        });
+        } else {
+            jQuery('.delete_programming_sheet').unbind('click'); // unbind click from these elements to avoid multiplication of events
+            jQuery('.delete_programming_sheet').click(function(){
+                var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
+                jQuery(this).parent().parent().remove(); // delete the tab
+                jQuery('#board_item_'+sheet_id).remove();
+
+                window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+            });
+        }
     },
     // switch tabs when clicked
     bindTabSwitcher: function() {
@@ -49,7 +52,7 @@ window.wb3 = {
             jQuery('#board_item_'+sheet_id).show();
         });
     },
-    createTab: function(unique_id, tab_name) {
+    createTab: function(unique_id, tab_name, caller) {
         // create tab
         jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
@@ -61,6 +64,9 @@ window.wb3 = {
             // loadior here
             },
             success: function(data) {
+                if(caller === undefined) { // if caller!='socket' send socket
+                    window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id});
+                }
                 // setting zone id, i.e board id, so we could know where are we working
                 data = data.replace(/%zone_id%/g, unique_id);
                 jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
@@ -71,25 +77,28 @@ window.wb3 = {
                 });
                 jQuery('.wb3_board_item').hide(); // hide all wb3 boards
                 jQuery('#board_item_'+unique_id).show(); // showing created board
+                
                 window.wb3.bindDeleteTabEvent();
                 window.wb3.bindTabSwitcher();
                 window.wb3.bindLanguageSwitcher();
             }
         });
         
-    /**
-         * @TODO
-         * emit tab creation
-         */
     },
-    bindLanguageSwitcher: function() {
-        jQuery('.set_language_button').unbind('click'); // unbind click events to avoid event multiplication
-        jQuery('.set_language_button').click(function() {
-            var zone_id = jQuery(this).attr('data-zone-id'); // get zone id
-            var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
-            var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
+    bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
+        if(caller === 'socket') { // if caller!='socket' send socket
             window.wb3.createHighlighter(chosen_language, mime, zone_id);
-        });
+        } else {
+            jQuery('.set_language_button').unbind('click'); // unbind click events to avoid event multiplication
+            jQuery('.set_language_button').click(function() {
+                var zone_id = jQuery(this).attr('data-zone-id'); // get zone id
+                var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
+                var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
+
+                window.wb3.createHighlighter(chosen_language, mime, zone_id);
+                window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
+            });
+        }
     },
     bindCodeExecutor: function(zone_id) {
         jQuery('#execute_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
@@ -135,9 +144,12 @@ window.wb3 = {
         });
     },
     // some languages does not have execution part, this function handles all of them
-    handleCodeExecutionFrame: function(zone_id) {
+    handleCodeExecutionFrame: function(zone_id, chosen_language) {
         var executed_languages = ['css', 'javascript', 'mysql', 'php', 'html']; // list of languages that are currently available for execution
-        var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
+        if(chosen_language === undefined) {
+            chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
+        }
+        jQuery('#programming_language_'+zone_id).val(chosen_language); // set selected language in selectbox
         if(executed_languages.indexOf(chosen_language) != -1) { // the chosen language is in available list
             // bind button events
             jQuery('#result_frame_'+zone_id).show();
@@ -174,16 +186,17 @@ window.wb3 = {
                 script.onload = function() {
                     loaded_script_counter++;
                     if(loaded_script_counter == included_scripts_cnt) { // if all scripts had been loaded successfully do the binding
-                        window.wb3.initHighlighter(zone_id, mime);
+                        window.wb3.initHighlighter(zone_id, mime, chosen_language);
                     }
                 }
             }
         }
         if(included_scripts_cnt == 0) { // if the scripts are already loaded
-            this.initHighlighter(zone_id, mime);
+            this.initHighlighter(zone_id, mime, chosen_language);
         }
     },
-    initHighlighter: function(zone_id, mime) {
+    initHighlighter: function(zone_id, mime, chosen_language) {
+        jQuery('#resizable_'+zone_id+' div[class="CodeMirror cm-s-default"]').remove(); // delete previous codemirror divs before creating new one
         var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
             lineNumbers: true,
             matchBrackets: true,
@@ -210,6 +223,6 @@ window.wb3 = {
          */
         this.editors_list[zone_id] = editor;
         // manage code execution part
-        this.handleCodeExecutionFrame(zone_id);
+        this.handleCodeExecutionFrame(zone_id, chosen_language);
     }
 }
