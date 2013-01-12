@@ -19,6 +19,7 @@
         <script>
             var token = '{{ token }}';
             jQuery(document).ready(function(){
+                window.socket_object.init();
                 window.learn_draw.init();
                 window.board_manager.init();
             })
