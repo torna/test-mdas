@@ -8,9 +8,12 @@ window.board_manager = {
             window.board_manager.addBoard(jQuery('#board_types').val());
         });
     },
-    addBoard: function(board_type) {
+    // called indicates if this method is called by socket or not
+    addBoard: function(board_type, board_name, caller) {
         if(jQuery('#board_'+board_type).length == 0) { // if board of this type does not exist
-            var board_name = jQuery('#board_types option[value='+board_type+']').text();
+            if(board_name === undefined) {
+                var board_name = jQuery('#board_types option[value='+board_type+']').text();
+            }
             
             jQuery.ajax({
                 url: "ajax",
@@ -26,26 +29,24 @@ window.board_manager = {
                     jQuery('#boards').append(data);
                 }
             });
-            jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" data-boardtype="'+board_type+'">'+board_name+'<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup></div>'); // append to tabs
-            window.board_manager.bindBoardEvents(board_type);
-            /**
-             * @TODO
-             * socket emit
-             * save to localStorage
-             */
+            var board_close = '';
+            if(caller === undefined) { // if the board was created via socket, there should be no possibility to delete it (for the student)
+                board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
+            }
+            jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
+            window.board_manager.bindBoardEvents(board_type, caller);
+            window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
         }
     },
-    deleteBoard: function(board_type) {
-        /**
-         * @TODO
-         * socket emit
-         * save to localStorage
-         */
+    deleteBoard: function(board_type, caller) {
+        if(caller === undefined) { // if caller!='socket' send socket
+            window.socket_object.emit('wb3_board_delete', {board_type: board_type});
+        }
         jQuery('#tab_'+board_type).remove(); // deleting board tab
         jQuery('#board_'+board_type).remove(); // deleting board containter
     },
     // when a new board is added bind events
-    bindBoardEvents: function(board_type) {
+    bindBoardEvents: function(board_type, caller) {
         // general events
         // tab swither
         jQuery('#boards_tabs div').click(function() {
@@ -57,8 +58,10 @@ window.board_manager = {
         });
         if(board_type == 'programming') {
             window.wb3.init();
-            // create programming tab
-            window.wb3.createTab('1', 'New file');
+            if(caller === undefined) { // if caller=='socket' the we do not create the default tab
+                // create programming tab
+                window.wb3.createTab('1', 'New file');
+            }
         }
     }
 }
