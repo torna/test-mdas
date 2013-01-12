@@ -16,6 +16,28 @@ window.socket_object = {
         this.socket_data.on('board_redraw', function(data){
             window.client_drawer.reDrawBoard(data);
         });
+        
+        /******** PROGRAMMING *********/
+        // on board create
+        this.socket_data.on('board_create', function(data){
+            window.board_manager.addBoard(data.board_type, data.board_name, 'socket');
+        });
+        // on board delete
+        this.socket_data.on('wb3_board_delete', function(data){
+            window.board_manager.deleteBoard(data.board_type, 'socket');
+        });
+        // on tab create
+        this.socket_data.on('wb3_tab_create', function(data){
+            window.wb3.createTab(data.unique_id, data.tab_name, 'socket');
+        });
+        // on tab delete
+        this.socket_data.on('wb3_tab_delete', function(data){
+            window.wb3.bindDeleteTabEvent(data.sheet_id, 'socket');
+        });
+        // on language set
+        this.socket_data.on('wb3_set_language', function(data){
+            window.wb3.bindLanguageSwitcher(data.chosen_language, data.mime, data.zone_id, 'socket');
+        });
     },
     emit: function(ident, object) {
         this.socket_data.emit(ident, object);
