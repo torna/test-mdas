@@ -39,12 +39,6 @@ class CommonLib {
         
         return $formatted_data;
     }
-    
-    public static function createTeacherFolder($folder_name) {
-        $status = mkdir(self::$project_path.$folder_name, 777);
-        return $status;
-    }
-
     protected static function getTiming($schedule_item) {
         $start_time = $schedule_item['start_hour'];
         $end_time = $schedule_item['end_hour'];
@@ -58,6 +52,18 @@ class CommonLib {
         $end_minute = $explode[1];
 
         return array('start_hour' => $start_hour, 'start_minute' => $start_minute, 'end_hour' => $end_hour, 'end_minute' => $end_minute);
+    }
+    
+    public static function createTeacherFolder($folder_name) {
+        $status = mkdir(self::$project_path.$folder_name, 777);
+        return $status;
+    }
+    
+    public static function createFileForExecution($folder_name, $file_name, $file_content) {
+        $fp = fopen(self::$project_path.$folder_name.'/'.$file_name, 'w');
+        fwrite($fp);
+        fclose($fp);
+        return file_exists(self::$project_path.$folder_name.'/'.$file_name);
     }
 
 }
