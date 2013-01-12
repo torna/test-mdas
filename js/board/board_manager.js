@@ -34,7 +34,6 @@ window.board_manager = {
              * save to localStorage
              */
         }
-        jQuery('#board_name').val(''); // empty the board name
     },
     deleteBoard: function(board_type) {
         /**
@@ -57,9 +56,9 @@ window.board_manager = {
             jQuery('#board_'+board).show();
         });
         if(board_type == 'programming') {
-            window.wp3.init();
+            window.wb3.init();
             // create programming tab
-            window.wp3.createTab('1', 'New file');
+            window.wb3.createTab('1', 'New file');
         }
     }
 }

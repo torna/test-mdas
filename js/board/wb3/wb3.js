@@ -1,5 +1,6 @@
 window.wb3 = {
-    editors_list: [],
+    editors_list: [], // list of codemirror objects 
+    board_name: 'programming',
     init: function() {
         // bind elements events
         this.bindEvents();
@@ -50,7 +51,7 @@ window.wb3 = {
     },
     createTab: function(unique_id, tab_name) {
         // create tab
-        jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'">'+tab_name+' <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
+        jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
         jQuery.ajax({
             url: "ajax",
@@ -83,12 +84,68 @@ window.wb3 = {
     },
     bindLanguageSwitcher: function() {
         jQuery('.set_language_button').unbind('click'); // unbind click events to avoid event multiplication
-        jQuery('.set_language_button').click(function(){
+        jQuery('.set_language_button').click(function() {
             var zone_id = jQuery(this).attr('data-zone-id'); // get zone id
             var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
             var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
             window.wb3.createHighlighter(chosen_language, mime, zone_id);
         });
+    },
+    bindCodeExecutor: function(zone_id) {
+        jQuery('#execute_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
+        jQuery('#execute_code_button_'+zone_id).click(function() {
+            window.wb3.sendFileToExecution(zone_id);
+        });
+    },
+    sendFileToExecution: function(zone_id) {
+        var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
+        var file_content = this.editors_list[zone_id].getValue();
+        var namespace = jQuery('#board_'+this.board_name+'_namespace').val();
+        if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
+            file_name = window.prompt('Please give a file name and extension. The file should not contain spaces. Ex: index.html OR product.php');
+            if(file_name === null) { // cancel pressed
+                return false;
+            }
+            if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
+                this.sendFileToExecution(zone_id); // while filename is invalid call itself recursevly
+                return false;
+            }
+        }
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=save_file_for_execution&file_name="+file_name+'&namespace='+namespace+'&file_content='+file_content,
+            type: "get",
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function(data) {
+                var json = JSON.parse(data);
+                if(json.status == 'ok') {
+                    jQuery('#file_name_'+zone_id).html(file_name); // setting tab filename
+                    // refresh iframe
+                    jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+json.file_path);
+                    /**
+                     * @TODO
+                     * emit file name
+                     **/
+                } else {
+                    alert('An error had accured.');
+                }
+            }
+        });
+    },
+    // some languages does not have execution part, this function handles all of them
+    handleCodeExecutionFrame: function(zone_id) {
+        var executed_languages = ['css', 'javascript', 'mysql', 'php', 'html']; // list of languages that are currently available for execution
+        var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
+        if(executed_languages.indexOf(chosen_language) != -1) { // the chosen language is in available list
+            // bind button events
+            jQuery('#result_frame_'+zone_id).show();
+            this.bindCodeExecutor(zone_id);
+        } else {
+            // hidding frame
+            jQuery('#result_frame_'+zone_id).hide();
+        }
     },
     createHighlighter: function(chosen_language, mime, zone_id) {
         var javascripts = new Array();
@@ -152,5 +209,7 @@ window.wb3 = {
          * emit editor changes
          */
         this.editors_list[zone_id] = editor;
+        // manage code execution part
+        this.handleCodeExecutionFrame(zone_id);
     }
 }
