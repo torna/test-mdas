@@ -35,6 +35,10 @@ window.board_manager = {
                 board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
             }
             jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
+            jQuery('.show_files_button').unbind('click');
+            jQuery('.show_files_button').click(function() {
+                jQuery('.treeview_frame').toggle();
+            })
             window.board_manager.bindBoardEvents(board_type, caller);
             window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
         }
