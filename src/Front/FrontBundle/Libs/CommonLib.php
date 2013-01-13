@@ -74,5 +74,10 @@ class CommonLib {
         unset($file_list[0], $file_list[1]);
         return $file_list;
     }
+    
+    public static function getFileContent($folder_name, $file_name) {
+        $file_content = file_get_contents(self::$project_path.$folder_name.'/'.$file_name);
+        return $file_content;
+    }
 
 }
