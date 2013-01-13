@@ -5,7 +5,6 @@ namespace Front\FrontBundle\Libs;
 class CommonLib {
 
     protected static $project_path = '/var/www/learn/learn_files/';
-    protected static $folder_path = 'learn_files/';
     
     public static function formatDataForSchedule($schedule_data) {
         $formatted_data = array();
@@ -65,6 +64,15 @@ class CommonLib {
         fwrite($fp, $file_content);
         fclose($fp);
         return file_exists(self::$project_path.$folder_name.'/'.$file_name);
+    }
+    
+    /**
+     * gets file list from common folder name
+     */
+    public static function getFolderFileList($folder_name) {
+        $file_list = scandir(self::$project_path.$folder_name);
+        unset($file_list[0], $file_list[1]);
+        return $file_list;
     }
 
 }
