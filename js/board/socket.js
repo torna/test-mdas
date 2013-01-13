@@ -38,6 +38,14 @@ window.socket_object = {
         this.socket_data.on('wb3_set_language', function(data){
             window.wb3.bindLanguageSwitcher(data.chosen_language, data.mime, data.zone_id, 'socket');
         });
+        // on editor change
+        this.socket_data.on('wb3_editor_change', function(data){
+            window.wb3.applyHighlighterChange(data);
+        });
+        // on filename change
+        this.socket_data.on('wb3_file_name_change', function(data){
+            window.wb3.renameTab(data.zone_id, data.file_name);
+        });
     },
     emit: function(ident, object) {
         this.socket_data.emit(ident, object);
