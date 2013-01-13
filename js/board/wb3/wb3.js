@@ -1,6 +1,7 @@
 window.wb3 = {
     editors_list: [], // list of codemirror objects 
     board_name: 'programming',
+    is_changed_from_socket: false,
     init: function() {
         // bind elements events
         this.bindEvents();
@@ -50,6 +51,7 @@ window.wb3 = {
             jQuery('.wb3_board_item').hide();
             // showing contend of selected tab
             jQuery('#board_item_'+sheet_id).show();
+            window.wb3.editors_list[sheet_id].refresh();
         });
     },
     createTab: function(unique_id, tab_name, caller) {
@@ -70,11 +72,7 @@ window.wb3 = {
                 // setting zone id, i.e board id, so we could know where are we working
                 data = data.replace(/%zone_id%/g, unique_id);
                 jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
-                jQuery('#resizable_'+unique_id).resizable({
-                    resize: function(event, ui) { // resize only x
-                        ui.size.height = ui.originalSize.height;
-                    }
-                });
+                jQuery('#resizable_'+unique_id).resizable();
                 jQuery('.wb3_board_item').hide(); // hide all wb3 boards
                 jQuery('#board_item_'+unique_id).show(); // showing created board
                 
@@ -84,6 +82,9 @@ window.wb3 = {
             }
         });
         
+    },
+    renameTab: function(zone_id, tab_name) {
+        jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
     },
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
         if(caller === 'socket') { // if caller!='socket' send socket
@@ -130,13 +131,10 @@ window.wb3 = {
             success: function(data) {
                 var json = JSON.parse(data);
                 if(json.status == 'ok') {
-                    jQuery('#file_name_'+zone_id).html(file_name); // setting tab filename
+                    window.socket_object.emit('wb3_file_name_change', {zone_id: zone_id, file_name: file_name});
+                    window.wb3.renameTab(zone_id, file_name);
                     // refresh iframe
                     jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+json.file_path);
-                    /**
-                     * @TODO
-                     * emit file name
-                     **/
                 } else {
                     alert('An error had accured.');
                 }
@@ -208,21 +206,74 @@ window.wb3 = {
         });
         editor.zone_id = zone_id;
         editor.on('change', function(instance, changeObj) {
-            console.log(changeObj); // changed object
+//            console.log('Change-->'); // changed object
+//            console.log(changeObj); // changed object
+            if(window.wb3.is_changed_from_socket == false) {
+                var editor_socket_obj = {
+                    from: {ch: changeObj.from.ch, line: changeObj.from.line},
+                    to: {ch: changeObj.to.ch, line: changeObj.to.line},
+                    origin: changeObj.origin,
+                    text: changeObj.text,
+                    next: changeObj.next
+                };
+                window.socket_object.emit('wb3_editor_change', {zone_id: zone_id, change_obj: editor_socket_obj});
+                window.wb3.is_changed_from_socket = false;
+            }
         });
         editor.on('cursorActivity', function(instance) {
-            console.log(instance.getSelection()); // returns selected string
-            console.log(instance.getSelection()); // cursor movement
+//            console.log(instance.getSelection()); // returns selected string
+//            console.log(instance.getSelection()); // cursor movement
         })
         editor.on('viewportChange', function(instance) {
-            console.log('Viewport change'+instance);
+//            console.log('Viewport change'+instance);
         })
-        /**
-         * @TODO
-         * emit editor changes
-         */
+        
         this.editors_list[zone_id] = editor;
         // manage code execution part
         this.handleCodeExecutionFrame(zone_id, chosen_language);
+    },
+    applyHighlighterChange: function(data) {
+        var zone_id = data.zone_id;
+        console.log(data.change_obj);
+        var text = '';
+        for (var i = 0; i < data.change_obj.text.length; i++) {
+            this.is_changed_from_socket = true;
+            var from = data.change_obj.from;
+            var to = data.change_obj.to;
+            var origin = data.change_obj.origin;
+            if(data.change_obj.origin == 'delete' && text == '') {
+                
+            } else if(data.change_obj.origin == 'input') {
+                if(data.change_obj.text[i] == '') {
+                    text += "\n";
+                } else {
+                    text += data.change_obj.text[i];
+                }
+                if(data.change_obj.hasOwnProperty('next')) {
+                    text += data.change_obj.next.text[0];
+                    break;
+                }
+            } else if(data.change_obj.origin == 'paste') {
+                if(data.change_obj.text[i] == '') {
+                    text += "\n";
+                } else {
+                    text += data.change_obj.text[i]+"\n";
+                }
+            } else if(text == '') {
+                text = "\n";
+                if(data.change_obj.hasOwnProperty('next')) {
+                    text += data.change_obj.next.text[0];
+                }
+            }
+        }
+        
+        if(data.change_obj.origin != 'paste') {
+            text = text.replace(/([\r\n])+/gm,"\n");
+        }
+        
+        this.editors_list[zone_id].replaceRange(text, from, to, origin);
+        text = '';
+        this.is_changed_from_socket = false;
+        
     }
 }
