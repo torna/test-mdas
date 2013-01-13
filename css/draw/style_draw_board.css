@@ -31,3 +31,6 @@
 .wb3_add_blank_file{
     float: right;
 }
+.file_treeviewer li a {
+    font-size: 12px;
+}
