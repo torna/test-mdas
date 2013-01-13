@@ -50,20 +50,17 @@ Choose programming language:
 <table style="width:100%;" border="1">
     <tr>
         <td id="resizable_%zone_id%" class="code_frame" valign="top" style="width:50%">
-            <textarea id="highlighter_textarea_%zone_id%" data-zone-id="%zone_id%" style="display: none;"></textarea>
+            <textarea id="highlighter_textarea_%zone_id%" data-zone-id="%zone_id%" style="display: none;">{{ file_content }}</textarea>
         </td>
         <td class="result_frame" id="result_frame_%zone_id%" valign="top">
             <input type="button" id="execute_code_button_%zone_id%" data-zone-id="%zone_id%" value="Execute code">
+            <input type="button" class="iframe_back" data-zone-id="%zone_id%" value="<" style="display:none;">
+            <input type="button" class="iframe_forward" data-zone-id="%zone_id%" value=">" style="display:none;">
             <iframe src="" id="code_execution_iframe_%zone_id%" style="width: 100%; height:90%; border:1px solid red;"></iframe>
         </td>
-        <td class="treeview_frame" id="tree_frame_%zone_id%" valign="top" style="display:block;">
+        <td class="treeview_frame" id="tree_frame_%zone_id%" valign="top" style="display: none;">
             Course files:
-            <ul id="navigation_%zone_id%">
-                {% for item in file_list %}
-                    <li>
-                        <a href="javascript:;">{{ item }}</a>
-                    </li>
-                {% endfor %}
+            <ul class="file_treeviewer">
             </ul>
         </td>
     </tr>
