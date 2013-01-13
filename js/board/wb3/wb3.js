@@ -27,14 +27,15 @@ window.wb3 = {
         if(caller == 'socket') {
             jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
             jQuery('#board_item_'+sheet_id).remove();
+            delete window.wb3.editors_list[sheet_id]; // remove object from memory
         } else {
             jQuery('.delete_programming_sheet').unbind('click'); // unbind click from these elements to avoid multiplication of events
             jQuery('.delete_programming_sheet').click(function(){
                 var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
+                window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
                 jQuery(this).parent().parent().remove(); // delete the tab
                 jQuery('#board_item_'+sheet_id).remove();
-
-                window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+                delete window.wb3.editors_list[sheet_id]; // remove object from memory
             });
         }
     },
@@ -51,23 +52,28 @@ window.wb3 = {
             jQuery('.wb3_board_item').hide();
             // showing contend of selected tab
             jQuery('#board_item_'+sheet_id).show();
-            window.wb3.editors_list[sheet_id].refresh();
+            if(window.wb3.editors_list[sheet_id] !== undefined) {
+                window.wb3.editors_list[sheet_id].refresh();
+            }
         });
     },
-    createTab: function(unique_id, tab_name, caller) {
+    createTab: function(unique_id, tab_name, caller, file_name) {
+        if(jQuery('#file_name_'+unique_id).length > 0) {
+            return false;
+        }
         // create tab
         jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
         jQuery.ajax({
             url: "ajax",
-            data: "todo=get_wb3_generic",
+            data: "todo=get_wb3_generic&file_name="+file_name,
             type: "get",
             beforeSend: function() {
             // loadior here
             },
             success: function(data) {
                 if(caller === undefined) { // if caller!='socket' send socket
-                    window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id});
+                    window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
                 }
                 // setting zone id, i.e board id, so we could know where are we working
                 data = data.replace(/%zone_id%/g, unique_id);
@@ -79,12 +85,14 @@ window.wb3 = {
                 window.wb3.bindDeleteTabEvent();
                 window.wb3.bindTabSwitcher();
                 window.wb3.bindLanguageSwitcher();
+                window.wb3.bindTreeviewer();
             }
         });
         
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
+        this.bindTreeviewer();
     },
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
         if(caller === 'socket') { // if caller!='socket' send socket
@@ -100,6 +108,31 @@ window.wb3 = {
                 window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
             });
         }
+    },
+    // create file treeviewer
+    bindTreeviewer: function() {
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=get_tree_view_content",
+            type: "get",
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function(data) {
+                var json = JSON.parse(data);
+                var li_html = '';
+                for (var i = 0; i < json.length; i++) {
+                    li_html += '<li><a href="javascript:;">'+json[i]+'</a></li>';
+                }
+                jQuery(".file_treeviewer").html(li_html);
+                jQuery('.file_treeviewer').unbind('click'); // unbind click events to avoid event multiplication
+                jQuery('.file_treeviewer li a').click(function() {
+                    var file_name = jQuery(this).html();
+                    window.wb3.createTab(file_name.replace(/\./g, ''), file_name, undefined, file_name);
+                });
+                
+            }
+        });
     },
     bindCodeExecutor: function(zone_id) {
         jQuery('#execute_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
@@ -124,7 +157,7 @@ window.wb3 = {
         jQuery.ajax({
             url: "ajax",
             data: "todo=save_file_for_execution&file_name="+file_name+'&namespace='+namespace+'&file_content='+file_content,
-            type: "get",
+            type: "post",
             beforeSend: function() {
                 // loadior here
             },
@@ -152,10 +185,24 @@ window.wb3 = {
             // bind button events
             jQuery('#result_frame_'+zone_id).show();
             this.bindCodeExecutor(zone_id);
+            this.bindCodeExecutorNavigationButtons();
         } else {
             // hidding frame
             jQuery('#result_frame_'+zone_id).hide();
         }
+    },
+    // iframe navigation buttons
+    bindCodeExecutorNavigationButtons: function() {
+        jQuery('.iframe_back, .iframe_forward').unbind('click');
+        jQuery('.iframe_back').click(function() {
+            var zone_id = jQuery(this).attr('data-zone-id');
+            document.getElementById('code_execution_iframe_'+zone_id).contentWindow.history.go(-1);
+        });
+        
+        jQuery('.iframe_forward').click(function() {
+            var zone_id = jQuery(this).attr('data-zone-id');
+            document.getElementById('code_execution_iframe_'+zone_id).contentWindow.history.go(1);
+        });
     },
     createHighlighter: function(chosen_language, mime, zone_id) {
         var javascripts = new Array();
@@ -194,6 +241,12 @@ window.wb3 = {
         }
     },
     initHighlighter: function(zone_id, mime, chosen_language) {
+        // when switching language keep the content
+//        var current_editor_value = '';
+//        if(this.editors_list[zone_id] !== undefined) {
+//            current_editor_value = this.editors_list[zone_id].getValue();
+//            console.log('Current editor value:'+current_editor_value);
+//        }
         jQuery('#resizable_'+zone_id+' div[class="CodeMirror cm-s-default"]').remove(); // delete previous codemirror divs before creating new one
         var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
             lineNumbers: true,
@@ -206,7 +259,6 @@ window.wb3 = {
         });
         editor.zone_id = zone_id;
         editor.on('change', function(instance, changeObj) {
-//            console.log('Change-->'); // changed object
 //            console.log(changeObj); // changed object
             if(window.wb3.is_changed_from_socket == false) {
                 var editor_socket_obj = {
@@ -228,13 +280,20 @@ window.wb3 = {
 //            console.log('Viewport change'+instance);
         })
         
+//        if(current_editor_value) {
+//            console.log('setting editor value:'+current_editor_value);
+//            window.wb3.is_changed_from_socket = true;
+//            editor.setValue(current_editor_value); // set old content to the new editor
+//            window.wb3.is_changed_from_socket = false;
+//        }
+        
         this.editors_list[zone_id] = editor;
         // manage code execution part
         this.handleCodeExecutionFrame(zone_id, chosen_language);
     },
     applyHighlighterChange: function(data) {
         var zone_id = data.zone_id;
-        console.log(data.change_obj);
+//        console.log(data.change_obj);
         var text = '';
         for (var i = 0; i < data.change_obj.text.length; i++) {
             this.is_changed_from_socket = true;
@@ -243,6 +302,15 @@ window.wb3 = {
             var origin = data.change_obj.origin;
             if(data.change_obj.origin == 'delete' && text == '') {
                 
+            } else if(data.change_obj.origin == 'undo') {
+                if(data.change_obj.text[i] == '') {
+                    text += "\n";
+                } else {
+                    text += data.change_obj.text[i];
+                }
+                if(data.change_obj.text.length > 1 && i<data.change_obj.text.length-1) { // the there are multiple lines add \n but not to last line
+                    text += "\n";
+                }
             } else if(data.change_obj.origin == 'input') {
                 if(data.change_obj.text[i] == '') {
                     text += "\n";
@@ -257,7 +325,10 @@ window.wb3 = {
                 if(data.change_obj.text[i] == '') {
                     text += "\n";
                 } else {
-                    text += data.change_obj.text[i]+"\n";
+                    text += data.change_obj.text[i];
+                    if(data.change_obj.text.length > 1) {
+                        text += "\n";
+                    }
                 }
             } else if(text == '') {
                 text = "\n";
