@@ -28,7 +28,7 @@ window.socket_object = {
         });
         // on tab create
         this.socket_data.on('wb3_tab_create', function(data){
-            window.wb3.createTab(data.unique_id, data.tab_name, 'socket');
+            window.wb3.createTab(data.unique_id, data.tab_name, 'socket', data.file_name);
         });
         // on tab delete
         this.socket_data.on('wb3_tab_delete', function(data){
