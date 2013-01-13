@@ -7,6 +7,10 @@ window.socket_object = {
         this.socket_data.emit('credentials',{
             'hash': token
         });
+        // when not authorized
+        this.socket_data.on('reconnect', function(){
+            window.location = window.location.href;
+        });
         // drawing board objects
         this.socket_data.on('draw', function(data){
             window.client_drawer.doDrawing(data);
