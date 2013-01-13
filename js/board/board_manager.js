@@ -20,6 +20,7 @@ window.board_manager = {
                 data: "todo=get_board&board="+board_type,
                 type: "get",
                 async: false,
+                cache: false,
                 beforeSend: function() {
                     jQuery('#add_board').after(' <span id="loading_span">Loading...</span>');
                 },
