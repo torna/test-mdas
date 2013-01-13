@@ -26,7 +26,12 @@ class AjaxController extends Controller {
                 break;
             case 'get_wb3_generic':
                 if (Auth::isAuth()) {
-                    return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig');
+                    $file_content = '';
+                    $file_name = $request->get('file_name');
+                    if($file_name != 'undefined' && $file_name) {
+                        $file_content = \Front\FrontBundle\Libs\CommonLib::getFileContent(Auth::getAuthParam('course_working_folder'), $file_name);
+                    }
+                    return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig', array('file_content' => $file_content));
                 }
                 break;
             case 'save_file_for_execution':
@@ -48,6 +53,11 @@ class AjaxController extends Controller {
                     }
                     die(json_encode($status_arr));
                 }
+                break;
+            case 'get_tree_view_content':
+                // getting file list from common folder
+                $file_list = \Front\FrontBundle\Libs\CommonLib::getFolderFileList(Auth::getAuthParam('course_working_folder'));
+                die(json_encode(array_values($file_list)));
                 break;
         }
     }
