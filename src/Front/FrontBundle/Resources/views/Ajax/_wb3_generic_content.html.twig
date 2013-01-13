@@ -56,5 +56,15 @@ Choose programming language:
             <input type="button" id="execute_code_button_%zone_id%" data-zone-id="%zone_id%" value="Execute code">
             <iframe src="" id="code_execution_iframe_%zone_id%" style="width: 100%; height:90%; border:1px solid red;"></iframe>
         </td>
+        <td class="treeview_frame" id="tree_frame_%zone_id%" valign="top" style="display:block;">
+            Course files:
+            <ul id="navigation_%zone_id%">
+                {% for item in file_list %}
+                    <li>
+                        <a href="javascript:;">{{ item }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </td>
     </tr>
 </table>
