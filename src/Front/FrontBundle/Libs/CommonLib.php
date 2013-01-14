@@ -79,5 +79,10 @@ class CommonLib {
         $file_content = file_get_contents(self::$project_path.$folder_name.'/'.$file_name);
         return $file_content;
     }
+    
+    public static function deleteFile($folder_name, $file_name) {
+        $status = unlink(self::$project_path.$folder_name.'/'.$file_name);
+        return $status;
+    }
 
 }
