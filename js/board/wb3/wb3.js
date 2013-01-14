@@ -32,12 +32,15 @@ window.wb3 = {
             jQuery('.delete_programming_sheet').unbind('click'); // unbind click from these elements to avoid multiplication of events
             jQuery('.delete_programming_sheet').click(function(){
                 var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
-                window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
-                jQuery(this).parent().parent().remove(); // delete the tab
-                jQuery('#board_item_'+sheet_id).remove();
-                delete window.wb3.editors_list[sheet_id]; // remove object from memory
+                window.wb3.deleteTab(sheet_id);
             });
         }
+    },
+    deleteTab: function(sheet_id) {
+        window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+        jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
+        jQuery('#board_item_'+sheet_id).remove();
+        delete window.wb3.editors_list[sheet_id]; // remove object from memory
     },
     // switch tabs when clicked
     bindTabSwitcher: function() {
@@ -122,15 +125,34 @@ window.wb3 = {
                 var json = JSON.parse(data);
                 var li_html = '';
                 for (var i = 0; i < json.length; i++) {
-                    li_html += '<li><a href="javascript:;">'+json[i]+'</a></li>';
+                    li_html += '<li><a href="javascript:;" class="edit_file">'+json[i]+'</a> - <a href="javascript:;" class="delete_file" data-file-name="'+json[i]+'">Delete</a></li>';
                 }
                 jQuery(".file_treeviewer").html(li_html);
-                jQuery('.file_treeviewer').unbind('click'); // unbind click events to avoid event multiplication
-                jQuery('.file_treeviewer li a').click(function() {
+                jQuery('.file_treeviewer li a.edit_file, .file_treeviewer li a.delete_file').unbind('click'); // unbind click events to avoid event multiplication
+                jQuery('.file_treeviewer li a.edit_file').click(function() {
                     var file_name = jQuery(this).html();
                     window.wb3.createTab(file_name.replace(/\./g, ''), file_name, undefined, file_name);
                 });
+                jQuery('.file_treeviewer li a.delete_file').click(function() {
+                    var file_name = jQuery(this).attr('data-file-name');
+                    window.wb3.deleteFile(file_name);
+                });
                 
+            }
+        });
+    },
+    deleteFile: function(file_name) {
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=delete_file&file_name="+file_name,
+            type: "get",
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function() {
+                window.socket_object.emit('wb3_refresh_treeviewer');
+                window.wb3.deleteTab(file_name.replace(/\./g, ''));
+                window.wb3.bindTreeviewer();
             }
         });
     },
@@ -176,7 +198,7 @@ window.wb3 = {
     },
     // some languages does not have execution part, this function handles all of them
     handleCodeExecutionFrame: function(zone_id, chosen_language) {
-        var executed_languages = ['css', 'javascript', 'mysql', 'php', 'html']; // list of languages that are currently available for execution
+        var executed_languages = ['css', 'javascript', 'mysql', 'php', 'html', 'htmlmixed']; // list of languages that are currently available for execution
         if(chosen_language === undefined) {
             chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
         }
