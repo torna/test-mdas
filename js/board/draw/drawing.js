@@ -141,7 +141,9 @@ window.learn_draw = {
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
                 var cx = jQuery('#el_' + element_id).attr('cx');
-                var radius_final = Math.abs(real_x - cx.animVal.value);
+//                console.log(cx);
+//                var radius_final = Math.abs(real_x - cx.animVal.value);
+                var radius_final = Math.abs(real_x - cx);
                 var circle = document.getElementById('el_'+element_id);
                 circle.setAttributeNS(null, 'r', radius_final);
                 
@@ -179,8 +181,10 @@ window.learn_draw = {
             window.learn_draw.realtime_emit.id = 'el_'+element_id;
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
-                var x = jQuery('#el_' + element_id).attr('x').animVal.value;
-                var y = jQuery('#el_' + element_id).attr('y').animVal.value;
+                var x = jQuery('#el_' + element_id).attr('x');
+                var y = jQuery('#el_' + element_id).attr('y');
+//                var x = jQuery('#el_' + element_id).attr('x').animVal.value;
+//                var y = jQuery('#el_' + element_id).attr('y').animVal.value;
                 
                 var rect = document.getElementById('el_'+element_id);
                 
