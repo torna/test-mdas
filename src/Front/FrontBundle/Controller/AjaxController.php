@@ -59,6 +59,16 @@ class AjaxController extends Controller {
                 $file_list = \Front\FrontBundle\Libs\CommonLib::getFolderFileList(Auth::getAuthParam('course_working_folder'));
                 die(json_encode(array_values($file_list)));
                 break;
+            case 'delete_file':
+                // removing file
+                $file_name = $request->get('file_name');
+                $status = \Front\FrontBundle\Libs\CommonLib::deleteFile(Auth::getAuthParam('course_working_folder'), $file_name);
+                /**
+                 * @todo
+                 * log status error
+                 */
+                die;
+                break;
         }
     }
 
