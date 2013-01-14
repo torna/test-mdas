@@ -1,5 +1,6 @@
 window.socket_object = {
 //    socket_url: 'http://93.116.229.42:8000', // url to socket server
+//    socket_url: ' http://192.168.1.141:8000', // url to socket server
     socket_url: 'http://localhost:8000', // url to socket server
     socket_data: null, // socket object
     init: function() {
@@ -49,6 +50,10 @@ window.socket_object = {
         // on filename change
         this.socket_data.on('wb3_file_name_change', function(data){
             window.wb3.renameTab(data.zone_id, data.file_name);
+        });
+        // on treeview change
+        this.socket_data.on('wb3_refresh_treeviewer', function(data){
+            window.wb3.bindTreeviewer();
         });
     },
     emit: function(ident, object) {
