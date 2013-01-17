@@ -1,4 +1,5 @@
 window.board_manager = {
+    is_refresh: true, // is true by default, when the user is synchronized it will be set to false
     init: function() {
         // binds events
         this.bindEvents();
@@ -31,16 +32,18 @@ window.board_manager = {
                 }
             });
             var board_close = '';
-            if(caller === undefined) { // if the board was created via socket, there should be no possibility to delete it (for the student)
+//            if(caller === undefined) { // if the board was created via socket, there should be no possibility to delete it (for the student)
                 board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
-            }
+//            }
             jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
             jQuery('.show_files_button').unbind('click');
             jQuery('.show_files_button').click(function() {
                 jQuery('.treeview_frame').toggle();
             })
+            if(caller === undefined) {
+                window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
+            }
             window.board_manager.bindBoardEvents(board_type, caller);
-            window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
         }
     },
     deleteBoard: function(board_type, caller) {
