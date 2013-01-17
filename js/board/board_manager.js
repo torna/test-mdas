@@ -1,5 +1,6 @@
 window.board_manager = {
     is_refresh: true, // is true by default, when the user is synchronized it will be set to false
+    current_boards: [], // list of current created boards
     init: function() {
         // binds events
         this.bindEvents();
@@ -15,6 +16,8 @@ window.board_manager = {
             if(board_name === undefined) {
                 var board_name = jQuery('#board_types option[value='+board_type+']').text();
             }
+            
+            this.current_boards.push(board_type);
             
             jQuery.ajax({
                 url: "ajax",
@@ -68,8 +71,34 @@ window.board_manager = {
             window.wb3.init();
             if(caller === undefined) { // if caller=='socket' the we do not create the default tab
                 // create programming tab
-                window.wb3.createTab('1', 'New file');
+                window.wb3.createTab('wb3_1', 'New file');
             }
         }
+    },
+    // gets content of all boards
+    getBoardsFullData: function() {
+        var boards_data = new Object();
+        for (var i = 0; i < this.current_boards.length; i++) {
+            switch(this.current_boards[i]) {
+                case 'programming':
+                    boards_data.programming = window.wb3.getAllContents();
+                    break;
+                case 'languages':
+//                    boards_data.languages = window.wb3.getAllContents();
+                    break;
+            }
+        }
+        console.log('sending data to FRIENDS');
+        return boards_data;
+    },
+    setBoardsContent: function(data) {
+        console.log('Boards loaded from FRIEND');
+        // programming board
+        if(data.current_content.hasOwnProperty('programming')) {
+            this.addBoard('programming', 'Programming', 'history');
+            window.wb3.createBoardFromHistory(data.current_content.programming);
+        }
+        // add more boards here
+        this.is_refresh = false;
     }
 }
