@@ -2,6 +2,7 @@ window.wb3 = {
     editors_list: [], // list of codemirror objects 
     board_name: 'programming',
     is_changed_from_socket: false,
+    refresh_history: [], // holds the history when the page is refreshed
     init: function() {
         // bind elements events
         this.bindEvents();
@@ -25,9 +26,7 @@ window.wb3 = {
     },
     bindDeleteTabEvent:function(sheet_id, caller) {
         if(caller == 'socket') {
-            jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
-            jQuery('#board_item_'+sheet_id).remove();
-            delete window.wb3.editors_list[sheet_id]; // remove object from memory
+            this.deleteTab(sheet_id, caller);
         } else {
             jQuery('.delete_programming_sheet').unbind('click'); // unbind click from these elements to avoid multiplication of events
             jQuery('.delete_programming_sheet').click(function(){
@@ -36,8 +35,10 @@ window.wb3 = {
             });
         }
     },
-    deleteTab: function(sheet_id) {
-        window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+    deleteTab: function(sheet_id, caller) {
+        if(caller === undefined) {
+            window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+        }
         jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
         jQuery('#board_item_'+sheet_id).remove();
         delete window.wb3.editors_list[sheet_id]; // remove object from memory
@@ -71,6 +72,7 @@ window.wb3 = {
             url: "ajax",
             data: "todo=get_wb3_generic&file_name="+file_name,
             type: "get",
+            async: false,
             beforeSend: function() {
             // loadior here
             },
@@ -84,11 +86,12 @@ window.wb3 = {
                 jQuery('#resizable_'+unique_id).resizable();
                 jQuery('.wb3_board_item').hide(); // hide all wb3 boards
                 jQuery('#board_item_'+unique_id).show(); // showing created board
-                
+                console.log('loaded');
                 window.wb3.bindDeleteTabEvent();
                 window.wb3.bindTabSwitcher();
                 window.wb3.bindLanguageSwitcher();
                 window.wb3.bindTreeviewer();
+                console.log('all binded');
             }
         });
         
@@ -98,8 +101,8 @@ window.wb3 = {
         this.bindTreeviewer();
     },
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
-        if(caller === 'socket') { // if caller!='socket' send socket
-            window.wb3.createHighlighter(chosen_language, mime, zone_id);
+        if(caller === 'socket' || caller === 'history') { // if caller!='socket' send socket
+            window.wb3.createHighlighter(chosen_language, mime, zone_id, caller);
         } else {
             jQuery('.set_language_button').unbind('click'); // unbind click events to avoid event multiplication
             jQuery('.set_language_button').click(function() {
@@ -108,7 +111,9 @@ window.wb3 = {
                 var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
 
                 window.wb3.createHighlighter(chosen_language, mime, zone_id);
-                window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
+                if(caller === undefined) {
+                    window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
+                }
             });
         }
     },
@@ -165,6 +170,7 @@ window.wb3 = {
     sendFileToExecution: function(zone_id) {
         var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
         var file_content = this.editors_list[zone_id].getValue();
+        
         var namespace = jQuery('#board_'+this.board_name+'_namespace').val();
         if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
             file_name = window.prompt('Please give a file name and extension. The file should not contain spaces. Ex: index.html OR product.php');
@@ -178,7 +184,7 @@ window.wb3 = {
         }
         jQuery.ajax({
             url: "ajax",
-            data: "todo=save_file_for_execution&file_name="+file_name+'&namespace='+namespace+'&file_content='+file_content,
+            data: "todo=save_file_for_execution&file_name="+file_name+'&namespace='+namespace+'&file_content='+encodeURIComponent(file_content),
             type: "post",
             beforeSend: function() {
                 // loadior here
@@ -198,6 +204,7 @@ window.wb3 = {
     },
     // some languages does not have execution part, this function handles all of them
     handleCodeExecutionFrame: function(zone_id, chosen_language) {
+        console.log('handleCodeExecutionFrame');
         var executed_languages = ['css', 'javascript', 'mysql', 'php', 'html', 'htmlmixed']; // list of languages that are currently available for execution
         if(chosen_language === undefined) {
             chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
@@ -226,7 +233,7 @@ window.wb3 = {
             document.getElementById('code_execution_iframe_'+zone_id).contentWindow.history.go(1);
         });
     },
-    createHighlighter: function(chosen_language, mime, zone_id) {
+    createHighlighter: function(chosen_language, mime, zone_id, caller) {
         var javascripts = new Array();
         if(chosen_language != 'c' && chosen_language != 'cplus' && chosen_language != 'java') {
             javascripts.push('../js/highlighter/mode/'+chosen_language+'/'+chosen_language+'.js');
@@ -253,22 +260,23 @@ window.wb3 = {
                 script.onload = function() {
                     loaded_script_counter++;
                     if(loaded_script_counter == included_scripts_cnt) { // if all scripts had been loaded successfully do the binding
-                        window.wb3.initHighlighter(zone_id, mime, chosen_language);
+                        window.wb3.initHighlighter(zone_id, mime, chosen_language, caller);
                     }
                 }
             }
         }
         if(included_scripts_cnt == 0) { // if the scripts are already loaded
-            this.initHighlighter(zone_id, mime, chosen_language);
+            this.initHighlighter(zone_id, mime, chosen_language, caller);
         }
     },
-    initHighlighter: function(zone_id, mime, chosen_language) {
+    initHighlighter: function(zone_id, mime, chosen_language, caller) {
         // when switching language keep the content
 //        var current_editor_value = '';
 //        if(this.editors_list[zone_id] !== undefined) {
 //            current_editor_value = this.editors_list[zone_id].getValue();
 //            console.log('Current editor value:'+current_editor_value);
 //        }
+//        console.log('Zone id: '+zone_id);
         jQuery('#resizable_'+zone_id+' div[class="CodeMirror cm-s-default"]').remove(); // delete previous codemirror divs before creating new one
         var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
             lineNumbers: true,
@@ -277,7 +285,9 @@ window.wb3 = {
             indentUnit: 4,
             indentWithTabs: true,
             enterMode: "keep",
-            tabMode: "shift"
+            tabMode: "shift",
+            smartIndent: false,
+            dragDrop: false
         });
         editor.zone_id = zone_id;
         editor.on('change', function(instance, changeObj) {
@@ -288,8 +298,12 @@ window.wb3 = {
                     to: {ch: changeObj.to.ch, line: changeObj.to.line},
                     origin: changeObj.origin,
                     text: changeObj.text,
-                    next: changeObj.next
+                    next: changeObj.next,
+                    cnt_text: changeObj.text.length
                 };
+                if(changeObj.origin == 'paste' && changeObj.text[changeObj.text.length-1] == '') {
+                    changeObj.text.pop();
+                }
                 window.socket_object.emit('wb3_editor_change', {zone_id: zone_id, change_obj: editor_socket_obj});
                 window.wb3.is_changed_from_socket = false;
             }
@@ -308,14 +322,32 @@ window.wb3 = {
 //            editor.setValue(current_editor_value); // set old content to the new editor
 //            window.wb3.is_changed_from_socket = false;
 //        }
-        
+
         this.editors_list[zone_id] = editor;
+        // if there are keystrokes in memory apply them
+        this.setHistoryKeystrokes(zone_id);
         // manage code execution part
         this.handleCodeExecutionFrame(zone_id, chosen_language);
+//        console.log('highlighter initialized');
+    },
+    // used when data comes from history, is triggered when the zone_id highlighter is initialized
+    setHistoryKeystrokes: function(zone_id) {
+        var cnt = this.refresh_history.length;
+        var main_data = new Array();
+        for (var i = 0; i < cnt; i++) {
+            if(this.refresh_history[i] !== undefined && this.refresh_history[i].act_name == 'wb3_editor_change') {
+                main_data = JSON.parse(this.refresh_history[i].main_data);
+                if(main_data.zone_id == zone_id) {
+                    this.applyHighlighterChange(main_data);
+                }
+                delete this.refresh_history[i];
+            }
+        }
+        
     },
     applyHighlighterChange: function(data) {
+//        console.log('Received object: ', data);
         var zone_id = data.zone_id;
-//        console.log(data.change_obj);
         var text = '';
         for (var i = 0; i < data.change_obj.text.length; i++) {
             this.is_changed_from_socket = true;
@@ -335,7 +367,9 @@ window.wb3 = {
                 }
             } else if(data.change_obj.origin == 'input') {
                 if(data.change_obj.text[i] == '') {
-                    text += "\n";
+                    if(from.ch == to.ch && from.ch == to.ch) {
+                        text += "\n";
+                    }
                 } else {
                     text += data.change_obj.text[i];
                 }
@@ -348,7 +382,7 @@ window.wb3 = {
                     text += "\n";
                 } else {
                     text += data.change_obj.text[i];
-                    if(data.change_obj.text.length > 1) {
+                    if((data.change_obj.text.length > 1 || data.change_obj.cnt_text > 1) && i!=data.change_obj.cnt_text-1) {
                         text += "\n";
                     }
                 }
@@ -363,10 +397,46 @@ window.wb3 = {
         if(data.change_obj.origin != 'paste') {
             text = text.replace(/([\r\n])+/gm,"\n");
         }
-        
+//        console.log(this.editors_list[zone_id]);
         this.editors_list[zone_id].replaceRange(text, from, to, origin);
         text = '';
         this.is_changed_from_socket = false;
         
+    }, 
+    applyRedrawBoard: function(data) {
+        this.refresh_history = data;
+        var cnt = data.length;
+        var main_data = new Array();
+        for (var i = 0; i < cnt; i++) {
+            main_data = JSON.parse(data[i].main_data);
+            switch(data[i].act_name) {
+                case 'board_create':
+                    window.board_manager.addBoard(main_data.board_type, main_data.board_name, 'history');
+                    delete this.refresh_history[i];
+                    break;
+                case 'wb3_board_delete':
+                    window.board_manager.deleteBoard(main_data.board_type, 'history');
+                    delete this.refresh_history[i];
+                    break;
+                case 'wb3_tab_create':
+                    window.wb3.createTab(data[i].obj_id, main_data.tab_name, 'history');
+                    delete this.refresh_history[i];
+                    break;
+                case 'wb3_tab_delete':
+                    window.wb3.deleteTab(data[i].obj_id, 'history');
+                    delete this.refresh_history[i];
+                    break;
+                case 'wb3_set_language':
+                    window.wb3.bindLanguageSwitcher(main_data.chosen_language, main_data.mime, data[i].obj_id, 'history'); // actual setter
+                    window.wb3.bindLanguageSwitcher(); // binder
+                    delete this.refresh_history[i];
+                    break;
+                case 'wb3_file_name_change':
+                    this.renameTab(data[i].obj_id, main_data.file_name);
+                    delete this.refresh_history[i];
+                    break;
+            }
+        }
+        delete data;
     }
 }
