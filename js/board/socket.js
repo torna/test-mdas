@@ -1,12 +1,14 @@
 window.socket_object = {
 //    socket_url: 'http://93.116.229.42:8000', // url to socket server
 //    socket_url: ' http://192.168.1.141:8000', // url to socket server
+//    socket_url: 'http://192.168.1.103:8000', // url to socket server
     socket_url: 'http://localhost:8000', // url to socket server
     socket_data: null, // socket object
     init: function() {
         this.socket_data = io.connect(this.socket_url);
         this.socket_data.emit('credentials',{
-            'hash': token
+            'hash': token,
+            'date': 'now'
         });
         // when not authorized
         this.socket_data.on('reconnect', function(){
@@ -54,6 +56,11 @@ window.socket_object = {
         // on treeview change
         this.socket_data.on('wb3_refresh_treeviewer', function(data){
             window.wb3.bindTreeviewer();
+        });
+        // on wp3 redraw
+        this.socket_data.on('wp3_redraw', function(data){
+            window.wb3.applyRedrawBoard(data);
+            delete data;
         });
     },
     emit: function(ident, object) {
