@@ -439,6 +439,9 @@ class UserController extends Controller {
             }
         }
         $em->getRepository('FrontFrontBundle:AvailableCourses')->storeUserToken(Auth::getAuthParam('id'), $course_id, $token, $is_teacher);
+        
+//        $rasp_em = $this->getDoctrine()->getEntityManager('rasp'); // get raspberry connection
+//        $rasp_em->getRepository('FrontFrontBundle:AvailableCourses')->storeUserToken(Auth::getAuthParam('id'), $course_id, $token, $is_teacher); // save on raspberry
         return $this->redirect($this->generateUrl('account_ongoing_course').'?token='.$token.'&course_id='.$course_id);
     }
 
