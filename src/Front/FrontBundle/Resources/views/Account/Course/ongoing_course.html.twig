@@ -25,6 +25,7 @@
                 window.socket_object.init();
                 window.learn_draw.init();
                 window.board_manager.init();
+                window.board_manager.is_teacher = {{ is_teacher }}
             })
         </script>
     </head>
@@ -42,6 +43,7 @@
         <div id="boards_tabs">
             <div id="tab_draw" data-boardtype="draw">Draw</div>
             <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files">
+            <input type="button" style="float:right;" class="refresh_desktop" value="Refresh">
         </div>
         <div id="boards">
             <div id="board_draw" class="learn_board">
