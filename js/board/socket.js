@@ -4,6 +4,7 @@ window.socket_object = {
         socket_url: ' http://192.168.1.141:8000', // url to socket server
 //        socket_url: 'http://localhost:8000', // url to socket server
     socket_data: null, // socket object
+    heartbeat_time: new Date().getTime(),
     init: function() {
         this.socket_data = io.connect(this.socket_url);
         this.socket_data.emit('credentials',{
@@ -26,11 +27,32 @@ window.socket_object = {
             this.emit('refresh_content_full', {current_content: board_full_data});
         });
         
-        // server send to this client his content for refresh
+        // server send to this client content for refresh
         this.socket_data.on('refresh_content', function(data) {
+            clearTimeout(window.board_manager.refresh_timeout_obj);
+            console.log('refresh_content received, clearing timeout');
             window.board_manager.setBoardsContent(data);
         });
         
+        /******** SYNC *********/
+        // server is asking if there has been an refresh
+        this.socket_data.on('sync_status', function(data) {
+            console.log('sync received');
+//            this.emit('refresh_status_response', {refresh_status: window.board_manager.is_refresh});
+        });
+        /******** HEARTBEAT *********/
+        // once in 5 seconds check the connection with server
+        setInterval(function() {
+            var last_received_ping_time = (new Date().getTime() - window.socket_object.heartbeat_time)/1000; // dividing to 1000 to convert from miliseconds to seconds
+            if(last_received_ping_time > 10) { 
+                console.log('Lost connection with server. Retrying in 5 seconds.');
+            }
+            window.socket_object.emit('heartbeat_client');
+        }, 5000);
+        
+        this.socket_data.on('heartbeat_client_ok', function() {
+            window.socket_object.heartbeat_time = new Date().getTime();
+        });
         
         /******** GRAPHIC BOARD *********/
         // drawing board objects
@@ -78,8 +100,14 @@ window.socket_object = {
         });
         // on wp3 redraw
         this.socket_data.on('wp3_redraw', function(data) {
+            clearTimeout(window.board_manager.refresh_timeout_obj);
+            console.log('wp3_redraw received, clearing timeout');
             window.wb3.applyRedrawBoard(data);
             delete data;
+        });
+        // teacher tab switch
+        this.socket_data.on('wb3_teacher_tab', function(data) {
+            window.wb3.teacherTabIndicator(data);
         });
     },
     emit: function(ident, object) {

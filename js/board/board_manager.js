@@ -1,9 +1,27 @@
 window.board_manager = {
     is_refresh: true, // is true by default, when the user is synchronized it will be set to false
+    is_teacher: 0, // flag
     current_boards: [], // list of current created boards
+    refresh_timeout_obj: {},
     init: function() {
         // binds events
         this.bindEvents();
+        if(this.is_refresh) {
+            setTimeout(function(){
+                window.board_manager.historyRequest()
+            }, 2000);
+        }
+    },
+    historyRequest: function() {
+        clearTimeout(window.board_manager.refresh_timeout_obj);
+        if(this.is_refresh == false) {
+            return;
+        }
+        console.log('refresh is true resending');
+        window.socket_object.emit('refresh_get_content', {});
+        this.refresh_timeout_obj = setTimeout(function() {
+            window.board_manager.historyRequest();
+        }, 3000);
     },
     bindEvents: function() {
         jQuery('#add_board').click(function(){
@@ -71,7 +89,7 @@ window.board_manager = {
             window.wb3.init();
             if(caller === undefined) { // if caller=='socket' the we do not create the default tab
                 // create programming tab
-                window.wb3.createTab('wb3_1', 'New file');
+                window.wb3.createTab('1', 'New file');
             }
         }
     },
