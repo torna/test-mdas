@@ -34,3 +34,6 @@
 .file_treeviewer li a {
     font-size: 12px;
 }
+.teacher_active_tab{
+    border-bottom: 3px solid red !important;
+}
