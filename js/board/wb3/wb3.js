@@ -118,6 +118,7 @@ window.wb3 = {
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
         if(caller === 'socket' || caller === 'history') { // if caller!='socket' send socket
             window.wb3.createHighlighter(chosen_language, mime, zone_id, caller);
+            jQuery('#save_file_wb3_button_'+zone_id).show();
         } else {
             jQuery('.set_language_button').unbind('click'); // unbind click events to avoid event multiplication
             jQuery('.set_language_button').click(function() {
@@ -129,8 +130,17 @@ window.wb3 = {
                 if(caller === undefined) {
                     window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
                 }
+                jQuery('#save_file_wb3_button_'+zone_id).show();
             });
         }
+        this.bindFileSaver();
+    },
+    bindFileSaver: function() {
+        jQuery('.save_file_wb3_button').unbind('click');
+        jQuery('.save_file_wb3_button').click(function() {
+            var zone_id = jQuery(this).attr('data-zone-id');
+            window.wb3.sendFileToExecution(zone_id, false);
+        })
     },
     // create file treeviewer
     bindTreeviewer: function() {
@@ -179,11 +189,12 @@ window.wb3 = {
     bindCodeExecutor: function(zone_id) {
         jQuery('#execute_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
         jQuery('#execute_code_button_'+zone_id).click(function() {
-            window.wb3.sendFileToExecution(zone_id);
+            window.wb3.sendFileToExecution(zone_id, true);
         });
     },
-    sendFileToExecution: function(zone_id) {
+    sendFileToExecution: function(zone_id, execute) {
         var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
+        console.log(this.editors_list[zone_id], zone_id);
         var file_content = this.editors_list[zone_id].getValue();
         
         var namespace = jQuery('#board_'+this.board_name+'_namespace').val();
@@ -193,7 +204,7 @@ window.wb3 = {
                 return false;
             }
             if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
-                this.sendFileToExecution(zone_id); // while filename is invalid call itself recursevly
+                this.sendFileToExecution(zone_id, execute); // while filename is invalid call itself recursevly
                 return false;
             }
         }
@@ -209,8 +220,10 @@ window.wb3 = {
                 if(json.status == 'ok') {
                     window.socket_object.emit('wb3_file_name_change', {zone_id: zone_id, file_name: file_name});
                     window.wb3.renameTab(zone_id, file_name);
-                    // refresh iframe
-                    jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+json.file_path);
+                    if(execute) {
+                        // refresh iframe
+                        jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+json.file_path);
+                    }
                 } else {
                     alert('An error had accured.');
                 }
