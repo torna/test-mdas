@@ -40,13 +40,13 @@ window.wb3 = {
         }
     },
     deleteTab: function(sheet_id, caller) {
+        if(caller === undefined) {
+            window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
+        }
         this.deleted_tabs.push(sheet_id);
         
         var index = this.current_tabs.indexOf(sheet_id);
         this.current_tabs.splice(index, 1);
-        if(caller === undefined) {
-            window.socket_object.emit('wb3_tab_delete', {sheet_id: sheet_id});
-        }
         jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
         jQuery('#board_item_'+sheet_id).remove();
         delete window.wb3.editors_list[sheet_id]; // remove object from memory
@@ -77,6 +77,9 @@ window.wb3 = {
             return false;
         }
         this.current_tabs.push(unique_id.toString());
+        if(caller === undefined) { // if caller!='socket' send socket
+            window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
+        }
         // create tab
         jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
@@ -89,9 +92,6 @@ window.wb3 = {
             // loadior here
             },
             success: function(data) {
-                if(caller === undefined) { // if caller!='socket' send socket
-                    window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
-                }
                 // setting zone id, i.e board id, so we could know where are we working
                 data = data.replace(/%zone_id%/g, unique_id);
                 jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
@@ -112,7 +112,7 @@ window.wb3 = {
     },
     // indicates the active teacher tab
     teacherTabIndicator: function(data) {
-        jQuery('div.teacher_active_tab').removeClass('teacher_active_tab');
+        jQuery('div#board_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
     },
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
@@ -126,10 +126,10 @@ window.wb3 = {
                 var chosen_language = jQuery('#programming_language_'+zone_id).val(); // get selected language
                 var mime = jQuery('#programming_language_'+zone_id+' option:selected').attr('data-mime'); // getting language mime type
 
-                window.wb3.createHighlighter(chosen_language, mime, zone_id);
                 if(caller === undefined) {
                     window.socket_object.emit('wb3_set_language', {chosen_language: chosen_language, mime: mime, zone_id: zone_id});
                 }
+                window.wb3.createHighlighter(chosen_language, mime, zone_id);
                 jQuery('#save_file_wb3_button_'+zone_id).show();
             });
         }
@@ -172,6 +172,7 @@ window.wb3 = {
         });
     },
     deleteFile: function(file_name) {
+        window.socket_object.emit('wb3_refresh_treeviewer');
         jQuery.ajax({
             url: "ajax",
             data: "todo=delete_file&file_name="+file_name,
@@ -180,7 +181,6 @@ window.wb3 = {
                 // loadior here
             },
             success: function() {
-                window.socket_object.emit('wb3_refresh_treeviewer');
                 window.wb3.deleteTab(file_name.replace(/\./g, ''));
                 window.wb3.bindTreeviewer();
             }
@@ -194,7 +194,6 @@ window.wb3 = {
     },
     sendFileToExecution: function(zone_id, execute) {
         var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
-        console.log(this.editors_list[zone_id], zone_id);
         var file_content = this.editors_list[zone_id].getValue();
         
         var namespace = jQuery('#board_'+this.board_name+'_namespace').val();
@@ -440,8 +439,10 @@ window.wb3 = {
         // create tabs, editors
         for (var i = 0; i < data.length; i++) {
             this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
-            this.bindLanguageSwitcher(data[i].tab_language, data[i].mime, data[i].unique_id, 'history'); // actual setter
-            this.bindLanguageSwitcher(); // binder
+            if(data[i].editor_content !== null) {
+                this.bindLanguageSwitcher(data[i].tab_language, data[i].mime, data[i].unique_id, 'history'); // actual setter
+                this.bindLanguageSwitcher(); // binder
+            }
         }
         
     },
@@ -540,7 +541,7 @@ window.wb3 = {
             }
         }
         if(!contains_editors) {
-            delete this.refresh_history;
+            delete this.refresh_history; // free memory
             window.board_manager.is_refresh = false; // set refresh status to false
         }
     }
