@@ -27,7 +27,7 @@ window.client_drawer = {
             path.setAttributeNS(null, "d", data.coord);
                 
             this.addDrawElementAttributes(path, data);
-            document.getElementById(window.learn_draw.svg_id).appendChild(path);
+            document.getElementById('svg_'+data.zone_id).appendChild(path);
         } else {
             var path = document.getElementById(data.id);
             var d = path.getAttributeNS(null, 'd');
@@ -49,7 +49,7 @@ window.client_drawer = {
             }
                 
             this.addDrawElementAttributes(circle, data);
-            document.getElementById(window.learn_draw.svg_id).appendChild(circle);
+            document.getElementById('svg_'+data.zone_id).appendChild(circle);
         } else {
             var circle = document.getElementById(data.id);
             circle.setAttributeNS(null, 'r', data.r);
@@ -66,7 +66,7 @@ window.client_drawer = {
             line.setAttributeNS(null, "y2", data.y2);
                 
             this.addDrawElementAttributes(line, data);
-            document.getElementById(window.learn_draw.svg_id).appendChild(line);
+            document.getElementById('svg_'+data.zone_id).appendChild(line);
         } else {
             var line = document.getElementById(data.id);
             line.setAttributeNS(null, "x2", data.x2);
@@ -84,7 +84,7 @@ window.client_drawer = {
             rect.setAttributeNS(null, "height", data.height);
                 
             this.addDrawElementAttributes(rect, data);
-            document.getElementById(window.learn_draw.svg_id).appendChild(rect);
+            document.getElementById('svg_'+data.zone_id).appendChild(rect);
         } else {
             var rect = document.getElementById(data.id);
             rect.setAttributeNS(null, "width", data.width);
