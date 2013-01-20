@@ -24,6 +24,16 @@ class AjaxController extends Controller {
                     }
                 }
                 break;
+            case 'get_wb1_generic':
+                if (Auth::isAuth()) {
+                    $file_content = '';
+                    $file_name = $request->get('file_name');
+                    if($file_name != 'undefined' && $file_name) {
+                        $file_content = \Front\FrontBundle\Libs\CommonLib::getFileContent(Auth::getAuthParam('course_working_folder'), $file_name);
+                    }
+                    return $this->render('FrontFrontBundle:Ajax:_wb1_generic_content.html.twig', array('file_content' => $file_content));
+                }
+                break;
             case 'get_wb3_generic':
                 if (Auth::isAuth()) {
                     $file_content = '';
