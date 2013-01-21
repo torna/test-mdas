@@ -175,7 +175,6 @@ window.learn_draw = {
         jQuery('#learn_colors_'+unique_id).html(colors_html);
         jQuery('.colorpicker_item').unbind('click');
         jQuery('.colorpicker_item').click(function() {
-            console.log(jQuery(this).attr('data-draw-id'));
             window.learn_draw.setCurrentColor(jQuery(this).attr('data-color'), jQuery(this).attr('data-draw-id'));
         });
     },
@@ -229,7 +228,7 @@ window.learn_draw = {
             window.learn_draw.realtime_emit = new Object();
             window.learn_draw.realtime_emit.el = 'path';
             window.learn_draw.realtime_emit.id = 'el_'+element_id;
-            window.learn_draw.realtime_emit.zone_id = zone_id;
+            window.learn_draw.realtime_emit.tab_id = zone_id;
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
                 var path = document.getElementById('el_'+element_id);
@@ -264,7 +263,7 @@ window.learn_draw = {
             window.learn_draw.realtime_emit = new Object();
             window.learn_draw.realtime_emit.el = 'circle';
             window.learn_draw.realtime_emit.id = 'el_'+element_id;
-            window.learn_draw.realtime_emit.zone_id = zone_id;
+            window.learn_draw.realtime_emit.tab_id = zone_id;
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
                 var cx = jQuery('#el_' + element_id).attr('cx');
@@ -306,7 +305,7 @@ window.learn_draw = {
             window.learn_draw.realtime_emit = new Object();
             window.learn_draw.realtime_emit.el = 'rect';
             window.learn_draw.realtime_emit.id = 'el_'+element_id;
-            window.learn_draw.realtime_emit.zone_id = zone_id;
+            window.learn_draw.realtime_emit.tab_id = zone_id;
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
                 var x = jQuery('#el_' + element_id).attr('x');
@@ -358,7 +357,7 @@ window.learn_draw = {
             window.learn_draw.realtime_emit = new Object();
             window.learn_draw.realtime_emit.el = 'line';
             window.learn_draw.realtime_emit.id = 'el_'+element_id;
-            window.learn_draw.realtime_emit.zone_id = zone_id;
+            window.learn_draw.realtime_emit.tab_id = zone_id;
             
             if(window.learn_draw.registered_ids.indexOf('el_'+element_id) >= 0) {
                 var line = document.getElementById('el_'+element_id);
@@ -469,11 +468,12 @@ window.learn_draw = {
         }
     },
     stopDrawingEvent: function(event, svg_id) {
-        this.sendSaveData();
+        this.sendSaveData(svg_id);
         this.element_id = '';
     },
     sendSaveData: function(svg_id) {
         var element = document.getElementById('el_'+this.element_id);
+        window.learn_draw.element_params.tab_id = svg_id;
         switch(this.current_instrument[svg_id]) {
             case 'path':
             case 'highlighter':
