@@ -40,8 +40,9 @@
                 <input type="button" id="add_board" value="Add">
             {% endif %}
         </div>
+        <input type="hidden" id="global_namespace" value="{{ teacher_folder }}" />
         <div id="boards_tabs">
-            <div id="tab_draw" data-boardtype="draw">Draw</div>
+            <div id="tab_draw" class="active_learn_tab" data-boardtype="draw">Draw</div>
             <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files">
             <input type="button" style="float:right;" class="refresh_desktop" value="Refresh">
         </div>
