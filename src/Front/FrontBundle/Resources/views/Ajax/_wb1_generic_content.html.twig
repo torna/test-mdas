@@ -29,13 +29,15 @@
             <br />
             <input type="button" class="learn_instrument" data-type="image" data-draw-id="%zone_id%" value="Image" />
             <br />
-            <input type="button" class="learn_instrument" data-type="grid" data-draw-id="%zone_id%" value="Grid" />
+            <input type="button" class="save_svg" data-draw-id="%zone_id%" value="Save board" />
             <br />
         </td>
         <td>
-            <svg style="overflow: hidden; position: relative;" height="1500" width="1550" id="svg_%zone_id%" data-draw-id="%zone_id%" class="learn_svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs>
-            </svg>
+            <div id="svg_holder_%zone_id%">
+                <svg style="overflow: hidden; position: relative;" height="1500" width="1550" id="svg_%zone_id%" data-draw-id="%zone_id%" class="learn_svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs>
+                </svg>
+            </div>
         </td>
     </tr>
 </table>
