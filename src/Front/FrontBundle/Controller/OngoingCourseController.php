@@ -44,7 +44,7 @@ class OngoingCourseController extends Controller {
         $teacher_data = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherData($course_data['teacher_id']);
         Auth::setAuthParam('course_working_folder', $teacher_data['teacher_folder']); // setting working folder. Is required for compiling files
         
-        return $this->render('FrontFrontBundle:Account/Course:ongoing_course.html.twig', array('token' => $token, 'is_teacher' => $is_teacher));
+        return $this->render('FrontFrontBundle:Account/Course:ongoing_course.html.twig', array('token' => $token, 'is_teacher' => $is_teacher, 'teacher_folder' => $teacher_data['teacher_folder']));
         
     }
 
