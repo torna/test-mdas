@@ -137,7 +137,7 @@ window.board_manager = {
     },
     setBoardsContent: function(data) {
         console.log('Boards loaded from FRIEND');
-        console.log(data);
+        jQuery('#loading').show();
         // programming board
         if(data.current_content.hasOwnProperty('programming')) {
             this.addBoard('programming', 'Programming', 'history');
@@ -150,6 +150,7 @@ window.board_manager = {
         }
         // add more boards here
         this.is_refresh = false;
+        jQuery('#loading').hide();
     },
     // create file treeviewer
     bindTreeviewer: function() {
