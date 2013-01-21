@@ -41,10 +41,15 @@
             {% endif %}
         </div>
         <input type="hidden" id="global_namespace" value="{{ teacher_folder }}" />
+        <div class="treeview_frame" style="display: none; position:absolute; top: 60px; right:0; z-index: 9999; background-color: #FFF; border: 1px solid red;">
+            Course files:
+            <ul class="file_treeviewer">
+            </ul>
+        </div>
         <div id="boards_tabs">
-            <div id="tab_draw" class="active_learn_tab" data-boardtype="draw">Draw</div>
-            <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files">
-            <input type="button" style="float:right;" class="refresh_desktop" value="Refresh">
+            <div id="tab_draw" class="board_super_tab active_learn_tab" data-boardtype="draw">Draw</div>
+            <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files" />
+            <input type="button" style="float:right;" class="refresh_desktop" value="Refresh" />
         </div>
         <div id="boards">
             <div id="board_draw" class="learn_board">
