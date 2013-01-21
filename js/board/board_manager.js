@@ -104,6 +104,9 @@ window.board_manager = {
                 case 'languages':
 //                    boards_data.languages = window.wb3.getAllContents();
                     break;
+                case 'draw':
+                    boards_data.draw = window.learn_draw.getAllContents();
+                    break;
             }
         }
         console.log('sending data to FRIENDS');
@@ -111,10 +114,16 @@ window.board_manager = {
     },
     setBoardsContent: function(data) {
         console.log('Boards loaded from FRIEND');
+        console.log(data);
         // programming board
         if(data.current_content.hasOwnProperty('programming')) {
             this.addBoard('programming', 'Programming', 'history');
             window.wb3.createBoardFromHistory(data.current_content.programming);
+        }
+        
+        // draw board
+        if(data.current_content.hasOwnProperty('draw')) {
+            window.learn_draw.createBoardFromHistory(data.current_content.draw);
         }
         // add more boards here
         this.is_refresh = false;
