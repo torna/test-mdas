@@ -118,13 +118,17 @@ window.client_drawer = {
     },
     reDrawBoard: function(data) {
         var cnt = data.length;
+        var obj = new Object();
+        var json = new Object();
         for (var i = 0;i < cnt;i++) {
+            obj = new Object();
+            obj.id = data[i].figure_id;
+            obj.is_new = true;
+            obj.el = data[i].figure_name;
+            obj.tab_id = data[i].tab_id;
+            
             switch(data[i].figure_name) {
                 case 'path':
-                    var obj = new Object();
-                    obj.el = data[i].figure_name;
-                    obj.is_new = true;
-                    obj.id = data[i].figure_id;
                     obj.coord = data[i].param_8;
                     obj.stroke_width = data[i].param_1;
                     obj.stroke = data[i].param_6;
@@ -132,10 +136,6 @@ window.client_drawer = {
                     this.doDrawing(obj);
                     break;
                 case 'circle':
-                    var obj = new Object();
-                    obj.el = data[i].figure_name;
-                    obj.is_new = true;
-                    obj.id = data[i].figure_id;
                     obj.cx = data[i].param_1;
                     obj.cy = data[i].param_2;
                     obj.r = data[i].param_3;
@@ -144,10 +144,6 @@ window.client_drawer = {
                     this.doDrawing(obj);
                     break;
                 case 'line':
-                    var obj = new Object();
-                    obj.el = data[i].figure_name;
-                    obj.is_new = true;
-                    obj.id = data[i].figure_id;
                     obj.x1 = data[i].param_1;
                     obj.y1 = data[i].param_2;
                     obj.x2 = data[i].param_3;
@@ -158,10 +154,6 @@ window.client_drawer = {
                     this.doDrawing(obj);
                     break;
                 case 'rect':
-                    var obj = new Object();
-                    obj.el = data[i].figure_name;
-                    obj.is_new = true;
-                    obj.id = data[i].figure_id;
                     obj.x = data[i].param_1;
                     obj.y = data[i].param_2;
                     obj.width = data[i].param_3;
@@ -170,6 +162,15 @@ window.client_drawer = {
                     obj.stroke_width = data[i].param_5;
                     obj.stroke = data[i].param_6;
                     this.doDrawing(obj);
+                    break;
+                case 'wb1_tab_create':
+                    console.log('creating tab: '+data[i].tab_id);
+                    json = JSON.parse(data[i].param_8);
+                    window.learn_draw.createTab(data[i].tab_id, json.tab_name, 'socket');
+                    break;
+                case 'wb1_tab_delete':
+                    console.log('deleting tab: '+data[i].tab_id);
+                    window.learn_draw.deleteTab(data[i].tab_id, 'socket');
                     break;
             }
         }
