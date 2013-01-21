@@ -502,5 +502,11 @@ window.wb3 = {
             delete this.refresh_history; // free memory
             window.board_manager.is_refresh = false; // set refresh status to false
         }
+    },
+    closeBoard: function() {
+        while(this.current_tabs.length) {
+            this.deleteTab(this.current_tabs[0], 'redraw');
+        }
+        this.deleted_tabs = [];
     }
 }
