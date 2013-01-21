@@ -80,6 +80,11 @@ window.socket_object = {
             window.learn_draw.bindDeleteTabEvent(data.sheet_id, 'socket');
         });
         
+        // on filename change
+        this.socket_data.on('wb1_file_name_change', function(data) {
+            window.learn_draw.renameTab(data.zone_id, data.file_name);
+        });
+        
         /******** PROGRAMMING *********/
         // on board create
         this.socket_data.on('board_create', function(data) {

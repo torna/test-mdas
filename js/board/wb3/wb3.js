@@ -7,6 +7,8 @@ window.wb3 = {
     current_tabs: [], // holds all created tabs of this board
     deleted_tabs: [], // holds all deleted tabs
     history_from_friend: [], // holds the history sent by a client that is on the same course
+    stored_tab_html: '', // storing html data that is comming from ajax for repeated uses
+    
     init: function() {
         // bind elements events
         this.bindEvents();
@@ -90,29 +92,40 @@ window.wb3 = {
         // create tab
         jQuery('#board_items_tabs').append('<div class="tab_div_wb3" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
-        jQuery.ajax({
-            url: "ajax",
-            data: "todo=get_wb3_generic&file_name="+file_name,
-            type: "get",
-            async: false,
-            beforeSend: function() {
-            // loadior here
-            },
-            success: function(data) {
-                // setting zone id, i.e board id, so we could know where are we working
-                data = data.replace(/%zone_id%/g, unique_id);
-                jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
-                jQuery('#resizable_'+unique_id).resizable();
-                jQuery('.wb3_board_item').hide(); // hide all wb3 boards
-                jQuery('#board_item_'+unique_id).show(); // showing created board
-                window.wb3.bindDeleteTabEvent();
-                window.wb3.bindTabSwitcher();
-                window.wb3.bindLanguageSwitcher();
-                window.board_manager.bindTreeviewer();
-                window.wb3.switchTab(unique_id);
-            }
-        });
+        if(file_name === undefined && this.stored_tab_html != '') {
+            console.log('creating tab from memory');
+            window.wb3.setTabBindings(this.stored_tab_html, unique_id);
+        } else {
+            jQuery.ajax({
+                url: "ajax",
+                data: "todo=get_wb3_generic&file_name="+file_name,
+                type: "get",
+                async: false,
+                beforeSend: function() {
+                    // loadior here
+                },
+                success: function(data) {
+                    if(file_name === undefined) {
+                        window.wb3.stored_tab_html = data;
+                    }
+                    window.wb3.setTabBindings(data, unique_id);
+                }
+            });
+        }
         
+    },
+    setTabBindings: function(data, unique_id) {
+        // setting zone id, i.e board id, so we could know where are we working
+        data = data.replace(/%zone_id%/g, unique_id);
+        jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
+        jQuery('#resizable_'+unique_id).resizable();
+        jQuery('.wb3_board_item').hide(); // hide all wb3 boards
+        jQuery('#board_item_'+unique_id).show(); // showing created board
+        window.wb3.bindDeleteTabEvent();
+        window.wb3.bindTabSwitcher();
+        window.wb3.bindLanguageSwitcher();
+        window.board_manager.bindTreeviewer();
+        window.wb3.switchTab(unique_id);
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename

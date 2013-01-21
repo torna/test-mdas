@@ -16,6 +16,8 @@ window.learn_draw = {
     realtime_emit: null, // an object that is gathering data and is sent to node.js
     element_params: '', // holds the element parameters (used to send data to node.js for saving)
     history_svg: [], // when svg's come from friend store them here
+    stored_tab_html: '', // storing html data that is comming from ajax for repeated uses
+    
     init: function() {
         this.createTab('wb1_1', 'New file', 'history');
         this.bindEvents();
@@ -113,48 +115,59 @@ window.learn_draw = {
         // create tab
         jQuery('#wb1_items_tabs').append('<div class="tab_div_wb1" data-draw-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_wb1_sheet">x</a></sup></div>');
         // create tab content
-        jQuery.ajax({
-            url: "ajax",
-            data: "todo=get_wb1_generic&file_name="+file_name,
-            type: "get",
-            async: false,
-            beforeSend: function() {
-            // loadior here
-            },
-            success: function(data) {
-                // setting zone id, i.e board id, so we could know where are we working
-                data = data.replace(/%zone_id%/g, unique_id);
-                jQuery('.wb1_board_subfiles').append('<div id="wb1_board_item_'+unique_id+'" class="wb1_board_item">'+data+'</div>');
-                jQuery('.wb1_board_item').hide(); // hide all wb3 boards
-                jQuery('#wb1_board_item_'+unique_id).show(); // showing created board
-                // getting position of svg element
-                if(window.learn_draw.svg_top == 0) {
-                    window.learn_draw.svg_top = jQuery('.'+window.learn_draw.svg_class).position().top;
-                    window.learn_draw.svg_left = jQuery('.'+window.learn_draw.svg_class).position().left;
+        if(file_name === undefined && this.stored_tab_html != '') {
+            console.log('creating tab from memory wb1');
+            window.learn_draw.setTabBindings(this.stored_tab_html, unique_id);
+        } else {
+            jQuery.ajax({
+                url: "ajax",
+                data: "todo=get_wb1_generic&file_name="+file_name,
+                type: "get",
+                async: false,
+                beforeSend: function() {
+                // loadior here
+                },
+                success: function(data) {
+                    if(file_name === undefined) {
+                        window.learn_draw.stored_tab_html = data;
+                    }
+                    window.learn_draw.setTabBindings(data, unique_id);
                 }
-                // draw available colors
-                window.learn_draw.initColors(unique_id);
-                // init instruments
-                window.learn_draw.initInstruments();
-                if(window.learn_draw.history_svg[unique_id] !== undefined) {
-                    jQuery('#svg_'+unique_id).remove();
-                    jQuery('#svg_holder_'+unique_id).html(window.learn_draw.history_svg[unique_id]);
-                }
-                // init svg
-                window.learn_draw.initSvg(unique_id);
-                // init stroke width
-                window.learn_draw.initStrokeWidth();
-                // mouse hidder
-                window.learn_draw.mouseHidder();
-                window.learn_draw.bindDeleteTabEvent();
-                window.learn_draw.bindTabSwitcher();
-                window.learn_draw.bindFileSaver();
-                // default color, thickness, etc
-                window.learn_draw.setDefaults(unique_id);
-                window.learn_draw.switchTab(unique_id);
-            }
-        });
+            });
+        }
         
+    },
+    setTabBindings: function(data, unique_id) {
+        // setting zone id, i.e board id, so we could know where are we working
+        data = data.replace(/%zone_id%/g, unique_id);
+        jQuery('.wb1_board_subfiles').append('<div id="wb1_board_item_'+unique_id+'" class="wb1_board_item">'+data+'</div>');
+        jQuery('.wb1_board_item').hide(); // hide all wb3 boards
+        jQuery('#wb1_board_item_'+unique_id).show(); // showing created board
+        // getting position of svg element
+        if(window.learn_draw.svg_top == 0 && jQuery('.'+window.learn_draw.svg_class).length) {
+            window.learn_draw.svg_top = jQuery('.'+window.learn_draw.svg_class).position().top;
+            window.learn_draw.svg_left = jQuery('.'+window.learn_draw.svg_class).position().left;
+        }
+        // draw available colors
+        window.learn_draw.initColors(unique_id);
+        // init instruments
+        window.learn_draw.initInstruments();
+        if(window.learn_draw.history_svg[unique_id] !== undefined) {
+            jQuery('#svg_'+unique_id).remove();
+            jQuery('#svg_holder_'+unique_id).html(window.learn_draw.history_svg[unique_id]);
+        }
+        // init svg
+        window.learn_draw.initSvg(unique_id);
+        // init stroke width
+        window.learn_draw.initStrokeWidth();
+        // mouse hidder
+        window.learn_draw.mouseHidder();
+        window.learn_draw.bindDeleteTabEvent();
+        window.learn_draw.bindTabSwitcher();
+        window.learn_draw.bindFileSaver();
+        // default color, thickness, etc
+        window.learn_draw.setDefaults(unique_id);
+        window.learn_draw.switchTab(unique_id);
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
@@ -601,7 +614,6 @@ window.learn_draw = {
         return final_result;
     },
     createBoardFromHistory: function(data) {
-        
         // create tabs, svgs
         for (var i = 0; i < data.length; i++) {
             this.history_svg[data[i].unique_id.toString()] = data[i].svg_data;
@@ -609,6 +621,8 @@ window.learn_draw = {
         // populating default tab
         jQuery('#svg_wb1_1').remove();
         jQuery('#svg_holder_wb1_1').html(window.learn_draw.history_svg['wb1_1']);
+        
+        console.log(data);
         
         for (var i = 0; i < data.length; i++) {
             this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
