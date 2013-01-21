@@ -50,27 +50,34 @@ window.wb3 = {
         jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
         jQuery('#board_item_'+sheet_id).remove();
         delete window.wb3.editors_list[sheet_id]; // remove object from memory
+        if(jQuery('.active_wp3_tab').length == 0) {
+            var last_tab_sheet_id = jQuery(jQuery('.tab_div')[jQuery('.tab_div').length-1]).attr('data-sheet-id');
+            window.wb3.switchTab(last_tab_sheet_id);
+        }
     },
     // switch tabs when clicked
     bindTabSwitcher: function() {
         jQuery('#board_items_tabs div').unbind('click'); // unbind click from these elements to avoid multiplication of events
         jQuery('#board_items_tabs div').click(function() {
             var sheet_id = jQuery(this).attr('data-sheet-id');
-            if(window.board_manager.is_teacher) {
-                window.socket_object.emit('wb3_teacher_tab', {sheet_id: sheet_id});
-            }
-            // inactivate all tabs
-            jQuery('.active_wp3_tab').removeClass('active_wp3_tab');
-            // set active the clicked tab
-            jQuery(this).addClass('active_wp3_tab');
-            // hidding tab contents
-            jQuery('.wb3_board_item').hide();
-            // showing contend of selected tab
-            jQuery('#board_item_'+sheet_id).show();
-            if(window.wb3.editors_list[sheet_id] !== undefined) {
-                window.wb3.editors_list[sheet_id].refresh();
-            }
+            window.wb3.switchTab(sheet_id);
         });
+    },
+    switchTab: function(sheet_id) {
+        if(window.board_manager.is_teacher) {
+            window.socket_object.emit('wb3_teacher_tab', {sheet_id: sheet_id});
+        }
+        // inactivate all tabs
+        jQuery('.active_wp3_tab').removeClass('active_wp3_tab');
+        // set active the clicked tab
+        jQuery('#file_name_'+sheet_id).parent().addClass('active_wp3_tab');
+        // hidding tab contents
+        jQuery('.wb3_board_item').hide();
+        // showing contend of selected tab
+        jQuery('#board_item_'+sheet_id).show();
+        if(window.wb3.editors_list[sheet_id] !== undefined) {
+            window.wb3.editors_list[sheet_id].refresh();
+        }
     },
     createTab: function(unique_id, tab_name, caller, file_name) {
         if(jQuery('#file_name_'+unique_id).length > 0) {
@@ -81,7 +88,7 @@ window.wb3 = {
             window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
         }
         // create tab
-        jQuery('#board_items_tabs').append('<div data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
+        jQuery('#board_items_tabs').append('<div class="tab_div" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
         jQuery.ajax({
             url: "ajax",
@@ -101,14 +108,15 @@ window.wb3 = {
                 window.wb3.bindDeleteTabEvent();
                 window.wb3.bindTabSwitcher();
                 window.wb3.bindLanguageSwitcher();
-                window.wb3.bindTreeviewer();
+                window.board_manager.bindTreeviewer();
+                window.wb3.switchTab(unique_id);
             }
         });
         
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
-        this.bindTreeviewer();
+        window.board_manager.bindTreeviewer();
     },
     // indicates the active teacher tab
     teacherTabIndicator: function(data) {
@@ -141,50 +149,6 @@ window.wb3 = {
             var zone_id = jQuery(this).attr('data-zone-id');
             window.wb3.sendFileToExecution(zone_id, false);
         })
-    },
-    // create file treeviewer
-    bindTreeviewer: function() {
-        jQuery.ajax({
-            url: "ajax",
-            data: "todo=get_tree_view_content",
-            type: "get",
-            beforeSend: function() {
-                // loadior here
-            },
-            success: function(data) {
-                var json = JSON.parse(data);
-                var li_html = '';
-                for (var i = 0; i < json.length; i++) {
-                    li_html += '<li><a href="javascript:;" class="edit_file">'+json[i]+'</a> - <a href="javascript:;" class="delete_file" data-file-name="'+json[i]+'">Delete</a></li>';
-                }
-                jQuery(".file_treeviewer").html(li_html);
-                jQuery('.file_treeviewer li a.edit_file, .file_treeviewer li a.delete_file').unbind('click'); // unbind click events to avoid event multiplication
-                jQuery('.file_treeviewer li a.edit_file').click(function() {
-                    var file_name = jQuery(this).html();
-                    window.wb3.createTab(file_name.replace(/\./g, ''), file_name, undefined, file_name);
-                });
-                jQuery('.file_treeviewer li a.delete_file').click(function() {
-                    var file_name = jQuery(this).attr('data-file-name');
-                    window.wb3.deleteFile(file_name);
-                });
-                
-            }
-        });
-    },
-    deleteFile: function(file_name) {
-        window.socket_object.emit('wb3_refresh_treeviewer');
-        jQuery.ajax({
-            url: "ajax",
-            data: "todo=delete_file&file_name="+file_name,
-            type: "get",
-            beforeSend: function() {
-                // loadior here
-            },
-            success: function() {
-                window.wb3.deleteTab(file_name.replace(/\./g, ''));
-                window.wb3.bindTreeviewer();
-            }
-        });
     },
     bindCodeExecutor: function(zone_id) {
         jQuery('#execute_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
@@ -514,29 +478,23 @@ window.wb3 = {
             switch(data[i].act_name) {
                 case 'board_create':
                     window.board_manager.addBoard(main_data.board_type, main_data.board_name, 'history');
-                    delete this.refresh_history[i];
                     break;
                 case 'wb3_board_delete':
                     window.board_manager.deleteBoard(main_data.board_type, 'history');
-                    delete this.refresh_history[i];
                     break;
                 case 'wb3_tab_create':
                     window.wb3.createTab(data[i].obj_id, main_data.tab_name, 'history', main_data.file_name);
-                    delete this.refresh_history[i];
                     break;
                 case 'wb3_tab_delete':
                     window.wb3.deleteTab(data[i].obj_id, 'history');
-                    delete this.refresh_history[i];
                     break;
                 case 'wb3_set_language':
                     window.wb3.bindLanguageSwitcher(main_data.chosen_language, main_data.mime, data[i].obj_id, 'history'); // actual setter
                     window.wb3.bindLanguageSwitcher(); // binder
-                    delete this.refresh_history[i];
                     contains_editors = true;
                     break;
                 case 'wb3_file_name_change':
                     this.renameTab(data[i].obj_id, main_data.file_name);
-                    delete this.refresh_history[i];
                     break;
             }
         }
