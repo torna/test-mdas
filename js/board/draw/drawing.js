@@ -15,6 +15,7 @@ window.learn_draw = {
     registered_ids: [], // id attributes of all svg elements
     realtime_emit: null, // an object that is gathering data and is sent to node.js
     element_params: '', // holds the element parameters (used to send data to node.js for saving)
+    history_svg: [], // when svg's come from friend store them here
     init: function() {
         this.createTab('wb1_1', 'New file', 'history');
         this.bindEvents();
@@ -124,6 +125,10 @@ window.learn_draw = {
                 window.learn_draw.initColors(unique_id);
                 // init instruments
                 window.learn_draw.initInstruments();
+                if(window.learn_draw.history_svg[unique_id] !== undefined) {
+                    jQuery('#svg_'+unique_id).remove();
+                    jQuery('#svg_holder_'+unique_id).html(window.learn_draw.history_svg[unique_id]);
+                }
                 // init svg
                 window.learn_draw.initSvg(unique_id);
                 // init stroke width
@@ -132,6 +137,7 @@ window.learn_draw = {
                 window.learn_draw.mouseHidder();
                 window.learn_draw.bindDeleteTabEvent();
                 window.learn_draw.bindTabSwitcher();
+                window.learn_draw.bindFileSaver();
                 // default color, thickness, etc
                 window.learn_draw.setDefaults(unique_id);
             }
@@ -141,6 +147,53 @@ window.learn_draw = {
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
         this.bindTreeviewer();
+    },
+    bindFileSaver: function() {
+        jQuery('.save_svg').unbind('click');
+        jQuery('.save_svg').click(function() {
+            var zone_id = jQuery(this).attr('data-draw-id');
+            window.learn_draw.saveFile(zone_id);
+        });
+    },
+    saveFile: function(zone_id) {
+        var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
+        var serializer = new XMLSerializer();
+        var file_content = serializer.serializeToString(document.getElementById('svg_'+zone_id));
+        
+        var namespace = jQuery('#global_namespace').val();
+        if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
+            file_name = window.prompt('Please give a file name. The file should not contain spaces. Ex: index.html OR product.php');
+            if(file_name === null) { // cancel pressed
+                return false;
+            }
+            if(!file_name.match(/^[0-9a-zA-Z.\._]+$/)) {
+                this.saveFile(zone_id); // while filename is invalid call itself recursevly
+                return false;
+            }
+        }
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=save_svg_file&file_name="+file_name+'&namespace='+namespace+'&file_content='+encodeURIComponent(file_content),
+            type: "post",
+            beforeSend: function() {
+                // loadior here
+            },
+            error: function(error_obj) {
+                /**
+                 * @todo
+                 * take actions in case of error
+                 */
+            },
+            success: function(data) {
+                var json = JSON.parse(data);
+                if(json.status == 'ok') {
+                    window.socket_object.emit('wb1_file_name_change', {zone_id: zone_id, file_name: file_name});
+                    window.learn_draw.renameTab(zone_id, file_name);
+                } else {
+                    alert('An error had accured.');
+                }
+            }
+        });
     },
     mouseHidder: function() {
         jQuery('.board_cursor').css({
@@ -515,5 +568,39 @@ window.learn_draw = {
     },
     setCurrentInstrument: function(instrument, svg_id) {
         this.current_instrument[svg_id] = instrument;
+    },
+    // gets current board content for helping other
+    getAllContents: function() {
+        var contents_object = new Object();
+        var final_result = new Array();
+        var cnt_tabs = this.current_tabs.length;
+        var unique_id = '';
+        var serializer = new Object();
+        for (var i = 0; i < cnt_tabs; i++) {
+            unique_id = this.current_tabs[i].toString();
+            contents_object = new Object();
+            contents_object.tab_name = jQuery('#file_name_'+unique_id).html();
+            contents_object.unique_id = unique_id;
+            serializer = new XMLSerializer();
+            contents_object.svg_data = serializer.serializeToString(document.getElementById('svg_'+unique_id));
+            final_result.push(contents_object);
+        }
+        
+        return final_result;
+    },
+    createBoardFromHistory: function(data) {
+        
+        // create tabs, svgs
+        for (var i = 0; i < data.length; i++) {
+            this.history_svg[data[i].unique_id.toString()] = data[i].svg_data;
+        }
+        // populating default tab
+        jQuery('#svg_wb1_1').remove();
+        jQuery('#svg_holder_wb1_1').html(window.learn_draw.history_svg['wb1_1']);
+        
+        for (var i = 0; i < data.length; i++) {
+            this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
+        }
+        
     }
 }
