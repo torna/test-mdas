@@ -65,6 +65,21 @@ window.socket_object = {
             window.client_drawer.reDrawBoard(data);
         });
         
+        // teacher tab switch
+        this.socket_data.on('wb1_teacher_tab', function(data) {
+            window.learn_draw.teacherTabIndicator(data);
+        });
+        
+        // on tab create
+        this.socket_data.on('wb1_tab_create', function(data) {
+            window.learn_draw.createTab(data.unique_id, data.tab_name, 'socket', data.file_name);
+        });
+        
+        // on delete tab
+        this.socket_data.on('wb1_tab_delete', function(data) {
+            window.learn_draw.bindDeleteTabEvent(data.sheet_id, 'socket');
+        });
+        
         /******** PROGRAMMING *********/
         // on board create
         this.socket_data.on('board_create', function(data) {
