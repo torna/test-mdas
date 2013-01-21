@@ -34,9 +34,13 @@
         </td>
         <td>
             <div id="svg_holder_%zone_id%">
-                <svg style="overflow: hidden; position: relative;" height="1500" width="1550" id="svg_%zone_id%" data-draw-id="%zone_id%" class="learn_svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs>
-                </svg>
+                {% if file_content|length %}
+                    {{ file_content|raw }}
+                {% else %}
+                    <svg style="overflow: hidden; position: relative;" height="1500" width="1550" id="svg_%zone_id%" data-draw-id="%zone_id%" class="learn_svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs>
+                    </svg>
+                {% endif %}
             </div>
         </td>
     </tr>
