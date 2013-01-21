@@ -66,6 +66,24 @@ window.learn_draw = {
         delete this.current_instrument[sheet_id];
         delete this.current_color[sheet_id];
         delete this.stroke_width[sheet_id];
+        
+        if(jQuery('.active_wp1_tab').length == 0) {
+            var last_tab_sheet_id = jQuery(jQuery('.tab_div_wb1')[jQuery('.tab_div_wb1').length-1]).attr('data-draw-id');
+            window.learn_draw.switchTab(last_tab_sheet_id);
+        }
+    },
+    switchTab: function(sheet_id) {
+        if(window.board_manager.is_teacher) {
+            window.socket_object.emit('wb1_teacher_tab', {sheet_id: sheet_id});
+        }
+        // inactivate all tabs
+        jQuery('.active_wp1_tab').removeClass('active_wp1_tab');
+        // set active the clicked tab
+        jQuery('#file_name_'+sheet_id).parent().addClass('active_wp1_tab');
+        // hidding tab contents
+        jQuery('.wb1_board_item').hide();
+        // showing contend of selected tab
+        jQuery('#wb1_board_item_'+sheet_id).show();
     },
     // switch tabs when clicked
     bindTabSwitcher: function() {
@@ -77,14 +95,7 @@ window.learn_draw = {
                     sheet_id: sheet_id
                 });
             }
-            // inactivate all tabs
-            jQuery('.active_wp1_tab').removeClass('active_wp1_tab');
-            // set active the clicked tab
-            jQuery(this).addClass('active_wp1_tab');
-            // hidding tab contents
-            jQuery('.wb1_board_item').hide();
-            // showing contend of selected tab
-            jQuery('#wb1_board_item_'+sheet_id).show();
+            window.learn_draw.switchTab(sheet_id);
         });
     },
     createTab: function(unique_id, tab_name, caller, file_name) {
@@ -100,7 +111,7 @@ window.learn_draw = {
             });
         }
         // create tab
-        jQuery('#wb1_items_tabs').append('<div data-draw-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_wb1_sheet">x</a></sup></div>');
+        jQuery('#wb1_items_tabs').append('<div class="tab_div_wb1" data-draw-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_wb1_sheet">x</a></sup></div>');
         // create tab content
         jQuery.ajax({
             url: "ajax",
@@ -140,13 +151,14 @@ window.learn_draw = {
                 window.learn_draw.bindFileSaver();
                 // default color, thickness, etc
                 window.learn_draw.setDefaults(unique_id);
+                window.learn_draw.switchTab(unique_id);
             }
         });
         
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
-        this.bindTreeviewer();
+        window.board_manager.bindTreeviewer();
     },
     bindFileSaver: function() {
         jQuery('.save_svg').unbind('click');
