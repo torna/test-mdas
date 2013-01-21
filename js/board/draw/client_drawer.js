@@ -172,6 +172,10 @@ window.client_drawer = {
                     console.log('deleting tab: '+data[i].tab_id);
                     window.learn_draw.deleteTab(data[i].tab_id, 'socket');
                     break;
+                case 'wb1_tab_rename':
+                    json = JSON.parse(data[i].param_8);
+                    window.learn_draw.renameTab(data[i].tab_id, json.file_name);
+                    break;
             }
         }
     }
