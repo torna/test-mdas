@@ -1,7 +1,7 @@
 window.board_manager = {
     is_refresh: true, // is true by default, when the user is synchronized it will be set to false
     is_teacher: 0, // flag
-    current_boards: [], // list of current created boards
+    current_boards: ['draw'], // list of current created boards
     refresh_timeout_obj: {},
     init: function() {
         // binds events
