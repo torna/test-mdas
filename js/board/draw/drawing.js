@@ -614,5 +614,15 @@ window.learn_draw = {
             this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
         }
         
+    },
+    closeBoard: function() {
+        this.svg_top = 0;
+        this.svg_left = 0;
+        this.registered_ids = [];
+        this.history_svg = [];
+        
+        while(this.current_tabs.length) {
+            this.deleteTab(this.current_tabs[0], 'redraw');
+        }
     }
 }
