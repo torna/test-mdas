@@ -51,7 +51,7 @@ window.wb3 = {
         jQuery('#board_item_'+sheet_id).remove();
         delete window.wb3.editors_list[sheet_id]; // remove object from memory
         if(jQuery('.active_wp3_tab').length == 0) {
-            var last_tab_sheet_id = jQuery(jQuery('.tab_div')[jQuery('.tab_div').length-1]).attr('data-sheet-id');
+            var last_tab_sheet_id = jQuery(jQuery('.tab_div_wb3')[jQuery('.tab_div_wb3').length-1]).attr('data-sheet-id');
             window.wb3.switchTab(last_tab_sheet_id);
         }
     },
@@ -88,7 +88,7 @@ window.wb3 = {
             window.socket_object.emit('wb3_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
         }
         // create tab
-        jQuery('#board_items_tabs').append('<div class="tab_div" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
+        jQuery('#board_items_tabs').append('<div class="tab_div_wb3" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_programming_sheet">x</a></sup></div>');
         // create tab content
         jQuery.ajax({
             url: "ajax",
