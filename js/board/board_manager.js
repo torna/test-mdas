@@ -27,6 +27,25 @@ window.board_manager = {
         jQuery('#add_board').click(function(){
             window.board_manager.addBoard(jQuery('#board_types').val());
         });
+        this.bindTreeviewer();
+        jQuery('.show_files_button').unbind('click');
+        jQuery('.show_files_button').click(function() {
+            jQuery('.treeview_frame').toggle();
+        });
+        
+        // refresh button: deletes all tabs and creates new from db
+        jQuery('.refresh_desktop').unbind('click');
+        jQuery('.refresh_desktop').click(function() {
+            window.board_manager.boardsRedraw();
+        });
+    },
+    // when refresh button is clicked
+    boardsRedraw: function() {
+        // closing all tabs
+        window.learn_draw.closeBoard();
+        window.wb3.closeBoard();
+        this.is_refresh = true;
+        this.historyRequest();
     },
     // called indicates if this method is called by socket or not
     addBoard: function(board_type, board_name, caller) {
@@ -36,6 +55,9 @@ window.board_manager = {
             }
             
             this.current_boards.push(board_type);
+            if(caller === undefined) {
+                window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
+            }
             
             jQuery.ajax({
                 url: "ajax",
@@ -56,15 +78,13 @@ window.board_manager = {
 //            if(caller === undefined) { // if the board was created via socket, there should be no possibility to delete it (for the student)
                 board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
 //            }
-            jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
-            jQuery('.show_files_button').unbind('click');
-            jQuery('.show_files_button').click(function() {
-                jQuery('.treeview_frame').toggle();
-            })
-            if(caller === undefined) {
-                window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
-            }
+            jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" class="board_super_tab" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
             window.board_manager.bindBoardEvents(board_type, caller);
+            
+            jQuery('.active_learn_tab').removeClass('active_learn_tab'); // remove tab selection
+            jQuery('#tab_'+board_type).addClass('active_learn_tab'); // setting the clicked tab active
+            jQuery('.learn_board').hide(); // 
+            jQuery('#board_'+board_type).show();
         }
     },
     deleteBoard: function(board_type, caller) {
@@ -73,6 +93,9 @@ window.board_manager = {
         }
         jQuery('#tab_'+board_type).remove(); // deleting board tab
         jQuery('#board_'+board_type).remove(); // deleting board containter
+        if(jQuery('.active_learn_tab').length == 0) {
+            jQuery(jQuery('.board_super_tab')[0]).addClass('active_learn_tab');
+        }
     },
     // when a new board is added bind events
     bindBoardEvents: function(board_type, caller) {
@@ -127,5 +150,55 @@ window.board_manager = {
         }
         // add more boards here
         this.is_refresh = false;
-    }
+    },
+    // create file treeviewer
+    bindTreeviewer: function() {
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=get_tree_view_content",
+            type: "get",
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function(data) {
+                var json = JSON.parse(data);
+                var li_html = '';
+                for (var i = 0; i < json.length; i++) {
+                    li_html += '<li><a href="javascript:;" class="edit_file">'+json[i]+'</a> - <a href="javascript:;" class="delete_file" data-file-name="'+json[i]+'">Delete</a></li>';
+                }
+                jQuery(".file_treeviewer").html(li_html);
+                jQuery('.file_treeviewer li a.edit_file, .file_treeviewer li a.delete_file').unbind('click'); // unbind click events to avoid event multiplication
+                jQuery('.file_treeviewer li a.edit_file').click(function() {
+                    var file_name = jQuery(this).html();
+                    var parent_tab = jQuery('.active_learn_tab').attr('data-boardtype');
+                    if(parent_tab == 'programming') {
+                        window.wb3.createTab(file_name.replace(/\./g, ''), file_name, undefined, file_name);
+                    } else if(parent_tab == 'draw') {
+                        window.learn_draw.createTab(file_name.replace(/\./g, ''), file_name, undefined, file_name);
+                    }
+                });
+                jQuery('.file_treeviewer li a.delete_file').click(function() {
+                    var file_name = jQuery(this).attr('data-file-name');
+                    window.board_manager.deleteFile(file_name);
+                });
+                
+            }
+        });
+    },
+    deleteFile: function(file_name) {
+        window.socket_object.emit('wb3_refresh_treeviewer');
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=delete_file&file_name="+file_name,
+            type: "get",
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function() {
+                window.wb3.deleteTab(file_name.replace(/\./g, ''));
+                window.learn_draw.deleteTab(file_name.replace(/\./g, ''));
+                window.board_manager.bindTreeviewer();
+            }
+        });
+    },
 }
