@@ -117,6 +117,7 @@ window.client_drawer = {
         }
     },
     reDrawBoard: function(data) {
+        jQuery('#loading').show();
         var cnt = data.length;
         var obj = new Object();
         var json = new Object();
@@ -178,5 +179,6 @@ window.client_drawer = {
                     break;
             }
         }
+        jQuery('#loading').hide();
     }
 }
