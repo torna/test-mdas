@@ -37,7 +37,3 @@
 .teacher_active_tab{
     border-bottom: 3px solid red !important;
 }
-svg, svg * {
-    pointer-events: all;
-    cursor: move !important;
-}
