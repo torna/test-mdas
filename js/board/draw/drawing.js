@@ -286,7 +286,6 @@ window.learn_draw = {
                 }
             }
         });
-        
     },
     instruments: {
         pathStart: '', // moveto for path
@@ -618,11 +617,8 @@ window.learn_draw = {
         for (var i = 0; i < data.length; i++) {
             this.history_svg[data[i].unique_id.toString()] = data[i].svg_data;
         }
-        // populating default tab
-        jQuery('#svg_wb1_1').remove();
-        jQuery('#svg_holder_wb1_1').html(window.learn_draw.history_svg['wb1_1']);
         
-        console.log(data);
+        this.deleteTab('wb1_1', 'history');
         
         for (var i = 0; i < data.length; i++) {
             this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
