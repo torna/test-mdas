@@ -1760,16 +1760,16 @@
                 setTimeout(
                   function()
                   {
-                    setImg.call($this, colorMapL1, images.clientPath + 'Maps.png');
-                    setImg.call($this, colorMapL2, images.clientPath + 'Maps.png');
-                    setImg.call($this, colorMapL3, images.clientPath + 'map-opacity.png');
-                    setImg.call($this, colorBarL1, images.clientPath + 'Bars.png');
-                    setImg.call($this, colorBarL2, images.clientPath + 'Bars.png');
-                    setImg.call($this, colorBarL3, images.clientPath + 'Bars.png');
-                    setImg.call($this, colorBarL4, images.clientPath + 'Bars.png');
-                    setImg.call($this, colorBarL5, images.clientPath + 'bar-opacity.png');
-                    setImg.call($this, colorBarL6, images.clientPath + 'AlphaBar.png');
-                    setImg.call($this, preview.find('div:first'), images.clientPath + 'preview-opacity.png');
+                    setImg.call($this, colorMapL1, window.site_path+images.clientPath + 'Maps.png');
+                    setImg.call($this, colorMapL2, window.site_path+images.clientPath + 'Maps.png');
+                    setImg.call($this, colorMapL3, window.site_path+images.clientPath + 'map-opacity.png');
+                    setImg.call($this, colorBarL1, window.site_path+images.clientPath + 'Bars.png');
+                    setImg.call($this, colorBarL2, window.site_path+images.clientPath + 'Bars.png');
+                    setImg.call($this, colorBarL3, window.site_path+images.clientPath + 'Bars.png');
+                    setImg.call($this, colorBarL4, window.site_path+images.clientPath + 'Bars.png');
+                    setImg.call($this, colorBarL5, window.site_path+images.clientPath + 'bar-opacity.png');
+                    setImg.call($this, colorBarL6, window.site_path+images.clientPath + 'AlphaBar.png');
+                    setImg.call($this, preview.find('div:first'), window.site_path+images.clientPath + 'preview-opacity.png');
                   }, 0);
                 tbody.find('td.Radio input').bind('click', radioClicked);
                 // initialize quick list
@@ -1785,9 +1785,9 @@
                     if (!win.alphaSupport && ahex) ahex = ahex.substring(0, 6) + 'ff';
                     var quickHex = color.quickList[i].val('hex');
                     if(!ahex) ahex = "00000000";
-                    html+='<span class="QuickColor"' + (ahex && ' title="#' + ahex + '"' || 'none') + ' style="background-color:' + (quickHex && '#' + quickHex || '') + ';' + (quickHex ? '' : 'background-image:url(' + images.clientPath + 'NoColor.png)') + (win.alphaSupport && alpha && alpha < 255 ? ';opacity:' + Math.precision(alpha / 255, 4) + ';filter:Alpha(opacity=' + Math.precision(alpha / 2.55, 4) + ')' : '') + '">&nbsp;</span>';
+                    html+='<span class="QuickColor"' + (ahex && ' title="#' + ahex + '"' || 'none') + ' style="background-color:' + (quickHex && '#' + quickHex || '') + ';' + (quickHex ? '' : 'background-image:url(' + window.site_path+images.clientPath + 'NoColor.png)') + (win.alphaSupport && alpha && alpha < 255 ? ';opacity:' + Math.precision(alpha / 255, 4) + ';filter:Alpha(opacity=' + Math.precision(alpha / 2.55, 4) + ')' : '') + '">&nbsp;</span>';
                   }
-                  setImg.call($this, grid, images.clientPath + 'bar-opacity.png');
+                  setImg.call($this, grid, window.site_path+images.clientPath + 'bar-opacity.png');
                   grid.html(html);
                   grid.find('.QuickColor').click(quickPickClicked);
                 }
@@ -2000,7 +2000,7 @@
             height: 256,
             arrow:
             {
-              file: 'mappoint.gif', /* ColorMap arrow icon */
+              file: '../../../../svg/jgraduate/images/mappoint.gif', /* ColorMap arrow icon */
               width: 15,
               height: 15
             }
@@ -2011,14 +2011,14 @@
             height: 256,
             arrow:
             {
-              file: 'rangearrows.gif', /* ColorBar arrow icon */
+              file: '../../../../svg/jgraduate/images/rangearrows.gif', /* ColorBar arrow icon */
               width: 20,
               height: 7
             }
           },
           picker:
           {
-            file: 'picker.gif', /* Color Picker icon */
+            file: window.site_path+'picker.gif', /* Color Picker icon */
             width: 25,
             height: 24
           }

@@ -277,28 +277,28 @@ jQuery.fn.jGraduate =
         	   		'<div class="jGraduate_Slider jGraduate_RadiusField jGraduate_rg_field">' +
 						'<label class="prelabel">Radius:</label>' +
 						'<div id="' + id + '_jGraduate_Radius" class="jGraduate_SliderBar jGraduate_Radius" title="Click to set radius">' +
-							'<img id="' + id + '_jGraduate_RadiusArrows" class="jGraduate_RadiusArrows" src="' + $settings.images.clientPath + 'rangearrows2.gif">' +
+							'<img id="' + id + '_jGraduate_RadiusArrows" class="jGraduate_RadiusArrows" src="' + window.site_path+$settings.images.clientPath + 'rangearrows2.gif">' +
 						'</div>' +
 						'<label><input type="text" id="' + id + '_jGraduate_RadiusInput" size="3" value="100"/>%</label>' + 
     	    	    '</div>' +
         	   		'<div class="jGraduate_Slider jGraduate_EllipField jGraduate_rg_field">' +
 						'<label class="prelabel">Ellip:</label>' +
 						'<div id="' + id + '_jGraduate_Ellip" class="jGraduate_SliderBar jGraduate_Ellip" title="Click to set Ellip">' +
-							'<img id="' + id + '_jGraduate_EllipArrows" class="jGraduate_EllipArrows" src="' + $settings.images.clientPath + 'rangearrows2.gif">' +
+							'<img id="' + id + '_jGraduate_EllipArrows" class="jGraduate_EllipArrows" src="' + window.site_path+$settings.images.clientPath + 'rangearrows2.gif">' +
 						'</div>' +
 						'<label><input type="text" id="' + id + '_jGraduate_EllipInput" size="3" value="0"/>%</label>' + 
     	    	    '</div>' +
         	   		'<div class="jGraduate_Slider jGraduate_AngleField jGraduate_rg_field">' +
 						'<label class="prelabel">Angle:</label>' +
 						'<div id="' + id + '_jGraduate_Angle" class="jGraduate_SliderBar jGraduate_Angle" title="Click to set Angle">' +
-							'<img id="' + id + '_jGraduate_AngleArrows" class="jGraduate_AngleArrows" src="' + $settings.images.clientPath + 'rangearrows2.gif">' +
+							'<img id="' + id + '_jGraduate_AngleArrows" class="jGraduate_AngleArrows" src="' + window.site_path+$settings.images.clientPath + 'rangearrows2.gif">' +
 						'</div>' +
 						'<label><input type="text" id="' + id + '_jGraduate_AngleInput" size="3" value="0"/>deg</label>' + 
     	    	    '</div>' +
         	   		'<div class="jGraduate_Slider jGraduate_OpacField">' +
 						'<label class="prelabel">Opac:</label>' +
 						'<div id="' + id + '_jGraduate_Opac" class="jGraduate_SliderBar jGraduate_Opac" title="Click to set Opac">' +
-							'<img id="' + id + '_jGraduate_OpacArrows" class="jGraduate_OpacArrows" src="' + $settings.images.clientPath + 'rangearrows2.gif">' +
+							'<img id="' + id + '_jGraduate_OpacArrows" class="jGraduate_OpacArrows" src="' + window.site_path+$settings.images.clientPath + 'rangearrows2.gif">' +
 						'</div>' +
 						'<label><input type="text" id="' + id + '_jGraduate_OpacInput" size="3" value="100"/>%</label>' + 
     	    	    '</div>' +
@@ -705,7 +705,7 @@ jQuery.fn.jGraduate =
 				height: 16
 			}, trans_pattern);
 			
-			var bg_image = $settings.images.clientPath + 'map-opacity.png';
+			var bg_image = window.site_path+$settings.images.clientPath + 'map-opacity.png';
 
 			trans_img.setAttributeNS(ns.xlink, 'xlink:href', bg_image);
 			
