@@ -101,6 +101,19 @@ account_redirect_ongoing_course:
   pattern: /redirect-to-classroom
   defaults: { _controller: FrontFrontBundle:User:redirectToClassroom }
 
+# teacher presentations
+account_teacher_presentations:
+  pattern: /teacher-presentations
+  defaults: { _controller: FrontFrontBundle:Teacher:presentationList }
+
+account_teacher_presentation_sheets:
+  pattern: /teacher-presentation-sheets
+  defaults: { _controller: FrontFrontBundle:Teacher:presentationSheets }
+
+account_teacher_create_modify_sheet:
+  pattern: /create-modify-sheet
+  defaults: { _controller: FrontFrontBundle:Teacher:createModifyPresentationSheet }
+
 ajax:
   pattern: /ajax
   defaults: { _controller: FrontFrontBundle:Ajax:index }
