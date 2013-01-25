@@ -88,6 +88,154 @@ class TeachersRepository extends UserRepository {
         $result = $q->fetch(2);
         return $result;
     }
+    
+    public function getTeacherPresentationList($teacher_id) {
+        $query = "
+            SELECT tp.*
+            FROM teacher_presentations tp
+            WHERE tp.teacher_id=:teacher_id
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':teacher_id' => $teacher_id));
+        $result = $q->fetchAll(2);
+        return $result;
+    }
+    
+    public function createPresentation($teacher_id, $presentation_name, $presentation_desc) {
+        $params = array();
+
+        $query = "
+            INSERT INTO teacher_presentations(teacher_id, presentation_name, presentation_desc, presentation_hash, added)
+            VALUES (:teacher_id, :presentation_name, :presentation_desc, :presentation_hash, NOW())
+        ";
+
+        $params[':teacher_id'] = $teacher_id;
+        $params[':presentation_name'] = $presentation_name;
+        $params[':presentation_desc'] = $presentation_desc;
+        $params[':presentation_hash'] = md5($presentation_desc.$presentation_name.$teacher_id.time());
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+        return $this->getEntityManager()->getConnection()->lastInsertId();
+    }
+    
+    public function updatePresentation($teacher_id, $presentation_id, $presentation_name, $presentation_desc) {
+        $params = array();
+
+        $query = "
+            UPDATE teacher_presentations SET presentation_name=:presentation_name, presentation_desc=:presentation_desc
+            WHERE id=:presentation_id AND teacher_id=:teacher_id
+        ";
+
+        $params[':teacher_id'] = $teacher_id;
+        $params[':presentation_id'] = $presentation_id;
+        $params[':presentation_name'] = $presentation_name;
+        $params[':presentation_desc'] = $presentation_desc;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+    }
+    
+    public function getTeacherPresentationDetails($teacher_id, $presentation_id) {
+        $query = "
+            SELECT tp.*
+            FROM teacher_presentations tp
+            WHERE tp.teacher_id=:teacher_id
+            AND tp.id=:presentation_id
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':teacher_id' => $teacher_id, ':presentation_id' => $presentation_id));
+        $result = $q->fetch(2);
+        return $result;
+    }
+    
+    public function deletePresentation($teacher_id, $presentation_id) {
+        $query = "
+            DELETE FROM teacher_presentations
+            WHERE teacher_id=:teacher_id
+            AND id=:presentation_id
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':teacher_id' => $teacher_id, ':presentation_id' => $presentation_id));
+    }
+
+    public function getTeacherPresentationSheets($teacher_id, $presentation_id) {
+        $query = "
+            SELECT ps.*
+            FROM teacher_presentations tp, presentation_sheets ps
+            WHERE tp.teacher_id=:teacher_id
+            AND tp.id=:presentation_id
+            AND ps.presentation_id=tp.id
+            ORDER BY ps.sheet_order ASC
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':teacher_id' => $teacher_id, ':presentation_id' => $presentation_id));
+        $result = $q->fetchAll(2);
+        return $result;
+    }
+    
+    public function createPresentationSheet($presentation_id, $svg_data) {
+        $params = array();
+
+        $query = "
+            INSERT INTO presentation_sheets(presentation_id, sheet_content, added)
+            VALUES (:presentation_id, :sheet_content, NOW())
+        ";
+
+        $params[':presentation_id'] = $presentation_id;
+        $params[':sheet_content'] = $svg_data;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+        return $this->getEntityManager()->getConnection()->lastInsertId();
+    }
+    
+    public function updatePresentationSheet($sheet_id, $svg_data) {
+        $params = array();
+
+        $query = "
+            UPDATE presentation_sheets SET sheet_content=:sheet_content
+            WHERE id=:sheet_id
+        ";
+
+        $params[':sheet_content'] = $svg_data;
+        $params[':sheet_id'] = $sheet_id;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+    }
+    
+    public function updatePresentationSheetOrder($sheet_id, $order) {
+        $query = "
+            UPDATE presentation_sheets SET sheet_order=:sheet_order
+            WHERE id=:sheet_id
+        ";
+
+        $params[':sheet_order'] = $order;
+        $params[':sheet_id'] = $sheet_id;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+    }
+    
+    public function deletePresentationSheet($teacher_id, $sheet_id) {
+        $query = "
+            DELETE FROM presentation_sheets 
+            WHERE id=:sheet_id
+            AND presentation_id IN (SELECT id FROM teacher_presentations WHERE teacher_id=:teacher_id)
+        ";
+
+        $params[':teacher_id'] = $teacher_id;
+        $params[':sheet_id'] = $sheet_id;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+    }
+    
+    public function getPresentationSheetDetails($teacher_id, $sheet_id) {
+        $query = "
+            SELECT ps.* FROM presentation_sheets ps, teacher_presentations tp
+            WHERE ps.id=:sheet_id
+            AND tp.teacher_id=:teacher_id
+            AND ps.presentation_id=tp.id
+        ";
+
+        $params[':teacher_id'] = $teacher_id;
+        $params[':sheet_id'] = $sheet_id;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+        return $q->fetch(2);
+    }
 
     /**
      * used in UserRepository

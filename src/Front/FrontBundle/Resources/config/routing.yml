@@ -114,6 +114,10 @@ account_teacher_create_modify_sheet:
   pattern: /create-modify-sheet
   defaults: { _controller: FrontFrontBundle:Teacher:createModifyPresentationSheet }
 
+account_teacher_play_presentation:
+  pattern: /test-presentation
+  defaults: { _controller: FrontFrontBundle:Teacher:testPresentation }
+
 ajax:
   pattern: /ajax
   defaults: { _controller: FrontFrontBundle:Ajax:index }

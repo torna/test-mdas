@@ -1,10 +1,5 @@
 {% extends '::base_account_teacher.html.twig' %}
 {% block body %}
-    <h3>Presentation sheets for "{{ presentation_details.presentation_name }}"</h3>
-    <a href="{{ path('account_teacher_create_modify_sheet') }}?presentation_id={{ presentation_details.id }}" class="btn btn-success">Create presentation sheet</a>
-    <a href="{{ path('account_teacher_play_presentation') }}?presentation_id={{ presentation_details.id }}" class="btn btn-info"><i class="icon-play"></i> Test presentation</a>
-    
-    {% if sheets|length %}
         <div class="sep"></div>
         <form method="post" action="">
             <input type="hidden" name="todo" value="save_order" />
@@ -48,7 +43,6 @@
                 </tr>
             </table>
         </form>
-    {% endif %}
 {% endblock %}
 {% block javascripts %}
     {{ parent() }}

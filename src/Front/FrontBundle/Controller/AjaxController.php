@@ -101,6 +101,44 @@ class AjaxController extends Controller {
                  */
                 die;
                 break;
+            case 'store_svg_presentation':
+                $err = array();
+                if ((Auth::isAuth() && Auth::getAuthParam('account_type')=='teacher')) {
+                    $presentation_id = $request->get('presentation_id');
+                    $sheet_id = $request->get('sheet_id');
+                    if(!is_numeric($presentation_id)) {
+                        $err['err'] = 1;
+                        $err['msg'] = 'Presentation id is not numeric';
+                        die(json_encode($err));
+                    }
+                    $presentation_details = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherPresentationDetails(Auth::getAuthParam('id'), $presentation_id);
+                    if(empty($presentation_details)) { // teacher does not own the presentation
+                        $err['err'] = 1;
+                        $err['msg'] = 'No access';
+                        die(json_encode($err));
+                    }
+                    if(is_numeric($sheet_id)) {
+                        $sheet_data = $em->getRepository('FrontFrontBundle:Teachers')->getPresentationSheetDetails(Auth::getAuthParam('id'), $sheet_id);
+                        if (empty($sheet_data)) { // teacher does not own the presentation sheet
+                            $err['err'] = 1;
+                            $err['msg'] = 'No access to sheet';
+                            die(json_encode($err));
+                        }
+                        $em->getRepository('FrontFrontBundle:Teachers')->updatePresentationSheet($sheet_id, $request->get('svg_data'));
+                    } else {
+                        $em->getRepository('FrontFrontBundle:Teachers')->createPresentationSheet($presentation_id, $request->get('svg_data'));
+                    }
+                } else {
+                    $err['err'] = 1;
+                    $err['msg'] = 'Not auth';
+                    die(json_encode($err));
+                }
+                $err['err'] = 0;
+                $err['msg'] = 'Ok';
+                die(json_encode($err));
+                
+                break;
+                
         }
     }
 
