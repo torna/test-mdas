@@ -167,6 +167,19 @@ class TeachersRepository extends UserRepository {
         $result = $q->fetchAll(2);
         return $result;
     }
+
+    public function getTeacherPresentationSheetsBySheetHash($presentation_hash) {
+        $query = "
+            SELECT ps.*
+            FROM teacher_presentations tp, presentation_sheets ps
+            WHERE tp.presentation_hash=:presentation_hash
+            AND ps.presentation_id=tp.id
+            ORDER BY ps.sheet_order ASC
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':presentation_hash' => $presentation_hash));
+        $result = $q->fetchAll(2);
+        return $result;
+    }
     
     public function createPresentationSheet($presentation_id, $svg_data) {
         $params = array();
