@@ -12,8 +12,8 @@ window.socket_object = {
             'date': 'now'
         });
         // when not authorized
-        this.socket_data.on('reconnect', function(){
-            window.location = window.location.href;
+        this.socket_data.on('reconnect', function() {
+            window.location = window.location.href.replace(/#.*/, '');
         });
         /******** HISTORY *********/
         // server is asking if there has been an refresh
@@ -128,6 +128,23 @@ window.socket_object = {
         // teacher tab switch
         this.socket_data.on('wb3_teacher_tab', function(data) {
             window.wb3.teacherTabIndicator(data);
+        });
+        
+        /******** PRESENTATION *********/
+        
+        // on tab create
+        this.socket_data.on('wb4_tab_create', function(data) {
+            window.wb4.createTab(data.unique_id, data.tab_name, 'socket', data.file_name);
+        });
+        
+        // on tab delete
+        this.socket_data.on('wb4_tab_delete', function(data) {
+            window.wb4.bindDeleteTabEvent(data.sheet_id, 'socket');
+        });
+        
+        // on slide switch
+        this.socket_data.on('slide_switch', function(data) {
+            window.wb4.switchSlide(data);
         });
     },
     emit: function(ident, object) {

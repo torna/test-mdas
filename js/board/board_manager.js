@@ -115,6 +115,9 @@ window.board_manager = {
                 window.wb3.createTab('1', 'New file');
             }
         }
+        if(board_type == 'presentation') {
+            window.wb4.init();
+        }
     },
     // gets content of all boards
     getBoardsFullData: function() {
@@ -129,6 +132,9 @@ window.board_manager = {
                     break;
                 case 'draw':
                     boards_data.draw = window.learn_draw.getAllContents();
+                    break;
+                case 'presentation':
+//                    boards_data.presentation = window.wb4.getAllContents();
                     break;
             }
         }
