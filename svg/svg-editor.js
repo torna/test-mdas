@@ -4008,7 +4008,7 @@
 					{sel:'#tool_image', fn: clickImage, evt: 'mouseup'},
 					{sel:'#tool_zoom', fn: clickZoom, evt: 'mouseup', key: ['Z', true]},
 					{sel:'#tool_clear', fn: clickClear, evt: 'mouseup', key: ['N', true]},
-					{sel:'#tool_save', fn: function() { console.log(svgCanvas.getSvgString()) }, evt: 'mouseup', key: ['S', true]},
+					{sel:'#tool_save', fn: function() { svgCanvas.getSvgString() }, evt: 'mouseup', key: ['S', true]},
 //					{sel:'#tool_save', fn: function() { editingsource?saveSourceEditor():clickSave()}, evt: 'mouseup', key: ['S', true]},
 					{sel:'#tool_export', fn: clickExport, evt: 'mouseup'},
 					{sel:'#tool_open', fn: clickOpen, evt: 'mouseup', key: ['O', true]},
