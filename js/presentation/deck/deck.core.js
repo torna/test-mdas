@@ -291,6 +291,7 @@ that use the API provided by core.
 		is ignored.
 		*/
 		next: function() {
+                        window.wb4.slidePosition(current+1);
 			methods.go(current+1);
 		},
 		
@@ -301,6 +302,7 @@ that use the API provided by core.
 		call is ignored.
 		*/
 		prev: function() {
+                        window.wb4.slidePosition(current-1);
 			methods.go(current-1);
 		},
 		
