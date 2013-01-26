@@ -21,6 +21,12 @@ class AjaxController extends Controller {
                         return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig');
                     } elseif($board == 'draw') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb1.html.twig');
+                    } elseif($board == 'presentation') {
+                        $presentation_list = array();
+                        if(Auth::getAuthParam('account_type')=='teacher') {
+                            $presentation_list = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherPresentationList(Auth::getAuthParam('id'));
+                        }
+                        return $this->render('FrontFrontBundle:Ajax:board_wb4.html.twig', array('presentation_list' => $presentation_list));
                     }
                 }
                 break;
@@ -44,6 +50,13 @@ class AjaxController extends Controller {
                         $file_content = \Front\FrontBundle\Libs\CommonLib::getFileContent(Auth::getAuthParam('course_working_folder'), $file_name);
                     }
                     return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig', array('file_content' => $file_content));
+                }
+                break;
+            case 'get_wb4_generic':
+                if (Auth::isAuth()) {
+                    $presentation_hash = $request->get('presentation_hash');
+                    $presentations_sheets = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherPresentationSheetsBySheetHash($presentation_hash);
+                    return $this->render('FrontFrontBundle:Ajax:_wb4_generic_content.html.twig', array('presentation_sheets' => $presentations_sheets, 'account_type' => Auth::getAuthParam('account_type')));
                 }
                 break;
             case 'save_file_for_execution':
