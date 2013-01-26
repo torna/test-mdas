@@ -53,6 +53,8 @@
                     <a href="?todo=modify&presentation_id={{ item.id }}" class="btn btn-info"><i class="icon-edit"></i> Modify</a>
                     <div class="sep"></div>
                     <a href="{{ path('account_teacher_presentation_sheets') }}?presentation_id={{ item.id }}" class="btn btn-info"><i class="icon-picture"></i> Manage sheets</a>
+                    <div class="sep"></div>
+                    <a href="{{ path('account_teacher_play_presentation') }}?presentation_id={{ item.id }}" class="btn btn-info"><i class="icon-play"></i> Test presentation</a>
                 </td>
             </tr>
         {% endfor %}
