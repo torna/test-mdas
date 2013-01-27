@@ -489,12 +489,12 @@ window.wb3 = {
         for (var i = 0; i < cnt; i++) {
             main_data = JSON.parse(data[i].main_data);
             switch(data[i].act_name) {
-                case 'board_create':
-                    window.board_manager.addBoard(main_data.board_type, main_data.board_name, 'history');
-                    break;
-                case 'wb3_board_delete':
-                    window.board_manager.deleteBoard(main_data.board_type, 'history');
-                    break;
+//                case 'board_create':
+//                    window.board_manager.addBoard(main_data.board_type, main_data.board_name, 'history');
+//                    break;
+//                case 'wb3_board_delete':
+//                    window.board_manager.deleteBoard(main_data.board_type, 'history');
+//                    break;
                 case 'wb3_tab_create':
                     window.wb3.createTab(data[i].obj_id, main_data.tab_name, 'history', main_data.file_name);
                     break;
