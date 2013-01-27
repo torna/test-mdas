@@ -1,4 +1,4 @@
-{% extends '::base_account_student.html.twig' %}
+{% extends account_type == 'student' ? '::base_account_student.html.twig':'::base_account_teacher.html.twig' %}
 {% block body %}
     <h2>Course details</h2>
     Object: {{ course_details.object_ro }}

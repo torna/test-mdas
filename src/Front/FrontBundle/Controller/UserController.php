@@ -405,7 +405,7 @@ class UserController extends Controller {
         
         $course_details = $em->getRepository('FrontFrontBundle:AvailableCourses')->getCourseById($course_id);
         
-        return $this->render('FrontFrontBundle:Account/Course:pre_course.html.twig', array('course_details' => $course_details));
+        return $this->render('FrontFrontBundle:Account/Course:pre_course.html.twig', array('course_details' => $course_details, 'account_type' => Auth::getAuthParam('account_type')));
     }
     
     public function redirectToClassroomAction() {
