@@ -134,7 +134,7 @@ window.board_manager = {
                     boards_data.draw = window.learn_draw.getAllContents();
                     break;
                 case 'presentation':
-//                    boards_data.presentation = window.wb4.getAllContents();
+                    boards_data.presentation = window.wb4.getAllContents();
                     break;
             }
         }
@@ -154,6 +154,13 @@ window.board_manager = {
         if(data.current_content.hasOwnProperty('draw')) {
             window.learn_draw.createBoardFromHistory(data.current_content.draw);
         }
+        
+        // presentation board
+        if(data.current_content.hasOwnProperty('presentation')) {
+            this.addBoard('presentation', 'Presentation', 'history');
+            window.wb4.createBoardFromHistory(data.current_content.presentation);
+        }
+        
         // add more boards here
         this.is_refresh = false;
         jQuery('#loading').hide();
@@ -208,4 +215,11 @@ window.board_manager = {
             }
         });
     },
+    createBoardsFromHistory: function(data) {
+        var main_data = '';
+        for (var i = 0; i < data.length; i++) {
+            main_data = JSON.parse(data[i].main_data);
+            this.addBoard(main_data.board_type, main_data.board_name, 'history');
+        }
+    }
 }

@@ -27,11 +27,19 @@ window.socket_object = {
             this.emit('refresh_content_full', {current_content: board_full_data});
         });
         
-        // server send to this client content for refresh
+        // server send to this client content for refresh (from other clients)
         this.socket_data.on('refresh_content', function(data) {
             clearTimeout(window.board_manager.refresh_timeout_obj);
             console.log('refresh_content received, clearing timeout');
             window.board_manager.setBoardsContent(data);
+        });
+        
+        // create boards first
+        this.socket_data.on('create_boards_history', function(data) {
+            clearTimeout(window.board_manager.refresh_timeout_obj);
+            console.log('create_boards_history received, clearing timeout');
+            window.board_manager.createBoardsFromHistory(data);
+            delete data;
         });
         
         /******** SYNC *********/
@@ -144,7 +152,15 @@ window.socket_object = {
         
         // on slide switch
         this.socket_data.on('slide_switch', function(data) {
-            window.wb4.switchSlide(data);
+            window.wb4.switchSlide(data.slider_position, 'socket');
+        });
+        
+        // on wp4 redraw
+        this.socket_data.on('wp4_redraw', function(data) {
+            clearTimeout(window.board_manager.refresh_timeout_obj);
+            console.log('wp4_redraw received, clearing timeout');
+            window.wb4.applyRedrawBoard(data);
+            delete data;
         });
     },
     emit: function(ident, object) {
