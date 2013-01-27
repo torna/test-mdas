@@ -282,6 +282,7 @@ that use the API provided by core.
 				current = ndx;
 				updateStates();
 			}
+                        window.wb4.slidePosition(current);
 		},
 		
 		/*
