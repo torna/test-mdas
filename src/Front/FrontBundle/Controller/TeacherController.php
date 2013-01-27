@@ -290,6 +290,16 @@ class TeacherController extends Controller {
             
         }
         
+        if($todo == 'duplicate') {
+            $sheet_id = $request->get('sheet_id');
+            if(in_array($sheet_id, $sheet_ids)) { // user owns this sheet
+                $em->getRepository('FrontFrontBundle:Teachers')->duplicatePresentationSheet(Auth::getAuthParam('id'), $sheet_id);
+            }
+            $this->get('session')->setFlash('notice', 'Presentation sheet duplicated successfully.');
+            return $this->redirect($request->headers->get('referer'));
+            
+        }
+        
         for ($i = 0; $i < $cnt; $i++) {
             $presentation_sheets[$i]['sheet_content'] = str_replace('width="640"', 'width="320"', $presentation_sheets[$i]['sheet_content']);
             $presentation_sheets[$i]['sheet_content'] = str_replace('height="480"', 'height="240" viewBox="80 0 490 490"', $presentation_sheets[$i]['sheet_content']);

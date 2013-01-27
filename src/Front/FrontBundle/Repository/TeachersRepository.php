@@ -235,6 +235,20 @@ class TeachersRepository extends UserRepository {
         $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
     }
     
+    public function duplicatePresentationSheet($teacher_id, $sheet_id) {
+        $query = "
+            INSERT INTO presentation_sheets (presentation_id, sheet_name, sheet_order, sheet_content, added)
+            SELECT presentation_id, sheet_name, sheet_order, sheet_content, NOW() FROM presentation_sheets 
+            WHERE id=:sheet_id
+            AND presentation_id IN (SELECT id FROM teacher_presentations WHERE teacher_id=:teacher_id)
+        ";
+
+        $params[':teacher_id'] = $teacher_id;
+        $params[':sheet_id'] = $sheet_id;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+    }
+    
     public function getPresentationSheetDetails($teacher_id, $sheet_id) {
         $query = "
             SELECT ps.* FROM presentation_sheets ps, teacher_presentations tp

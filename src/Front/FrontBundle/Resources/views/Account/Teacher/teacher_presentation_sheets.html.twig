@@ -32,6 +32,8 @@
                             <a href="?todo=delete&sheet_id={{ item.id }}&presentation_id={{ presentation_details.id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
                             <div class="sep"></div>
                             <a href="{{ path('account_teacher_create_modify_sheet') }}?todo=modify&presentation_id={{ presentation_details.id }}&sheet_id={{ item.id }}" class="btn btn-info"><i class="icon-edit"></i> Modify</a>
+                            <div class="sep"></div>
+                            <a href="?todo=duplicate&presentation_id={{ presentation_details.id }}&sheet_id={{ item.id }}" class="btn btn-info"><i class="icon-plus-sign"></i> Duplicate</a>
                         </td>
                     </tr>
                 {% endfor %}
