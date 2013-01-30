@@ -1,0 +1,29 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <h3>Preview of "{{ test_details.test_name_public }}" test</h3>
+    {% for item in test_questions %}
+        <b>{{ item.question }}</b>
+        <br />
+        {% if item.question_type == 'text' %}
+            <input type="text" name="" value="" />
+            <br />
+        {% elseif item.question_type == 'radio' %}
+            {% for answers in item.answers %}
+                <input type="radio" name="" value="" /> {{ answers.option_value }}
+                <br />
+            {% endfor %}
+        {% elseif item.question_type == 'checkboxes' %}
+            {% for answers in item.answers %}
+                <input type="checkbox" name="" value="" /> {{ answers.option_value }}
+                <br />
+            {% endfor %}
+        {% endif %}
+        <div class="sep"></div>
+    {% endfor %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
