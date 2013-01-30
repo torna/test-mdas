@@ -12,3 +12,6 @@
     display: block;
     height: 10px;
 }
+.question_types{
+    display: none;
+}
