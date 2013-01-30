@@ -2,7 +2,7 @@
 {% block body %}
     <h3>Questions for test: "{{ test_details.test_name_private }}"</h3>
     <a href="javascript:;" onclick="jQuery('#add_item').toggle();" class="btn btn-success">Create question</a>
-    <a href="{{ path('account_teacher_play_presentation') }}?presentation_id={{ test_details.id }}" class="btn btn-info"><i class="icon-play"></i> Preview test</a>
+    <a href="{{ path('account_teacher_preview_test') }}?test_id={{ test_details.id }}" class="btn btn-info"><i class="icon-play"></i> Preview test</a>
     <div style="{% if modify_data|length %}{% else %}display:none;{% endif %}" id="add_item">
         <fieldset>
             <legend>Create question</legend>

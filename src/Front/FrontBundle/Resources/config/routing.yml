@@ -130,3 +130,7 @@ account_teacher_tests:
 account_teacher_test_questions:
   pattern: /teacher-test-questions
   defaults: { _controller: FrontFrontBundle:Tests:teacherTestQuestions }
+
+account_teacher_preview_test:
+  pattern: /teacher-preview-test
+  defaults: { _controller: FrontFrontBundle:Tests:previewTest }

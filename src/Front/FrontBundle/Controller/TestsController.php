@@ -174,6 +174,38 @@ class TestsController extends Controller {
 
         return $this->render('FrontFrontBundle:Account:Teacher/teacher_test_questions.html.twig', array('test_details' => $test_details, 'test_questions' => $test_questions, 'modify_data' => $modify_data));
     }
+    
+    public function previewTestAction() {
+        if (!(Auth::isAuth() && Auth::getAuthParam('account_type') == 'teacher')) {
+            return $this->redirect($this->generateUrl('register'));
+        }
+        $request = $this->getRequest();
+        
+        $test_id = $request->get('test_id');
+        
+        if (!is_numeric($test_id)) {
+            $this->get('session')->setFlash('error', 'Wrong test id.');
+            return $this->redirect($this->generateUrl('account_teacher_tests'));
+        }
+        $em = $this->getDoctrine()->getEntityManager();
+
+        // check if teacher owns the test
+        $test_details = $em->getRepository('FrontFrontBundle:TeacherTests')->getTeacherTestDetails(Auth::getAuthParam('id'), $test_id);
+        if (empty($test_details)) { // teacher does not own the test
+            $this->get('session')->setFlash('error', 'You do not own this test.');
+            return $this->redirect($this->generateUrl('account_teacher_tests'));
+        }
+
+        
+        $test_questions = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getTestQuestions(Auth::getAuthParam('id'), $test_id);
+        $cnt = count($test_questions);
+        for ($i = 0; $i < $cnt; $i++) {
+            $test_questions[$i]['answers'] = $em->getRepository('FrontFrontBundle:TeacherQuestionOptions')->getQuestionOptionsByTeacherId(Auth::getAuthParam('id'), $test_questions[$i]['id']);
+        }
+//        \Front\FrontBundle\Additional\Debug::d1($test_questions);
+        
+        return $this->render('FrontFrontBundle:Account:Teacher/play_teacher_test.html.twig', array('test_details' => $test_details, 'test_questions' => $test_questions));
+    }
 
 }
 

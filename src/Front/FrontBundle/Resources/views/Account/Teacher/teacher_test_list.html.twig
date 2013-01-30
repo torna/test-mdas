@@ -74,6 +74,8 @@
                         <a href="?todo=modify&test_id={{ item.id }}" class="btn btn-info"><i class="icon-edit"></i> Modify</a>
                         <div class="sep"></div>
                         <a href="{{ path('account_teacher_test_questions') }}?test_id={{ item.id }}" class="btn btn-info"><i class="icon-picture"></i> Manage questions</a>
+                        <div class="sep"></div>
+                        <a href="{{ path('account_teacher_preview_test') }}?test_id={{ item.id }}" class="btn btn-info"><i class="icon-play"></i> Preview test</a>
                     </td>
                 </tr>
             {% endfor %}
