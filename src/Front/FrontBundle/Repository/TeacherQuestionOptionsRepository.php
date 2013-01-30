@@ -6,6 +6,9 @@ use Doctrine\ORM\EntityRepository;
 class TeacherQuestionOptionsRepository extends EntityRepository {
 
     public function createQuestionAnswers($question_id, $answers, $answers_order) {
+        if(empty($answers)) {
+            return;
+        }
         $inserts = array();
 
         $query = "
