@@ -121,3 +121,12 @@ account_teacher_play_presentation:
 ajax:
   pattern: /ajax
   defaults: { _controller: FrontFrontBundle:Ajax:index }
+
+# teacher tests
+account_teacher_tests:
+  pattern: /teacher-test-list
+  defaults: { _controller: FrontFrontBundle:Tests:teacherTests }
+
+account_teacher_test_questions:
+  pattern: /teacher-test-questions
+  defaults: { _controller: FrontFrontBundle:Tests:teacherTestQuestions }

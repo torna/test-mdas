@@ -1,0 +1,148 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <h3>Questions for test: "{{ test_details.test_name_private }}"</h3>
+    <a href="javascript:;" onclick="jQuery('#add_item').toggle();" class="btn btn-success">Create question</a>
+    <a href="{{ path('account_teacher_play_presentation') }}?presentation_id={{ test_details.id }}" class="btn btn-info"><i class="icon-play"></i> Preview test</a>
+    <div style="{% if modify_data|length %}{% else %}display:none;{% endif %}" id="add_item">
+        <fieldset>
+            <legend>Create question</legend>
+        </fieldset>
+        <form action="" method="post">
+            <input type="hidden" name="todo_post" value="save_question" />
+            <input type="hidden" name="test_id" value="{{ app.request.get('test_id') }}" />
+            {% if app.request.get('todo') == 'modify' %}
+                <input type="hidden" name="question_id" value="{{ app.request.get('question_id') }}" />
+            {% endif %}
+            <label for="question">Question:</label>
+            <input type="text" id="question" name="question" value="{{ modify_data.question_data.question }}" required="required" />
+            <div class="sep"></div>
+            <label for="question_order">Question order:</label>
+            <input type="text" id="question_order" name="question_order" value="{{ modify_data.question_data.question_order }}" />
+            <div class="sep"></div>
+            <label for="question_type">Question type:</label>
+            <select name="question_type" id="question_type" required="required">
+                <option value="">[Select]</option>
+                <option value="radio" {% if modify_data.question_data.question_type == 'radio' %}selected="selected"{% endif %} >Radio</option>
+                <option value="text" {% if modify_data.question_data.question_type == 'text' %}selected="selected"{% endif %} >Text</option>
+                <option value="checkboxes" {% if modify_data.question_data.question_type == 'checkboxes' %}selected="selected"{% endif %} >Checkboxes</option>
+            </select>
+            <hr />
+            <div class="question_types" id="question_type_radio" style="{% if modify_data.question_data.question_type == 'radio' %}display:block;{% endif %}">
+                {% for item in modify_data.answers %}
+                    <div>
+                        Answer option:
+                        <br />
+                        <input type="text" name="radio_options[]" value="{{ item.option_value }}" />
+                        <br />
+                        Answer option order:
+                        <br />
+                        <input type="text" name="radio_options_order[]" value="{{ item.option_order }}" />
+                        <br />
+                        <br />
+                        <a href="javascript:;" onclick="jQuery(this).parent().remove()"><i class="icon-minus-sign"></i> delete</a>
+                    </div>
+                {% endfor %}
+                <div id="radio_item">
+                    Answer option:
+                    <br />
+                    <input type="text" name="radio_options[]" value="" />
+                    <br />
+                    Answer option order:
+                    <br />
+                    <input type="text" name="radio_options_order[]" value="" />
+                </div>
+                <a href="javascript:;" class="add_answer_option" data-answer-type="radio"><i class="icon-plus-sign"></i> add answer option</a>
+            </div>
+            <div class="question_types" id="question_type_checkboxes" style="{% if modify_data.question_data.question_type == 'checkboxes' %}display:block;{% endif %}">
+                {% for item in modify_data.answers %}
+                    <div>
+                        Answer option:
+                        <br />
+                        <input type="text" name="checkboxes_options[]" value="{{ item.option_value }}" />
+                        <br />
+                        Answer option order:
+                        <br />
+                        <input type="text" name="checkboxes_options_order[]" value="{{ item.option_order }}" />
+                        <br />
+                        <br />
+                        <a href="javascript:;" onclick="jQuery(this).parent().remove()"><i class="icon-minus-sign"></i> delete</a>
+                    </div>
+                {% endfor %}
+                <div id="checkboxes_item">
+                    Answer option:
+                    <br />
+                    <input type="text" name="checkboxes_options[]" value="" />
+                    <br />
+                    Answer option order:
+                    <br />
+                    <input type="text" name="checkboxes_options_order[]" value="" />
+                </div>
+                <a href="javascript:;" class="add_answer_option" data-answer-type="checkboxes"><i class="icon-plus-sign"></i> add answer option</a>
+            </div>
+            {% if modify_data|length %}
+                <input type="hidden" name="test_id" value="{{ modify_data.id }}" />
+            {% endif %}
+            <div class="sep"></div>
+            <input type="submit" class="btn btn-success" value="Save" />
+        </form>
+    </div>
+    
+    {% if test_questions|length %}
+        <div class="sep"></div>
+        <form method="post" action="">
+            <input type="hidden" name="todo_post" value="save_order" />
+            <table class="table">
+                <tr>
+                    <th>
+                        Question
+                    </th>
+                    <th>
+                        Question type
+                    </th>
+                    <th>
+                        Question order
+                    </th>
+                    <th>
+                        Options
+                    </th>
+                </tr>
+                {% for item in test_questions %}
+                    <tr>
+                        <td>
+                            {{ item.question }}
+                        </td>
+                        <td>
+                            {{ item.question_type }}
+                        </td>
+                        <td>
+                            <input type="text" class="input-small" name="order[{{ item.id }}]" value="{{ item.question_order }}" />
+                        </td>
+                        <td>
+                            <a href="?todo=delete&question_id={{ item.id }}&test_id={{ test_details.id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
+                            <div class="sep"></div>
+                            <a href="?todo=modify&test_id={{ test_details.id }}&question_id={{ item.id }}" class="btn btn-info"><i class="icon-edit"></i> Modify</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        <input type="submit" class="btn btn-success" value="Save order" style="float:right;" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    {% endif %}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="../js/pages/teacher_questions.js"></script>
+{% endblock %}
