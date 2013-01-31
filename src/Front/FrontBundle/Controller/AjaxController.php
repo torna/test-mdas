@@ -46,6 +46,14 @@ class AjaxController extends Controller {
                     return $this->render('FrontFrontBundle:Ajax:_wb1_generic_content.html.twig', array('file_content' => $file_content));
                 }
                 break;
+            case 'get_wb2_generic':
+                if (Auth::isAuth()) {
+                    $text_hash = $request->get('unique_id');
+                    $text_data = $em->getRepository('FrontFrontBundle:TeacherTexts')->getTeacherTextByHash($text_hash);
+                    $text = $text_data['text_content'];
+                    return $this->render('FrontFrontBundle:Ajax:_wb2_generic_content.html.twig', array('text' => $text));
+                }
+                break;
             case 'get_wb3_generic':
                 if (Auth::isAuth()) {
                     $file_content = '';

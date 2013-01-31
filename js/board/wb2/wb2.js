@@ -24,8 +24,8 @@ window.wb2 = {
         // add blank tab
         jQuery('#add_text_sheet').click(function() {
             // generating unique id
-            var unique_id = parseInt(Math.random() * 9999999999999999);
-            var tab_name = 'New file';
+            var unique_id = jQuery('#texts_list').val();
+            var tab_name = jQuery('#texts_list option:selected').text();
             window.wb2.createTab(unique_id, tab_name);
         });
     },
@@ -80,48 +80,41 @@ window.wb2 = {
             window.wb2.editors_list[sheet_id].refresh();
         }
     },
-    createTab: function(unique_id, tab_name, caller, file_name) {
+    createTab: function(unique_id, tab_name, caller) {
         if(jQuery('#file_name_'+unique_id).length > 0) {
             return false;
         }
         this.current_tabs.push(unique_id.toString());
         if(caller === undefined) { // if caller!='socket' send socket
-            window.socket_object.emit('wb2_tab_create', {tab_name: tab_name, unique_id: unique_id, file_name: file_name});
+            window.socket_object.emit('wb2_tab_create', {unique_id: unique_id, tab_name: tab_name});
         }
         // create tab
-        jQuery('#wb2_items_tabs').append('<div class="tab_div_wb2" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_languages_sheet">x</a></sup></div>');
         // create tab content
-        if(file_name === undefined && this.stored_tab_html != '') {
-            console.log('creating tab from memory');
-            window.wb2.setTabBindings(this.stored_tab_html, unique_id);
-        } else {
-            jQuery.ajax({
-                url: "ajax",
-                data: "todo=get_wb2_generic&file_name="+file_name,
-                type: "get",
-                async: false,
-                beforeSend: function() {
-                    // loadior here
-                },
-                success: function(data) {
-                    if(file_name === undefined) {
-                        window.wb2.stored_tab_html = data;
-                    }
-                    window.wb2.setTabBindings(data, unique_id);
-                }
-            });
-        }
+        
+        jQuery.ajax({
+            url: "ajax",
+            data: "todo=get_wb2_generic&unique_id="+unique_id,
+            type: "get",
+            async: false,
+            beforeSend: function() {
+                // loadior here
+            },
+            success: function(data) {
+                jQuery('#wb2_items_tabs').append('<div class="tab_div_wb2" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+tab_name+'</span> <sup><a href="javascript:;" class="delete_languages_sheet">x</a></sup></div>');
+                window.wb2.setTabBindings(data, unique_id);
+            }
+        });
         
     },
     setTabBindings: function(data, unique_id) {
         // setting zone id, i.e board id, so we could know where are we working
         data = data.replace(/%zone_id%/g, unique_id);
-        jQuery('.wb2_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
+        jQuery('.wb2_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb2_board_item">'+data+'</div>');
         jQuery('.wb2_board_item').hide(); // hide all wb3 boards
         jQuery('#board_item_'+unique_id).show(); // showing created board
         window.wb2.bindDeleteTabEvent();
         window.wb2.bindTabSwitcher();
-        window.wb2.bindLanguageSwitcher();
+        window.wb2.bindLanguageSwitcher(unique_id);
 //        window.board_manager.bindTreeviewer();
         window.wb2.switchTab(unique_id);
     },
@@ -134,27 +127,17 @@ window.wb2 = {
         jQuery('div#wb2_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
     },
-    bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
-        if(caller === 'socket' || caller === 'history') { // if caller!='socket' send socket
-            window.wb2.createHighlighter(chosen_language, mime, zone_id, caller);
-            jQuery('#save_file_wb2_button_'+zone_id).show();
-        }
-        this.bindFileSaver();
+    bindLanguageSwitcher: function(zone_id) {
+        window.wb2.createHighlighter(zone_id);
     },
-    bindFileSaver: function() {
-        jQuery('.save_file_wb2_button').unbind('click');
-        jQuery('.save_file_wb2_button').click(function() {
-            var zone_id = jQuery(this).attr('data-zone-id');
-        })
-    },
-    createHighlighter: function(chosen_language, mime, zone_id, caller) {
+    createHighlighter: function(zone_id) {
         var javascripts = new Array();
-        if(chosen_language != 'c' && chosen_language != 'cplus' && chosen_language != 'java') {
-            javascripts.push('../js/highlighter/mode/'+chosen_language+'/'+chosen_language+'.js');
-        }
-        javascripts.push('../js/highlighter/mode/clike/clike.js');
-        javascripts.push('../js/highlighter/mode/xml/xml.js');
-        javascripts.push('../js/highlighter/mode/javascript/javascript.js');
+//        if(chosen_language != 'c' && chosen_language != 'cplus' && chosen_language != 'java') {
+//            javascripts.push('../js/highlighter/mode/'+chosen_language+'/'+chosen_language+'.js');
+//        }
+//        javascripts.push('../js/highlighter/mode/clike/clike.js');
+//        javascripts.push('../js/highlighter/mode/xml/xml.js');
+//        javascripts.push('../js/highlighter/mode/javascript/javascript.js');
         
         var existent_scripts = new Array();
         for (var i = 0; i < jQuery('script').length; i++) {
@@ -174,57 +157,32 @@ window.wb2 = {
                 script.onload = function() {
                     loaded_script_counter++;
                     if(loaded_script_counter == included_scripts_cnt) { // if all scripts had been loaded successfully do the binding
-                        window.wb2.initHighlighter(zone_id, mime, chosen_language, caller);
+                        window.wb2.initHighlighter(zone_id);
                     }
                 }
         }
         if(included_scripts_cnt == 0) { // if the scripts are already loaded
-            this.initHighlighter(zone_id, mime, chosen_language, caller);
+            this.initHighlighter(zone_id);
         }
     },
-    initHighlighter: function(zone_id, mime, chosen_language, caller) {
+    initHighlighter: function(zone_id) {
         if(this.deleted_tabs.indexOf(zone_id) != -1) { // its a deleted tab
             return;
         }
-        // when switching language keep the content
-        var current_editor_value = '';
-        if(this.editors_list[zone_id] !== undefined) {
-            current_editor_value = this.editors_list[zone_id].getValue();
-//            console.log('prev data: '+current_editor_value);
-        } else {
-//            console.log('undefined editor: '+zone_id);
-        }
         jQuery('#resizable_'+zone_id+' div[class="CodeMirror cm-s-default"]').remove(); // delete previous codemirror divs before creating new one
         var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
-            lineNumbers: true,
-            matchBrackets: true,
-            mode: mime,
+            lineNumbers: false,
+            matchBrackets: false,
+            mode: '',
             indentUnit: 4,
             indentWithTabs: true,
             enterMode: "keep",
             tabMode: "shift",
             smartIndent: false,
-            dragDrop: false
+            dragDrop: false,
+            readOnly: true
         });
-        editor.zone_id = zone_id;
-        editor.on('change', function(instance, changeObj) {
-//            console.log(changeObj); // changed object
-            if(window.wb2.is_changed_from_socket == false) {
-                var editor_socket_obj = {
-                    from: {ch: changeObj.from.ch, line: changeObj.from.line},
-                    to: {ch: changeObj.to.ch, line: changeObj.to.line},
-                    origin: changeObj.origin,
-                    text: changeObj.text,
-                    next: changeObj.next,
-                    cnt_text: changeObj.text.length
-                };
-                if(changeObj.origin == 'paste' && changeObj.text[changeObj.text.length-1] == '') {
-                    changeObj.text.pop();
-                }
-                window.socket_object.emit('wb3_editor_change', {zone_id: zone_id, change_obj: editor_socket_obj});
-                window.wb2.is_changed_from_socket = false;
-            }
-        });
+        
         editor.on('cursorActivity', function(instance) {
 //            console.log(instance.getSelection()); // returns selected string
 //            console.log(instance.getSelection()); // cursor movement
@@ -233,15 +191,8 @@ window.wb2 = {
 //            console.log('Viewport change'+instance);
         })
         
-        if(current_editor_value) {
-            window.wb2.is_changed_from_socket = true;
-            editor.setValue(current_editor_value); // set old content to the new editor
-            window.wb2.is_changed_from_socket = false;
-        }
-
         this.editors_list[zone_id] = editor;
         // if there are keystrokes in memory (from history) apply them
-        this.setHistoryKeystrokes(zone_id);
         this.setDataFromFrindHistory(zone_id);
         // manage code execution part
     },

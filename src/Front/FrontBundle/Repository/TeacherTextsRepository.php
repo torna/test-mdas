@@ -29,6 +29,17 @@ class TeacherTextsRepository extends EntityRepository {
         return $result;
     }
     
+    public function getTeacherTextByHash($text_hash) {
+        $query = "
+            SELECT tt.*
+            FROM teacher_texts tt
+            WHERE tt.text_hash=:text_hash
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':text_hash' => $text_hash));
+        $result = $q->fetch(2);
+        return $result;
+    }
+    
     public function createText($teacher_id, $text_name_public, $text_name_private, $text_desc, $text_content) {
         $params = array();
 

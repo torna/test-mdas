@@ -1,14 +1,14 @@
 <div id="board_languages" class="learn_board">
     <div id="wb2_items_tabs">
         {% if text_list|length %}
-            <div class="wb2_add_blank_file">
+            <span class="wb2_add_blank_file">
                 <select id="texts_list">
                     {% for item in text_list %}
                         <option value="{{ item.text_hash }}">{{ item.text_name_public }}</option>
                     {% endfor %}
                 </select>
                 <input type="button" id="add_text_sheet" value="Add text" />
-            </div>
+            </span>
         {% endif %}
     </div>
     <br clear="all" />

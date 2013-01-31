@@ -118,6 +118,9 @@ window.board_manager = {
         if(board_type == 'presentation') {
             window.wb4.init();
         }
+        if(board_type == 'languages') {
+            window.wb2.init();
+        }
     },
     // gets content of all boards
     getBoardsFullData: function() {
