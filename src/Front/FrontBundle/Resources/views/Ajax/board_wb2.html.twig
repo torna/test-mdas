@@ -4,7 +4,7 @@
             <div class="wb2_add_blank_file">
                 <select id="texts_list">
                     {% for item in text_list %}
-                        <option value="{{ item.id }}">{{ item.text_name_public }}</option>
+                        <option value="{{ item.text_hash }}">{{ item.text_name_public }}</option>
                     {% endfor %}
                 </select>
                 <input type="button" id="add_text_sheet" value="Add text" />
