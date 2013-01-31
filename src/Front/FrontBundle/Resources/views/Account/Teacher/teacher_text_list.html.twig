@@ -1,0 +1,76 @@
+{% extends '::base_account_teacher.html.twig' %}
+{% block body %}
+    <h3>Texts list</h3>
+    <a href="javascript:;" onclick="jQuery('#add_item').toggle();" class="btn btn-success">Create text</a>
+    <div style="{% if modify_data|length %}{% else %}display:none;{% endif %}" id="add_item">
+        <fieldset>
+            <legend>Create text</legend>
+        </fieldset>
+        <form action="" method="post">
+            <label for="text_name_public">Public name (visible to students):</label>
+            <input type="text" id="text_name_public" name="text_name_public" value="{{ modify_data.text_name_public }}" required="required" />
+            <div class="sep"></div>
+            <label for="text_name_private">Private name (visible only by you):</label>
+            <input type="text" id="text_name_private" name="text_name_private" value="{{ modify_data.text_name_private }}" required="required" />
+            <div class="sep"></div>
+            <label for="text_desc">Text description:</label>
+            <textarea id="text_desc" name="text_desc" required="required">{{ modify_data.text_desc }}</textarea>
+            <div class="sep"></div>
+            <label for="text_content">Text content:</label>
+            <textarea id="text_content" name="text_content" required="required">{{ modify_data.text_content }}</textarea>
+            <div class="sep"></div>
+            
+            {% if modify_data|length %}
+                <input type="hidden" name="test_id" value="{{ modify_data.id }}" />
+            {% endif %}
+            <div class="sep"></div>
+            <input type="submit" class="btn btn-success" value="Save">
+        </form>
+    </div>
+    {% if text_list|length %}
+        <div class="sep"></div>
+        <table class="table">
+            <tr>
+                <th>
+                    Text name public
+                </th>
+                <th>
+                    Text name private
+                </th>
+                <th>
+                    Text description
+                </th>
+                <th>
+                    Created
+                </th>
+                <th>
+                    Options
+                </th>
+            </tr>
+            {% for item in text_list %}
+                <tr>
+                    <td>
+                        {{ item.text_name_public }}
+                    </td>
+                    <td>
+                        {{ item.text_name_private }}
+                    </td>
+                    <td>
+                        {{ item.text_desc }}
+                    </td>
+                    <td>
+                        {{ item.added|date("Y-m-d") }}
+                    </td>
+                    <td>
+                        <a href="?todo=delete&text_id={{ item.id }}" class="btn btn-danger" onclick="return confirm('Please confirm.');"><i class="icon-trash"></i> Delete</a>
+                        <div class="sep"></div>
+                        <a href="?todo=modify&text_id={{ item.id }}" class="btn btn-info"><i class="icon-edit"></i> Modify</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

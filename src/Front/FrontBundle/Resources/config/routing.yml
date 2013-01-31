@@ -134,3 +134,9 @@ account_teacher_test_questions:
 account_teacher_preview_test:
   pattern: /teacher-preview-test
   defaults: { _controller: FrontFrontBundle:Tests:previewTest }
+
+# teacher texts (forign languages)
+account_teacher_texts:
+  pattern: /teacher-text-list
+  defaults: { _controller: FrontFrontBundle:Tests:teacherTexts }
+

@@ -18,7 +18,11 @@ class AjaxController extends Controller {
                     if($board == 'programming') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb3.html.twig', array('board' => $board, 'teacher_folder' => Auth::getAuthParam('course_working_folder')));
                     } elseif($board == 'languages') {
-                        return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig');
+                        $text_list = array();
+                        if(Auth::getAuthParam('account_type')=='teacher') {
+                            $text_list = $em->getRepository('FrontFrontBundle:TeacherTexts')->getTeacherTexts(Auth::getAuthParam('id'));
+                        }
+                        return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig', array('text_list' => $text_list));
                     } elseif($board == 'draw') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb1.html.twig');
                     } elseif($board == 'presentation') {
