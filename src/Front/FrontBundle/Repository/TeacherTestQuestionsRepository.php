@@ -43,6 +43,27 @@ class TeacherTestQuestionsRepository extends EntityRepository {
         return $this->getEntityManager()->getConnection()->lastInsertId();
     }
     
+    public function createTestPlaceholder($test_id, $question_id, $placeholder_data) {
+        $params = array();
+
+        if($question_id) { // is update
+            // delete question data
+            $query = "DELETE FROM teacher_test_placeholder WHERE id=".$question_id;
+            $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+        }
+        
+        $query = "
+            INSERT INTO teacher_test_placeholder(test_id, placeholder_text)
+            VALUES (:test_id, :placeholder_text)
+        ";
+
+        $params[':test_id'] = $test_id;
+        $params[':placeholder_text'] = $placeholder_data;
+
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
+        return $this->getEntityManager()->getConnection()->lastInsertId();
+    }
+    
     public function updateQuestionOrder($question_id, $order) {
         $query = "
             UPDATE teacher_test_questions SET question_order=:question_order
@@ -73,5 +94,17 @@ class TeacherTestQuestionsRepository extends EntityRepository {
         $query = "DELETE FROM teacher_test_questions WHERE id=".$question_id;
         $q = $this->getEntityManager()->getConnection()->executeQuery($query, array());
     }
+    
+    public function getPlaceholderDataByTestId($test_id) {
+        $query = "
+            SELECT ttp.*
+            FROM teacher_test_placeholder ttp
+            WHERE ttp.test_id=:test_id
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':test_id' => $test_id));
+        $result = $q->fetch(2);
+        return $result;
+    }
+    
 
 }
