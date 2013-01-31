@@ -105,6 +105,5 @@ class TeacherTestQuestionsRepository extends EntityRepository {
         $result = $q->fetch(2);
         return $result;
     }
-    
 
 }
