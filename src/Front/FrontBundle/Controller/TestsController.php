@@ -91,7 +91,6 @@ class TestsController extends Controller {
             $this->get('session')->setFlash('error', 'You do not own this test.');
             return $this->redirect($this->generateUrl('account_teacher_tests'));
         }
-
         $test_questions = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getTestQuestions(Auth::getAuthParam('id'), $test_id);
         $cnt = count($test_questions);
 
@@ -99,6 +98,7 @@ class TestsController extends Controller {
         for ($i = 0; $i < $cnt; $i++) {
             $question_ids[] = $test_questions[$i]['id'];
         }
+        $modify_data = array();
         $todo_post = $request->get('todo_post');
         if ($request->getMethod() == 'POST') {
             switch ($todo_post) {
@@ -113,36 +113,47 @@ class TestsController extends Controller {
                     return $this->redirect($request->headers->get('referer'));
                 case 'save_question':
                     $question_type = $request->get('question_type');
-                    if(!in_array($question_type, array('radio', 'text', 'checkboxes'))) {
-                        $this->get('session')->setFlash('error', 'Wrong question type.');
-                        return $this->redirect($request->headers->get('referer'));
-                    }
-                    
-                    $question = $request->get('question');
-                    $question_order = $request->get('question_order', 0);
-                    if(empty($question)) {
-                        $this->get('session')->setFlash('error', 'Please provide a question.');
-                        return $this->redirect($request->headers->get('referer'));
+                    if($test_details['test_type'] == 'quiz') {
+                        if(!in_array($question_type, array('radio', 'text', 'checkboxes'))) {
+                            $this->get('session')->setFlash('error', 'Wrong question type.');
+                            return $this->redirect($request->headers->get('referer'));
+                        }
+
+                        $question = $request->get('question');
+                        $question_order = $request->get('question_order', 0);
+                        if(empty($question)) {
+                            $this->get('session')->setFlash('error', 'Please provide a question.');
+                            return $this->redirect($request->headers->get('referer'));
+                        }
                     }
                     
                     $question_id = $request->get('question_id');
                     if(!is_numeric($question_id)) {
                         $question_id = 0;
                     } else {
-                        if(!in_array($question_id, $question_ids)) {
+                        if($test_details['test_type'] == 'quiz' && !in_array($question_id, $question_ids)) {
                             $this->get('session')->setFlash('error', 'You do not own this question.');
                             return $this->redirect($request->headers->get('referer'));
                         }
                     }
-                    
-                    $answers = $request->get($question_type.'_options');
-                    $answers_order = $request->get($question_type.'_options_order');
-                    $question_id = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->createQuestion($test_id, $question_id, $question, $question_type, $question_order);
-                    $em->getRepository('FrontFrontBundle:TeacherQuestionOptions')->createQuestionAnswers($question_id, $answers, $answers_order);
-//                    \Front\FrontBundle\Additional\Debug::d1($question_id);
+
+                    if($test_details['test_type'] == 'placeholder') {
+                        $placeholder_data = $request->get('placeholder_data');
+                        $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->createTestPlaceholder($test_id, $question_id, $placeholder_data);
+                    } elseif($test_details['test_type'] == 'quiz') {
+                        $answers = $request->get($question_type.'_options');
+                        $answers_order = $request->get($question_type.'_options_order');
+                        $question_id = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->createQuestion($test_id, $question_id, $question, $question_type, $question_order);
+                        $em->getRepository('FrontFrontBundle:TeacherQuestionOptions')->createQuestionAnswers($question_id, $answers, $answers_order);
+                    }
+
                     $this->get('session')->setFlash('notice', 'Question created/updated successfully.');
                     return $this->redirect($this->generateUrl('account_teacher_test_questions').'?test_id='.$test_id);
             }
+        }
+        
+        if($test_details['test_type'] == 'placeholder') {
+            $modify_data = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getPlaceholderDataByTestId($test_id);
         }
         
         $todo = $request->get('todo');
@@ -159,7 +170,6 @@ class TestsController extends Controller {
             return $this->redirect($request->headers->get('referer'));
         }
 
-        $modify_data = array();
         if ($todo == 'modify') {
             $question_id = $request->get('question_id');
             if(!is_numeric($question_id)) {
@@ -196,15 +206,21 @@ class TestsController extends Controller {
             return $this->redirect($this->generateUrl('account_teacher_tests'));
         }
 
-        
-        $test_questions = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getTestQuestions(Auth::getAuthParam('id'), $test_id);
-        $cnt = count($test_questions);
-        for ($i = 0; $i < $cnt; $i++) {
-            $test_questions[$i]['answers'] = $em->getRepository('FrontFrontBundle:TeacherQuestionOptions')->getQuestionOptionsByTeacherId(Auth::getAuthParam('id'), $test_questions[$i]['id']);
+        $test_questions = array();
+        $placeholder = '';
+        if($test_details['test_type'] == 'quiz') {
+            $test_questions = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getTestQuestions(Auth::getAuthParam('id'), $test_id);
+            $cnt = count($test_questions);
+            for ($i = 0; $i < $cnt; $i++) {
+                $test_questions[$i]['answers'] = $em->getRepository('FrontFrontBundle:TeacherQuestionOptions')->getQuestionOptionsByTeacherId(Auth::getAuthParam('id'), $test_questions[$i]['id']);
+            }
+        } elseif($test_details['test_type'] == 'placeholder') {
+            $test_placeholder = $em->getRepository('FrontFrontBundle:TeacherTestQuestions')->getPlaceholderDataByTestId($test_id);
+            $placeholder = str_replace('{placeholder}', '<input type="text" class="test_placeholder" />', $test_placeholder['placeholder_text']);
         }
 //        \Front\FrontBundle\Additional\Debug::d1($test_questions);
         
-        return $this->render('FrontFrontBundle:Account:Teacher/play_teacher_test.html.twig', array('test_details' => $test_details, 'test_questions' => $test_questions));
+        return $this->render('FrontFrontBundle:Account:Teacher/play_teacher_test.html.twig', array('test_details' => $test_details, 'test_questions' => $test_questions, 'test_placeholder' => $placeholder));
     }
 
 }

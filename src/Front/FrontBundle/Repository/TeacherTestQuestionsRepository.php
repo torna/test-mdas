@@ -45,10 +45,9 @@ class TeacherTestQuestionsRepository extends EntityRepository {
     
     public function createTestPlaceholder($test_id, $question_id, $placeholder_data) {
         $params = array();
-
-        if($question_id) { // is update
+        if($test_id) { // is update
             // delete question data
-            $query = "DELETE FROM teacher_test_placeholder WHERE id=".$question_id;
+            $query = "DELETE FROM teacher_test_placeholder WHERE test_id=".$test_id;
             $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
         }
         
