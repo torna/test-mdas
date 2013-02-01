@@ -116,8 +116,8 @@ window.client_drawer = {
 //        if(jQuery('.active_learn_tab').attr('id') == 'tab_draw' && jQuery('.active_wp1_tab').attr('data-draw-id') == data.tab_id) {
             if(window.client_drawer.registered_cursors.indexOf(data.id) >= 0) { // the cursor already exists
                 jQuery('#'+data.id).css({
-                    'top':(data.y-11), 
-                    'left':(data.x-11), 
+                    'top':(data.y-12), 
+                    'left':(data.x-2), 
                     'display':'block'
                 });
             } else {
