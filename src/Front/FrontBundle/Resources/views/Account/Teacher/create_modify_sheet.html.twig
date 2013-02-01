@@ -692,7 +692,7 @@
                 function setSvgContent() {
                     if(typeof svgCanvas !== 'undefined') {
                         clearInterval(window.learn_counter);
-                        svgCanvas.setSvgString('{{ sheet_data.sheet_content|raw }}');
+                        svgCanvas.setSvgString('{{ sheet_data.sheet_content|replace({"'":"\\'"})|raw }}');
                     }
                 }
                 if(typeof svgCanvas === 'undefined') {
