@@ -42,7 +42,7 @@
 			curConfig = {
 				canvasName: 'default',
 				canvas_expansion: 3,
-				dimensions: [640,480],
+				dimensions: [1000,700],
 				initFill: {
 					color: 'FF0000',  // solid red
 					opacity: 1
