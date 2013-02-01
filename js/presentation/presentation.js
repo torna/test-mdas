@@ -8,7 +8,7 @@ window.presentation = {
         
         jQuery.ajax({
             url: "ajax",
-            data: "todo=store_svg_presentation&svg_data="+escape(svg_data)+'&presentation_id='+presentation_id+'&sheet_id='+sheet_id,
+            data: "todo=store_svg_presentation&svg_data="+encodeURIComponent(svg_data)+'&presentation_id='+presentation_id+'&sheet_id='+sheet_id,
             type: "post",
             async: false,
             beforeSend: function() {
