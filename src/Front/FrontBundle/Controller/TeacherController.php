@@ -301,8 +301,8 @@ class TeacherController extends Controller {
         }
         
         for ($i = 0; $i < $cnt; $i++) {
-            $presentation_sheets[$i]['sheet_content'] = str_replace('width="640"', 'width="320"', $presentation_sheets[$i]['sheet_content']);
-            $presentation_sheets[$i]['sheet_content'] = str_replace('height="480"', 'height="240" viewBox="80 0 490 490"', $presentation_sheets[$i]['sheet_content']);
+            $presentation_sheets[$i]['sheet_content'] = str_replace('width="1000"', 'width="320"', $presentation_sheets[$i]['sheet_content']);
+            $presentation_sheets[$i]['sheet_content'] = str_replace('height="700"', 'height="240" viewBox="25 0 950 750"', $presentation_sheets[$i]['sheet_content']);
         }
 
 //        \Front\FrontBundle\Additional\Debug::d1($presentation_sheets);
