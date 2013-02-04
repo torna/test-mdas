@@ -54,7 +54,10 @@ Choose programming language:
             <textarea id="highlighter_textarea_%zone_id%" data-zone-id="%zone_id%" style="display: none;">{{ file_content }}</textarea>
         </td>
         <td class="result_frame" id="result_frame_%zone_id%" valign="top">
-            <input type="button" id="execute_code_button_%zone_id%" data-zone-id="%zone_id%" value="Execute code">
+            <input type="button" id="execute_code_button_%zone_id%" data-zone-id="%zone_id%" value="Execute code" />
+            {% if account_type == 'teacher' %}
+                <input type="button" id="execute_all_code_button_%zone_id%" data-zone-id="%zone_id%" value="Execute code to all" />
+            {% endif %}
             <input type="button" class="iframe_back" data-zone-id="%zone_id%" value="<" style="display:none;">
             <input type="button" class="iframe_forward" data-zone-id="%zone_id%" value=">" style="display:none;">
             <iframe src="" id="code_execution_iframe_%zone_id%" style="width: 100%; height:90%; border:1px solid red;"></iframe>
