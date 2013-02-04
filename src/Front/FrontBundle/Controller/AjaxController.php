@@ -142,6 +142,8 @@ class AjaxController extends Controller {
                         $err['msg'] = 'No access';
                         die(json_encode($err));
                     }
+                    $file_content = $request->get('svg_data');
+                    $file_content = str_replace('<svg width="1000" height="700" id="svgcontent" overflow="visible" x="2000" y="1400" viewBox="0 0 1000 700">', '<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">', $file_content);
                     if(is_numeric($sheet_id)) {
                         $sheet_data = $em->getRepository('FrontFrontBundle:Teachers')->getPresentationSheetDetails(Auth::getAuthParam('id'), $sheet_id);
                         if (empty($sheet_data)) { // teacher does not own the presentation sheet
@@ -149,9 +151,9 @@ class AjaxController extends Controller {
                             $err['msg'] = 'No access to sheet';
                             die(json_encode($err));
                         }
-                        $em->getRepository('FrontFrontBundle:Teachers')->updatePresentationSheet($sheet_id, $request->get('svg_data'));
+                        $em->getRepository('FrontFrontBundle:Teachers')->updatePresentationSheet($sheet_id, $file_content);
                     } else {
-                        $em->getRepository('FrontFrontBundle:Teachers')->createPresentationSheet($presentation_id, $request->get('svg_data'));
+                        $em->getRepository('FrontFrontBundle:Teachers')->createPresentationSheet($presentation_id, $file_content);
                     }
                 } else {
                     $err['err'] = 1;
