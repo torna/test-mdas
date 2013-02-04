@@ -140,13 +140,6 @@ window.wb2 = {
     },
     createHighlighter: function(zone_id) {
         var javascripts = new Array();
-//        if(chosen_language != 'c' && chosen_language != 'cplus' && chosen_language != 'java') {
-//            javascripts.push('../js/highlighter/mode/'+chosen_language+'/'+chosen_language+'.js');
-//        }
-//        javascripts.push('../js/highlighter/mode/clike/clike.js');
-//        javascripts.push('../js/highlighter/mode/xml/xml.js');
-//        javascripts.push('../js/highlighter/mode/javascript/javascript.js');
-        
         var existent_scripts = new Array();
         for (var i = 0; i < jQuery('script').length; i++) {
             existent_scripts.push(jQuery(jQuery('script')[i]).attr('src'));
