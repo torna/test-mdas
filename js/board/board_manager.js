@@ -3,6 +3,7 @@ window.board_manager = {
     is_teacher: 0, // flag
     current_boards: ['draw'], // list of current created boards
     refresh_timeout_obj: {},
+    teacher_force_sync: false,
     init: function() {
         // binds events
         this.bindEvents();
@@ -38,6 +39,16 @@ window.board_manager = {
         jQuery('.refresh_desktop').click(function() {
             window.board_manager.boardsRedraw();
         });
+        
+        jQuery('#teacher_force_sync').unbind('click');
+        jQuery('#teacher_force_sync').change(function() {
+            window.board_manager.teacher_force_sync = this.checked;
+            if(typeof(Storage) !== "undefined") {
+                localStorage.teacher_force_sync = this.checked;
+            }
+        });
+        
+        
     },
     // when refresh button is clicked
     boardsRedraw: function() {
@@ -100,14 +111,28 @@ window.board_manager = {
     // when a new board is added bind events
     bindBoardEvents: function(board_type, caller) {
         // general events
-        // tab swither
+        // tab switcher
         jQuery('#boards_tabs div').click(function() {
             var board = jQuery(this).attr('data-boardtype');
             jQuery('.active_learn_tab').removeClass('active_learn_tab'); // remove tab selection
             jQuery(this).addClass('active_learn_tab'); // setting the clicked tab active
             jQuery('.learn_board').hide(); // 
             jQuery('#board_'+board).show();
+            if(jQuery(this).attr('id') == 'tab_programming') {
+                window.wb3.redrawAllEditors();
+            }
+            if (window.board_manager.teacher_force_sync && window.board_manager.is_teacher) {
+                window.socket_object.emit('main_tab_switch', { board_type: board });
+            }
         });
+        
+        if(typeof(Storage) !== "undefined") {
+            if(localStorage.teacher_force_sync !== undefined) {
+                document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
+                window.board_manager.teacher_force_sync = localStorage.teacher_force_sync;
+            }
+        }
+        
         if(board_type == 'programming') {
             window.wb3.init();
             if(caller === undefined) { // if caller=='socket' the we do not create the default tab
@@ -120,6 +145,15 @@ window.board_manager = {
         }
         if(board_type == 'languages') {
             window.wb2.init();
+        }
+    },
+    forceSwitchTab: function(data) {
+        jQuery('.active_learn_tab').removeClass('active_learn_tab'); // remove tab selection
+        jQuery('#tab_'+data.board_type).addClass('active_learn_tab'); // setting the clicked tab active
+        jQuery('.learn_board').hide(); // 
+        jQuery('#board_'+data.board_type).show();
+        if(data.board_type == 'programming') {
+            window.wb3.redrawAllEditors();
         }
     },
     // gets content of all boards
