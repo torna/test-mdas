@@ -8,8 +8,8 @@
         
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
         <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
-        <!--<script src="http://93.116.229.42:8000/socket.io/socket.io.js"></script>-->
         <!--<script src="http://192.168.1.103:8000/socket.io/socket.io.js"></script>-->
+        <!--<script src="http://93.116.229.42:8000/socket.io/socket.io.js"></script>-->
         <script src="http://192.168.1.141:8000/socket.io/socket.io.js"></script>
         <!--<script src="http://localhost:8000/socket.io/socket.io.js"></script>-->
         <script src="../js/board/socket.js?t={{ now|date('m-d-i-s') }}"></script>
@@ -52,6 +52,11 @@
         </div>
         <div id="boards_tabs">
             <div id="tab_draw" class="board_super_tab active_learn_tab" data-boardtype="draw">Draw</div>
+            {% if is_teacher %}
+                <span style="float:right;">
+                    <input type="checkbox" id="teacher_force_sync" value="1" /> force sync
+                </span>
+            {% endif %}
             <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files" />
             <input type="button" style="float:right;" class="refresh_desktop" value="Refresh" />
         </div>
