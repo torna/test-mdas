@@ -1,7 +1,7 @@
 window.socket_object = {
 //        socket_url: 'http://93.116.229.42:8000', // url to socket server
-//        socket_url: 'http://192.168.1.103:8000', // url to socket server
         socket_url: ' http://192.168.1.141:8000', // url to socket server
+//        socket_url: 'http://192.168.1.103:8000', // url to socket server
 //        socket_url: 'http://localhost:8000', // url to socket server
     socket_data: null, // socket object
     heartbeat_time: new Date().getTime(),
@@ -47,6 +47,10 @@ window.socket_object = {
         this.socket_data.on('sync_status', function(data) {
             console.log('sync received');
 //            this.emit('refresh_status_response', {refresh_status: window.board_manager.is_refresh});
+        });
+        // teacher switched tab and forces student browser to do it also
+        this.socket_data.on('main_tab_switch', function(data) {
+            window.board_manager.forceSwitchTab(data);
         });
         /******** HEARTBEAT *********/
         // once in 5 seconds check the connection with server
