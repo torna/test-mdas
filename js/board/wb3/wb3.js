@@ -183,8 +183,14 @@ window.wb3 = {
         jQuery('#execute_code_button_'+zone_id).click(function() {
             window.wb3.sendFileToExecution(zone_id, true);
         });
+        
+        // teacher sends execution command to all clients
+        jQuery('#execute_all_code_button_'+zone_id).unbind('click'); // unbind click events to avoid event multiplication
+        jQuery('#execute_all_code_button_'+zone_id).click(function() {
+            window.wb3.sendFileToExecution(zone_id, true, true);
+        });
     },
-    sendFileToExecution: function(zone_id, execute) {
+    sendFileToExecution: function(zone_id, execute, execute_all) {
         var file_name = jQuery('#file_name_'+zone_id).html(); // getting filename (tab name)
         var file_content = this.editors_list[zone_id].getValue();
         
@@ -211,15 +217,21 @@ window.wb3 = {
                 if(json.status == 'ok') {
                     window.socket_object.emit('wb3_file_name_change', {zone_id: zone_id, file_name: file_name});
                     window.wb3.renameTab(zone_id, file_name);
+                    if(execute_all && window.board_manager.is_teacher) {
+                        window.socket_object.emit('wb3_execute_to_all', {zone_id: zone_id, file_name: json.file_path});
+                    }
                     if(execute) {
                         // refresh iframe
-                        jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+json.file_path);
+                        window.wb3.refreshIframe(zone_id, json.file_path);
                     }
                 } else {
                     alert('An error had accured.');
                 }
             }
         });
+    },
+    refreshIframe: function(zone_id, file_path) {
+        jQuery('#code_execution_iframe_'+zone_id).attr('src', '../learn_files/'+file_path);
     },
     // some languages does not have execution part, this function handles all of them
     handleCodeExecutionFrame: function(zone_id, chosen_language) {
