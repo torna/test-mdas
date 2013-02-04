@@ -66,7 +66,12 @@ window.wb2 = {
     },
     switchTab: function(sheet_id) {
         if(window.board_manager.is_teacher) {
-            window.socket_object.emit('wb2_teacher_tab', {sheet_id: sheet_id});
+            var send_obj = {};
+            send_obj.sheet_id = sheet_id;
+            if(window.board_manager.teacher_force_sync) {
+                send_obj.zone_id = sheet_id;
+            }
+            window.socket_object.emit('wb2_teacher_tab', send_obj);
         }
         // inactivate all tabs
         jQuery('.active_wp2_tab').removeClass('active_wp2_tab');
@@ -126,6 +131,9 @@ window.wb2 = {
     teacherTabIndicator: function(data) {
         jQuery('div#wb2_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
+        if(data.zone_id !== undefined) {
+            this.switchTab(data.zone_id);
+        }
     },
     bindLanguageSwitcher: function(zone_id) {
         window.wb2.createHighlighter(zone_id);
@@ -194,7 +202,8 @@ window.wb2 = {
         this.editors_list[zone_id] = editor;
         // if there are keystrokes in memory (from history) apply them
         this.setDataFromFrindHistory(zone_id);
-        // manage code execution part
+        
+        jQuery('#board_item_'+zone_id+' .CodeMirror-lines:first-child').css('line-height', '22px');
     },
     // used when data comes from history
     allEditorsBinded: function() {
