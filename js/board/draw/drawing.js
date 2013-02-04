@@ -284,7 +284,7 @@ window.learn_draw = {
         });
         
         jQuery('body').mousemove(function(event){
-            if(event.ctrlKey) {
+            if(event.ctrlKey || window.board_manager.teacher_force_mouse) {
                 window.learn_draw.sendMousePointer(event);
             }
             if(window.learn_draw.is_drawing) {
