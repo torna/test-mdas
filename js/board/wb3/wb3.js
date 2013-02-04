@@ -67,7 +67,12 @@ window.wb3 = {
     },
     switchTab: function(sheet_id) {
         if(window.board_manager.is_teacher) {
-            window.socket_object.emit('wb3_teacher_tab', {sheet_id: sheet_id});
+            var send_obj = {};
+            send_obj.sheet_id = sheet_id;
+            if(window.board_manager.teacher_force_sync) {
+                send_obj.zone_id = sheet_id;
+            }
+            window.socket_object.emit('wb3_teacher_tab', send_obj);
         }
         // inactivate all tabs
         jQuery('.active_wp3_tab').removeClass('active_wp3_tab');
@@ -131,10 +136,20 @@ window.wb3 = {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
         window.board_manager.bindTreeviewer();
     },
+    redrawAllEditors: function() {
+        for(var i=0; i<window.wb3.current_tabs.length; i++) {
+            if(window.wb3.editors_list[window.wb3.current_tabs[i]] !== undefined) {
+                window.wb3.editors_list[window.wb3.current_tabs[i]].refresh();
+            }
+        }
+    },
     // indicates the active teacher tab
     teacherTabIndicator: function(data) {
         jQuery('div#board_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
+        if(data.zone_id !== undefined) {
+            this.switchTab(data.zone_id);
+        }
     },
     bindLanguageSwitcher: function(chosen_language, mime, zone_id, caller) {
         if(caller === 'socket' || caller === 'history') { // if caller!='socket' send socket
@@ -293,7 +308,8 @@ window.wb3 = {
             enterMode: "keep",
             tabMode: "shift",
             smartIndent: false,
-            dragDrop: false
+            dragDrop: false,
+            undoDepth: 0
         });
         editor.zone_id = zone_id;
         editor.on('change', function(instance, changeObj) {
@@ -434,7 +450,7 @@ window.wb3 = {
             var origin = data.change_obj.origin;
             if(data.change_obj.origin == 'delete' && text == '') {
                 
-            } else if(data.change_obj.origin == 'undo') {
+            } else if(data.change_obj.origin == 'undo' || data.change_obj.origin == 'redo') {
                 if(data.change_obj.text[i] == '') {
                     text += "\n";
                 } else {
