@@ -61,7 +61,7 @@ class AjaxController extends Controller {
                     if($file_name != 'undefined' && $file_name) {
                         $file_content = \Front\FrontBundle\Libs\CommonLib::getFileContent(Auth::getAuthParam('course_working_folder'), $file_name);
                     }
-                    return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig', array('file_content' => $file_content));
+                    return $this->render('FrontFrontBundle:Ajax:_wb3_generic_content.html.twig', array('file_content' => $file_content, 'account_type' => Auth::getAuthParam('account_type')));
                 }
                 break;
             case 'get_wb4_generic':

@@ -34,8 +34,8 @@ window.client_drawer = {
             d += data.coord;
             path.setAttributeNS(null, 'd', d);
             this.drawCursor({
-                x:data.x+window.learn_draw.svg_left, 
-                y:data.y+window.learn_draw.svg_top, 
+                x:data.x+window.learn_draw.svg_left - 10, 
+                y:data.y+window.learn_draw.svg_top - 10, 
                 id: 'curs_'+data.id,
                 tab_id: data.tab_id
             }); // show cursor while drawing
@@ -116,9 +116,10 @@ window.client_drawer = {
 //        if(jQuery('.active_learn_tab').attr('id') == 'tab_draw' && jQuery('.active_wp1_tab').attr('data-draw-id') == data.tab_id) {
             if(window.client_drawer.registered_cursors.indexOf(data.id) >= 0) { // the cursor already exists
                 jQuery('#'+data.id).css({
-                    'top':(data.y-12), 
-                    'left':(data.x-2), 
-                    'display':'block'
+                    'top':(data.y - 3), 
+                    'left':(data.x - 3), 
+                    'display':'block',
+                    'z-index': 9999999
                 });
             } else {
                 window.client_drawer.registered_cursors.push(data.id);

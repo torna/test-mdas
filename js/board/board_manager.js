@@ -4,6 +4,7 @@ window.board_manager = {
     current_boards: ['draw'], // list of current created boards
     refresh_timeout_obj: {},
     teacher_force_sync: false,
+    teacher_force_mouse: false,
     init: function() {
         // binds events
         this.bindEvents();
@@ -40,11 +41,19 @@ window.board_manager = {
             window.board_manager.boardsRedraw();
         });
         
-        jQuery('#teacher_force_sync').unbind('click');
+        jQuery('#teacher_force_sync').unbind('change');
         jQuery('#teacher_force_sync').change(function() {
             window.board_manager.teacher_force_sync = this.checked;
             if(typeof(Storage) !== "undefined") {
                 localStorage.teacher_force_sync = this.checked;
+            }
+        });
+        
+        jQuery('#teacher_force_mouse').unbind('change');
+        jQuery('#teacher_force_mouse').change(function() {
+            window.board_manager.teacher_force_mouse = this.checked;
+            if(typeof(Storage) !== "undefined") {
+                localStorage.teacher_force_mouse = this.checked;
             }
         });
         
@@ -126,10 +135,16 @@ window.board_manager = {
             }
         });
         
-        if(typeof(Storage) !== "undefined") {
-            if(localStorage.teacher_force_sync !== undefined) {
-                document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
-                window.board_manager.teacher_force_sync = localStorage.teacher_force_sync;
+        if(this.is_teacher) {
+            if(typeof(Storage) !== "undefined") {
+                if(localStorage.teacher_force_sync !== undefined) {
+                    document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
+                    window.board_manager.teacher_force_sync = localStorage.teacher_force_sync;
+                }
+                if(localStorage.teacher_force_mouse !== undefined) {
+                    document.getElementById('teacher_force_mouse').checked = localStorage.teacher_force_mouse;
+                    window.board_manager.teacher_force_mouse = localStorage.teacher_force_mouse;
+                }
             }
         }
         

@@ -299,10 +299,10 @@ window.learn_draw = {
         getRealCoord: function(event, dimension) {
             var return_data;
             if(dimension == 'x') {
-                return_data = event.clientX - window.learn_draw.svg_left + jQuery(window).scrollLeft();
+                return_data = event.clientX - window.learn_draw.svg_left + jQuery(window).scrollLeft() + 10;
             }
             if(dimension == 'y') {
-                return_data = event.clientY - window.learn_draw.svg_top + jQuery(window).scrollTop();
+                return_data = event.clientY - window.learn_draw.svg_top + jQuery(window).scrollTop() + 10;
             }
             return return_data;
         },
@@ -541,7 +541,8 @@ window.learn_draw = {
             case 'highlighter':
             case 'eraser':
                 // setting moveto for path
-                window.learn_draw.instruments.pathStart = 'M'+(event.clientX - this.svg_left + jQuery(window).scrollLeft())+','+(event.clientY - this.svg_top + jQuery(window).scrollTop());
+//                window.learn_draw.instruments.pathStart = 'M'+(event.clientX - this.svg_left + jQuery(window).scrollLeft())+','+(event.clientY - this.svg_top + jQuery(window).scrollTop());
+                window.learn_draw.instruments.pathStart = 'M'+window.learn_draw.instruments.getRealCoord(event, 'x')+','+window.learn_draw.instruments.getRealCoord(event, 'y');
                 break;
             case 'circle':
                 break;

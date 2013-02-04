@@ -16,5 +16,5 @@ class Debug {
         echo '</pre>';
         die;
     }
-
+    
 }

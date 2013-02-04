@@ -171,6 +171,18 @@ window.socket_object = {
             window.wb4.applyRedrawBoard(data);
             delete data;
         });
+        
+        /******** LANGUAGES *********/
+        
+        // on tab create
+        this.socket_data.on('wb2_create_text', function(data) {
+            window.wb2.createTab(data.unique_id, data.tab_name, 'socket', 'text');
+        });
+        
+        // teacher tab switch
+        this.socket_data.on('wb2_teacher_tab', function(data) {
+            window.wb2.teacherTabIndicator(data);
+        });
     },
     emit: function(ident, object) {
         this.socket_data.emit(ident, object);

@@ -54,7 +54,8 @@
             <div id="tab_draw" class="board_super_tab active_learn_tab" data-boardtype="draw">Draw</div>
             {% if is_teacher %}
                 <span style="float:right;">
-                    <input type="checkbox" id="teacher_force_sync" value="1" /> force sync
+                    <input type="checkbox" id="teacher_force_sync" value="1" /> force sync 
+                    <input type="checkbox" id="teacher_force_mouse" value="1" /> force mouse
                 </span>
             {% endif %}
             <input type="button" style="float:right;" class="show_files_button" value="Show/Hide files" />
@@ -62,7 +63,7 @@
         </div>
         <div id="boards">
             <div id="board_draw" class="learn_board">
-                <div id="wb1_items_tabs">
+                <div id="wb1_items_tabs" class="tabs_placeholder">
                     <a href="javascript:;" class="wb1_add_blank_file">+</a>
                 </div>
                 <br clear="all" />

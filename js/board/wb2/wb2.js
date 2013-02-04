@@ -26,7 +26,7 @@ window.wb2 = {
             // generating unique id
             var unique_id = jQuery('#texts_list').val();
             var tab_name = jQuery('#texts_list option:selected').text();
-            window.wb2.createTab(unique_id, tab_name);
+            window.wb2.createTab(unique_id, tab_name, undefined, 'text');
         });
     },
     bindDeleteTabEvent:function(sheet_id, caller) {
@@ -85,20 +85,26 @@ window.wb2 = {
             window.wb2.editors_list[sheet_id].refresh();
         }
     },
-    createTab: function(unique_id, tab_name, caller) {
+    createTab: function(unique_id, tab_name, caller, type) {
         if(jQuery('#file_name_'+unique_id).length > 0) {
             return false;
         }
         this.current_tabs.push(unique_id.toString());
         if(caller === undefined) { // if caller!='socket' send socket
-            window.socket_object.emit('wb2_tab_create', {unique_id: unique_id, tab_name: tab_name});
+            if(type == 'text') {
+                window.socket_object.emit('wb2_create_text', { unique_id: unique_id, tab_name: tab_name });
+            }
         }
-        // create tab
-        // create tab content
+        
+        var todo = '';
+        
+        if(type == 'text') {
+            todo = 'get_wb2_generic';
+        }
         
         jQuery.ajax({
             url: "ajax",
-            data: "todo=get_wb2_generic&unique_id="+unique_id,
+            data: "todo="+todo+"&unique_id="+unique_id,
             type: "get",
             async: false,
             beforeSend: function() {
