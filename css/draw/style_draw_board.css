@@ -40,3 +40,7 @@
 .wb4_board_item {
     text-align:center;
 }
+.tabs_placeholder {
+    border: 1px solid green;
+    height: 35px;
+}
