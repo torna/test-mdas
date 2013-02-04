@@ -76,8 +76,15 @@ window.learn_draw = {
     },
     switchTab: function(sheet_id) {
         if(window.board_manager.is_teacher) {
-            window.socket_object.emit('wb1_teacher_tab', {sheet_id: sheet_id});
+            var send_obj = {};
+            send_obj.sheet_id = sheet_id;
+            if(window.board_manager.teacher_force_sync) {
+                send_obj.zone_id = sheet_id;
+            }
+            window.socket_object.emit('wb1_teacher_tab', send_obj);
         }
+        
+        
         // inactivate all tabs
         jQuery('.active_wp1_tab').removeClass('active_wp1_tab');
         // set active the clicked tab
@@ -582,6 +589,9 @@ window.learn_draw = {
     teacherTabIndicator: function(data) {
         jQuery('div#wb1_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
+        if(data.zone_id !== undefined) {
+            this.switchTab(data.zone_id);
+        }
     },
     generateElementId: function() {
         this.element_id = parseInt(Math.random() * 9999999999999999);
