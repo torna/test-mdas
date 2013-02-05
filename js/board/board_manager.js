@@ -138,11 +138,15 @@ window.board_manager = {
         if(this.is_teacher) {
             if(typeof(Storage) !== "undefined") {
                 if(localStorage.teacher_force_sync !== undefined) {
-                    document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
+                    if(localStorage.teacher_force_sync == 'true') {
+                        document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
+                    }
                     window.board_manager.teacher_force_sync = localStorage.teacher_force_sync;
                 }
                 if(localStorage.teacher_force_mouse !== undefined) {
-                    document.getElementById('teacher_force_mouse').checked = localStorage.teacher_force_mouse;
+                    if(localStorage.teacher_force_mouse == 'true') {
+                        document.getElementById('teacher_force_mouse').checked = localStorage.teacher_force_mouse;
+                    }
                     window.board_manager.teacher_force_mouse = localStorage.teacher_force_mouse;
                 }
             }
@@ -276,7 +280,7 @@ window.board_manager = {
     },
     mouseClick: function(data) {
         jQuery('#mouse_click').show();
-        this.mouseClickAnimation(50, data.x, data.y);
+        this.mouseClickAnimation(30, data.x, data.y);
     },
     mouseClickAnimation: function(step, x, y) {
         if(step < 1) {
