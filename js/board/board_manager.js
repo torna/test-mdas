@@ -140,14 +140,18 @@ window.board_manager = {
                 if(localStorage.teacher_force_sync !== undefined) {
                     if(localStorage.teacher_force_sync == 'true') {
                         document.getElementById('teacher_force_sync').checked = localStorage.teacher_force_sync;
+                        window.board_manager.teacher_force_sync = true;
+                    } else {
+                        window.board_manager.teacher_force_sync = false;
                     }
-                    window.board_manager.teacher_force_sync = localStorage.teacher_force_sync;
                 }
                 if(localStorage.teacher_force_mouse !== undefined) {
                     if(localStorage.teacher_force_mouse == 'true') {
                         document.getElementById('teacher_force_mouse').checked = localStorage.teacher_force_mouse;
+                        window.board_manager.teacher_force_mouse = true;
+                    } else {
+                        window.board_manager.teacher_force_mouse = false;
                     }
-                    window.board_manager.teacher_force_mouse = localStorage.teacher_force_mouse;
                 }
             }
         }
@@ -280,7 +284,7 @@ window.board_manager = {
     },
     mouseClick: function(data) {
         jQuery('#mouse_click').show();
-        this.mouseClickAnimation(30, data.x, data.y);
+        this.mouseClickAnimation(40, data.x, data.y);
     },
     mouseClickAnimation: function(step, x, y) {
         if(step < 1) {
