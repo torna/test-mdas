@@ -57,6 +57,11 @@ window.socket_object = {
         this.socket_data.on('wb3_execute_to_all', function(data) {
             window.wb3.refreshIframe(data.zone_id, data.file_name);
         });
+        
+        // mouse click
+        this.socket_data.on('click', function(data) {
+            window.board_manager.mouseClick(data);
+        });
         /******** HEARTBEAT *********/
         // once in 5 seconds check the connection with server
         setInterval(function() {

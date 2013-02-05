@@ -273,5 +273,24 @@ window.board_manager = {
             main_data = JSON.parse(data[i].main_data);
             this.addBoard(main_data.board_type, main_data.board_name, 'history');
         }
+    },
+    mouseClick: function(data) {
+        jQuery('#mouse_click').show();
+        this.mouseClickAnimation(50, data.x, data.y);
+    },
+    mouseClickAnimation: function(step, x, y) {
+        if(step < 1) {
+            jQuery('#mouse_click').hide();
+            return;
+        }
+        jQuery('#mouse_click').css({
+            'left':(x - (step/2) -3),
+            'top':(y - (step/2) - 3),
+            'width':(step),
+            'height':(step)
+        });
+        setTimeout(function() {
+            window.board_manager.mouseClickAnimation(step/2, x, y);
+        }, 15);
     }
 }

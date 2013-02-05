@@ -285,7 +285,7 @@ window.learn_draw = {
         
         jQuery('body').mousemove(function(event){
             if(event.ctrlKey || window.board_manager.teacher_force_mouse) {
-                window.learn_draw.sendMousePointer(event);
+                window.learn_draw.sendMousePointer(event, 'cursor');
             }
             if(window.learn_draw.is_drawing) {
                 if(jQuery(event.target).attr('class') == window.learn_draw.svg_class) { // check if mouse is moving inside the svg
@@ -293,6 +293,13 @@ window.learn_draw = {
                 }
             }
         });
+        
+        jQuery('body').mousedown(function(event){
+            if(event.ctrlKey || window.board_manager.teacher_force_mouse) {
+                window.learn_draw.sendMousePointer(event, 'click');
+            }
+        });
+        
     },
     instruments: {
         pathStart: '', // moveto for path
@@ -494,12 +501,12 @@ window.learn_draw = {
             }
         }
     },
-    sendMousePointer: function(event) {
+    sendMousePointer: function(event, element) {
         var real_x = event.clientX + jQuery(window).scrollLeft();
         var real_y = event.clientY + jQuery(window).scrollTop();
         
         window.learn_draw.realtime_emit = new Object();
-        window.learn_draw.realtime_emit.el = 'cursor';
+        window.learn_draw.realtime_emit.el = element;
         window.learn_draw.realtime_emit.x = real_x;
         window.learn_draw.realtime_emit.y = real_y;
         window.learn_draw.socketEmit('save_draw_element', window.learn_draw.realtime_emit);
