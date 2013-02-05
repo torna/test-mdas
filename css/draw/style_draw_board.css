@@ -46,8 +46,6 @@
 }
 #mouse_click {
     border: 2px solid green;
-    width: 50px;
-    height: 50px;
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px; 
