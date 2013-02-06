@@ -80,7 +80,6 @@ window.wb4 = {
         jQuery('#board_item_'+sheet_id).show();
     },
     createTab: function(unique_id, tab_name, caller) {
-        //        if(jQuery('#file_name_'+unique_id).length > 0) {
         if(this.current_tabs.length >= 1) {
             return false;
         }
@@ -100,7 +99,7 @@ window.wb4 = {
             type: "get",
             async: false,
             beforeSend: function() {
-            // loadior here
+                // loadior here
             },
             success: function(data) {
                 window.wb4.setTabBindings(data, unique_id);
@@ -115,11 +114,11 @@ window.wb4 = {
         jQuery('.wb4_board_item').hide(); // hide all wb3 boards
         jQuery('#board_item_'+unique_id).show(); // showing created board
         
-        jQuery.deck('.slide_'+unique_id);
+//        $.deck('.slide_'+unique_id);
+        $.deck('.slider');
         if(window.board_manager.is_teacher == 0) {
-            jQuery(document).unbind('keydown.deck');
+            $(document).unbind('keydown.deck');
         }
-        console.log(this.history_from_friend[unique_id]);
         if(this.history_from_friend[unique_id] !== undefined) {
             this.switchSlide(this.history_from_friend[unique_id], 'history');
         }
@@ -171,7 +170,6 @@ window.wb4 = {
         return final_result;
     },
     createBoardFromHistory: function(data) {
-        console.log(data);
         // create tabs, sliders
         for (var i = 0; i < data.length; i++) {
             this.history_from_friend[data[i].unique_id] = data[i].current_slider_position;
@@ -204,5 +202,6 @@ window.wb4 = {
             this.deleteTab(this.current_tabs[0], 'redraw');
         }
         this.deleted_tabs = [];
+        this.current_tabs = []
     }
 }

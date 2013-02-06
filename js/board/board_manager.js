@@ -41,6 +41,12 @@ window.board_manager = {
             window.board_manager.boardsRedraw();
         });
         
+        // user list button
+        jQuery('.user_list').unbind('click');
+        jQuery('.user_list').click(function() {
+            jQuery('#user_list').toggle();
+        });
+        
         jQuery('#teacher_force_sync').unbind('change');
         jQuery('#teacher_force_sync').change(function() {
             window.board_manager.teacher_force_sync = this.checked;
@@ -76,7 +82,10 @@ window.board_manager = {
             
             this.current_boards.push(board_type);
             if(caller === undefined) {
-                window.socket_object.emit('board_create', {board_type:board_type, board_name: board_name});
+                window.socket_object.emit('board_create', {
+                    board_type:board_type, 
+                    board_name: board_name
+                });
             }
             
             jQuery.ajax({
@@ -95,9 +104,7 @@ window.board_manager = {
                 }
             });
             var board_close = '';
-//            if(caller === undefined) { // if the board was created via socket, there should be no possibility to delete it (for the student)
-                board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
-//            }
+            board_close = '<sup>&nbsp;&nbsp;<a href="javascript:;" onclick="window.board_manager.deleteBoard(\''+board_type+'\')">x</a></sup>';
             jQuery('#boards_tabs').append('<div id="tab_'+board_type+'" class="board_super_tab" data-boardtype="'+board_type+'">'+board_name+board_close+'</div>'); // append to tabs
             window.board_manager.bindBoardEvents(board_type, caller);
             
@@ -109,12 +116,23 @@ window.board_manager = {
     },
     deleteBoard: function(board_type, caller) {
         if(caller === undefined) { // if caller!='socket' send socket
-            window.socket_object.emit('wb3_board_delete', {board_type: board_type});
+            window.socket_object.emit('wb3_board_delete', {
+                board_type: board_type
+            });
         }
         jQuery('#tab_'+board_type).remove(); // deleting board tab
         jQuery('#board_'+board_type).remove(); // deleting board containter
         if(jQuery('.active_learn_tab').length == 0) {
             jQuery(jQuery('.board_super_tab')[0]).addClass('active_learn_tab');
+        }
+        switch(board_type) {
+            case 'programming':
+                break;
+            case 'languages':
+                break;
+            case 'presentation':
+                window.wb4.closeBoard();
+                break;
         }
     },
     // when a new board is added bind events
@@ -131,7 +149,9 @@ window.board_manager = {
                 window.wb3.redrawAllEditors();
             }
             if (window.board_manager.teacher_force_sync && window.board_manager.is_teacher) {
-                window.socket_object.emit('main_tab_switch', { board_type: board });
+                window.socket_object.emit('main_tab_switch', {
+                    board_type: board
+                });
             }
         });
         
@@ -188,7 +208,7 @@ window.board_manager = {
                     boards_data.programming = window.wb3.getAllContents();
                     break;
                 case 'languages':
-//                    boards_data.languages = window.wb3.getAllContents();
+                    //                    boards_data.languages = window.wb3.getAllContents();
                     break;
                 case 'draw':
                     boards_data.draw = window.learn_draw.getAllContents();
@@ -232,7 +252,7 @@ window.board_manager = {
             data: "todo=get_tree_view_content",
             type: "get",
             beforeSend: function() {
-                // loadior here
+            // loadior here
             },
             success: function(data) {
                 var json = JSON.parse(data);
@@ -266,7 +286,7 @@ window.board_manager = {
             data: "todo=delete_file&file_name="+file_name,
             type: "get",
             beforeSend: function() {
-                // loadior here
+            // loadior here
             },
             success: function() {
                 window.wb3.deleteTab(file_name.replace(/\./g, ''));
@@ -300,5 +320,64 @@ window.board_manager = {
         setTimeout(function() {
             window.board_manager.mouseClickAnimation(step/2, x, y);
         }, 15);
+    },
+    notify: function(message, type) {
+        var func;
+        if(type == 'info') {
+            func = jNotify;
+        } else if(type == 'success') {
+            func = jSuccess;
+        } else if(type == 'error') {
+            func = jError;
+        }
+        func(
+            message,
+            {
+                autoHide : true, // added in v2.0
+                clickOverlay : false, // added in v2.0
+                MinWidth : 250,
+                TimeShown : 3000,
+                ShowTimeEffect : 200,
+                HideTimeEffect : 200,
+                LongTrip :20,
+                HorizontalPosition : 'right',
+                VerticalPosition : 'top',
+                ShowOverlay : false,
+                ColorOverlay : '#000',
+                OpacityOverlay : 0.3,
+                onClosed : function(){ // added in v2.0
+		   
+                },
+                onCompleted : function(){ // added in v2.0
+		   
+                }
+            });
+    },
+    createUserList: function(data) {
+        var html = '';
+        var force_refresh = '';
+        for (var i = 0; i < data.length; i++) {
+            if (jQuery('#user_'+data[i].hash).length) {
+                continue;
+            }
+            if(this.is_teacher) {
+                force_refresh = '<input type="button" class="force_refresh_user" data-user-hash="'+data[i].hash+'" value="Refresh user" />';
+            }
+            html += '<div id="user_'+data[i].hash+'">'+data[i].f_name+' '+data[i].l_name+' '+force_refresh+'</div>';
+        }
+        jQuery('.course_users_placeholder').append(html);
+        if(this.is_teacher) {
+            this.bindStudentRefresher();
+        }
+    },
+    deleteUser: function(hash) {
+        jQuery('#user_'+hash).remove();
+    },
+    bindStudentRefresher: function() {
+        jQuery('.force_refresh_user').unbind('click');
+        jQuery('.force_refresh_user').click(function() {
+            var user_hash = jQuery(this).attr('data-user-hash');
+            window.socket_object.emit('force_refresh_student', { hash: user_hash });
+        });
     }
 }

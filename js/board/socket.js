@@ -1,8 +1,8 @@
 window.socket_object = {
-//        socket_url: 'http://93.116.229.42:8000', // url to socket server
-        socket_url: ' http://192.168.1.141:8000', // url to socket server
-//        socket_url: 'http://192.168.1.103:8000', // url to socket server
-//        socket_url: 'http://localhost:8000', // url to socket server
+//    socket_url: 'http://93.116.229.42:8000', // url to socket server
+    socket_url: ' http://192.168.1.141:8000', // url to socket server
+//    socket_url: 'http://192.168.1.103:8000', // url to socket server
+//    socket_url: 'http://localhost:8000', // url to socket server
     socket_data: null, // socket object
     heartbeat_time: new Date().getTime(),
     init: function() {
@@ -18,13 +18,17 @@ window.socket_object = {
         /******** HISTORY *********/
         // server is asking if there has been an refresh
         this.socket_data.on('refresh_status_request', function(data) {
-            this.emit('refresh_status_response', {refresh_status: window.board_manager.is_refresh});
+            this.emit('refresh_status_response', {
+                refresh_status: window.board_manager.is_refresh
+                });
         });
         
         // server is asking for content needed for a client that has refreshed or just entered
         this.socket_data.on('get_refresh_content', function() {
             var board_full_data = window.board_manager.getBoardsFullData();
-            this.emit('refresh_content_full', {current_content: board_full_data});
+            this.emit('refresh_content_full', {
+                current_content: board_full_data
+            });
         });
         
         // server send to this client content for refresh (from other clients)
@@ -42,11 +46,16 @@ window.socket_object = {
             delete data;
         });
         
+        // list of users
+        this.socket_data.on('friend_list', function(data) {
+            window.board_manager.createUserList(data);
+        });
+        
         /******** SYNC *********/
         // server is asking if there has been an refresh
         this.socket_data.on('sync_status', function(data) {
             console.log('sync received');
-//            this.emit('refresh_status_response', {refresh_status: window.board_manager.is_refresh});
+        //            this.emit('refresh_status_response', {refresh_status: window.board_manager.is_refresh});
         });
         // teacher switched tab and forces student browser to do it also
         this.socket_data.on('main_tab_switch', function(data) {
@@ -62,15 +71,37 @@ window.socket_object = {
         this.socket_data.on('click', function(data) {
             window.board_manager.mouseClick(data);
         });
+        
+        // friend joined
+        this.socket_data.on('friend_connected', function(data) {
+            window.board_manager.notify(data.f_name+' '+data.l_name +' connected', 'success');
+            window.board_manager.createUserList([data]);
+        });
+        
+        // friend left
+        this.socket_data.on('friend_left', function(data) {
+            window.board_manager.notify(data.f_name+' '+data.l_name +' disconnected', 'info');
+            window.board_manager.deleteUser(data.hash);
+            console.log('friend left');
+        });
+        
+        // teacher forces student refresh
+        this.socket_data.on('teacher_force_refresh', function(data) {
+            console.log('teacher force refresh, refreshing...');
+            window.board_manager.boardsRedraw();
+        });
+        
         /******** HEARTBEAT *********/
         // once in 5 seconds check the connection with server
         setInterval(function() {
             var last_received_ping_time = (new Date().getTime() - window.socket_object.heartbeat_time)/1000; // dividing to 1000 to convert from miliseconds to seconds
-            if(last_received_ping_time > 10) { 
-                console.log('Lost connection with server. Retrying in 5 seconds.');
+            var seconds_to_retry = 3;
+            if(last_received_ping_time > seconds_to_retry*2) { 
+                window.board_manager.notify('Lost connection with server. Retrying in '+seconds_to_retry+' seconds.', 'error');
+                console.log('Lost connection with server. Retrying in '+seconds_to_retry+' seconds.');
             }
             window.socket_object.emit('heartbeat_client');
-        }, 5000);
+        }, 3000);
         
         this.socket_data.on('heartbeat_client_ok', function() {
             window.socket_object.heartbeat_time = new Date().getTime();
