@@ -5,6 +5,7 @@ window.board_manager = {
     refresh_timeout_obj: {},
     teacher_force_sync: false,
     teacher_force_mouse: false,
+    current_users: [], // users that are present in the classroom
     init: function() {
         // binds events
         this.bindEvents();
@@ -63,13 +64,14 @@ window.board_manager = {
             }
         });
         
-        
     },
     // when refresh button is clicked
     boardsRedraw: function() {
         // closing all tabs
         window.learn_draw.closeBoard();
+        window.wb2.closeBoard();
         window.wb3.closeBoard();
+        window.wb4.closeBoard();
         this.is_refresh = true;
         this.historyRequest();
     },
@@ -188,6 +190,9 @@ window.board_manager = {
         }
         if(board_type == 'languages') {
             window.wb2.init();
+            if(this.is_teacher) {
+                window.wb2_teacher.init();
+            }
         }
     },
     forceSwitchTab: function(data) {
@@ -360,6 +365,8 @@ window.board_manager = {
             if (jQuery('#user_'+data[i].hash).length) {
                 continue;
             }
+            this.current_users[data[i].hash] = data[i];
+            
             if(this.is_teacher) {
                 force_refresh = '<input type="button" class="force_refresh_user" data-user-hash="'+data[i].hash+'" value="Refresh user" />';
             }
@@ -372,6 +379,7 @@ window.board_manager = {
     },
     deleteUser: function(hash) {
         jQuery('#user_'+hash).remove();
+        delete this.current_users[hash];
     },
     bindStudentRefresher: function() {
         jQuery('.force_refresh_user').unbind('click');

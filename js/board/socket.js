@@ -92,13 +92,12 @@ window.socket_object = {
         });
         
         /******** HEARTBEAT *********/
-        // once in 5 seconds check the connection with server
         setInterval(function() {
             var last_received_ping_time = (new Date().getTime() - window.socket_object.heartbeat_time)/1000; // dividing to 1000 to convert from miliseconds to seconds
             var seconds_to_retry = 3;
             if(last_received_ping_time > seconds_to_retry*2) { 
                 window.board_manager.notify('Lost connection with server. Retrying in '+seconds_to_retry+' seconds.', 'error');
-                console.log('Lost connection with server. Retrying in '+seconds_to_retry+' seconds.');
+            //        console.log('Lost connection with server. Retrying in '+seconds_to_retry+' seconds.');
             }
             window.socket_object.emit('heartbeat_client');
         }, 3000);
@@ -218,6 +217,17 @@ window.socket_object = {
         // teacher tab switch
         this.socket_data.on('wb2_teacher_tab', function(data) {
             window.wb2.teacherTabIndicator(data);
+        });
+        
+        // teacher sent test
+        this.socket_data.on('test_from_teacher', function(data) {
+            window.wb2.createTeacherTest(data.test, data.test_name, 'socket');
+        });
+        
+        // sent test progress to teacher
+        this.socket_data.on('send_test_progress', function(data) {
+            console.log(data);
+//            window.wb2.createTeacherTest(data.test, data.test_name, 'socket');
         });
     },
     emit: function(ident, object) {

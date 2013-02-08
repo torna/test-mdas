@@ -10,10 +10,35 @@
                 <input type="button" id="add_text_sheet" value="Add text" />
             </span>
         {% endif %}
+        <a href="javascript:;" id="add_test_btn" class="btn" style="float:right;">Add test</a>&nbsp;&nbsp;
     </div>
-    <br clear="all" />
     <div></div>
     <div class="wb2_board_subfiles">
         
     </div>
+    {% if account_type == 'teacher' %}
+        <div id="test_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel">Add test to students</h3>
+            </div>
+            <div class="modal-body">
+                Assign test: 
+                <select id="prepared_tests">
+                    <option value="">[Choose a test]</option>
+                    {% for item in teachers_tests %}
+                        <option value="{{ item.test_hash }}">{{ item.test_name_public }}</option>
+                    {% endfor %}
+                </select>
+                <br />
+                to: 
+                <br />
+                <span id="test_student_list"></span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button class="btn btn-primary" id="run_tests">Run tests</button>
+            </div>
+        </div>
+    {% endif %}
 </div>

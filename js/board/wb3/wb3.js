@@ -359,7 +359,7 @@ window.wb3 = {
         this.editors_list[zone_id] = editor;
         // if there are keystrokes in memory (from history) apply them
         this.setHistoryKeystrokes(zone_id);
-        this.setDataFromFrindHistory(zone_id);
+        this.setDataFromFriendHistory(zone_id);
         // manage code execution part
         this.handleCodeExecutionFrame(zone_id, chosen_language);
     },
@@ -397,9 +397,11 @@ window.wb3 = {
                 }
             }
         }
+//        jQuery('#board_programming').show();
+        this.redrawAllEditors();
         return true;
     },
-    setDataFromFrindHistory: function(zone_id) {
+    setDataFromFriendHistory: function(zone_id) {
         if(this.history_from_friend[zone_id] === null) {
             return;
         }
@@ -440,7 +442,7 @@ window.wb3 = {
         for (var i = 0; i < data.length; i++) {
             this.history_from_friend[data[i].unique_id] = data[i].editor_content;
         }
-        
+
         // create tabs, editors
         for (var i = 0; i < data.length; i++) {
             this.createTab(data[i].unique_id, data[i].tab_name, 'history', data.file_name);
@@ -514,6 +516,7 @@ window.wb3 = {
         var cnt = data.length;
         var main_data = new Array();
         var contains_editors = false; // flag
+        jQuery('#board_programming').hide();
         for (var i = 0; i < cnt; i++) {
             main_data = JSON.parse(data[i].main_data);
             switch(data[i].act_name) {
@@ -539,6 +542,7 @@ window.wb3 = {
                     break;
             }
         }
+        console.log('Finished loading wb3 from memory.');
         if(!contains_editors) {
             delete this.refresh_history; // free memory
             window.board_manager.is_refresh = false; // set refresh status to false
