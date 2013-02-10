@@ -20,6 +20,19 @@ class TeacherTestQuestionsRepository extends EntityRepository {
         return $result;
     }
     
+    public function getTestQuestionsByTestHash($test_hash) {
+        $query = "
+            SELECT ttq.*
+            FROM teacher_tests tt, teacher_test_questions ttq
+            WHERE tt.test_hash=:test_hash
+            AND ttq.test_id=tt.id
+            ORDER BY ttq.question_order ASC
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':test_hash' => $test_hash));
+        $result = $q->fetchAll(2);
+        return $result;
+    }
+    
     public function createQuestion($test_id, $question_id, $question, $question_type, $question_order) {
         $params = array();
 
@@ -101,6 +114,17 @@ class TeacherTestQuestionsRepository extends EntityRepository {
             WHERE ttp.test_id=:test_id
         ";
         $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':test_id' => $test_id));
+        $result = $q->fetch(2);
+        return $result;
+    }
+    
+    public function getPlaceholderDataByTestHash($test_hash) {
+        $query = "
+            SELECT ttp.*
+            FROM teacher_test_placeholder ttp
+            WHERE ttp.test_id=(SELECT id FROM teacher_tests WHERE test_hash=:test_hash)
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':test_hash' => $test_hash));
         $result = $q->fetch(2);
         return $result;
     }

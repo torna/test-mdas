@@ -10,7 +10,7 @@
     width: 12px;
     height: 20px;
 }
-#boards_tabs div, #board_items_tabs div, #wb1_items_tabs div, #wb4_items_tabs div, #wb2_items_tabs div {
+#boards_tabs div, #board_items_tabs div, #wb1_items_tabs div, #wb4_items_tabs div, #wb2_items_tabs div, #wb5_items_tabs div {
     padding: 3px;
     margin: 2px;
     border: 1px solid brown;
@@ -18,7 +18,7 @@
     background-color: #FADEC8;
     cursor: pointer;
 }
-.active_learn_tab, .active_wp3_tab, .active_wp1_tab, .active_wp2_tab {
+.active_learn_tab, .active_wp3_tab, .active_wp1_tab, .active_wp2_tab, .active_wp5_tab {
     background-color: #FAC296 !important;
 }
 .learn_board{
@@ -52,4 +52,7 @@
     display: none;
     position: absolute;
     z-index: 9999999;
+}
+.test_finished {
+    background-color: #79FF79 !important;
 }

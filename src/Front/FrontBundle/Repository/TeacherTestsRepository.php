@@ -29,12 +29,23 @@ class TeacherTestsRepository extends EntityRepository {
         return $result;
     }
     
+    public function getTestDetailsByHash($test_hash) {
+        $query = "
+            SELECT tt.*
+            FROM teacher_tests tt
+            WHERE tt.test_hash=:test_hash
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':test_hash' => $test_hash));
+        $result = $q->fetch(2);
+        return $result;
+    }
+    
     public function createTest($teacher_id, $test_name_public, $test_name_private, $test_desc, $test_type) {
         $params = array();
 
         $query = "
-            INSERT INTO teacher_tests(teacher_id, test_name_public, test_name_private, test_desc, test_type, added)
-            VALUES (:teacher_id, :test_name_public, :test_name_private, :test_desc, :test_type, NOW())
+            INSERT INTO teacher_tests(teacher_id, test_name_public, test_name_private, test_desc, test_type, test_hash, added)
+            VALUES (:teacher_id, :test_name_public, :test_name_private, :test_desc, :test_type, :test_hash, NOW())
         ";
 
         $params[':teacher_id'] = $teacher_id;
@@ -42,6 +53,7 @@ class TeacherTestsRepository extends EntityRepository {
         $params[':test_name_private'] = $test_name_private;
         $params[':test_desc'] = $test_desc;
         $params[':test_type'] = $test_type;
+        $params[':test_hash'] = md5($teacher_id.time());
 
         $q = $this->getEntityManager()->getConnection()->executeQuery($query, $params);
         return $this->getEntityManager()->getConnection()->lastInsertId();

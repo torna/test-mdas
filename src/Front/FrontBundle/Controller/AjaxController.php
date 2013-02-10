@@ -18,12 +18,11 @@ class AjaxController extends Controller {
                     if ($board == 'programming') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb3.html.twig', array('board' => $board, 'teacher_folder' => Auth::getAuthParam('course_working_folder')));
                     } elseif ($board == 'languages') {
-                        $teachers_tests = $text_list = array();
+                        $text_list = array();
                         if (Auth::getAuthParam('account_type') == 'teacher') {
                             $text_list = $em->getRepository('FrontFrontBundle:TeacherTexts')->getTeacherTexts(Auth::getAuthParam('id'));
-                            $teachers_tests = $em->getRepository('FrontFrontBundle:TeacherTests')->getTeacherTests(Auth::getAuthParam('id'));
                         }
-                        return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig', array('text_list' => $text_list, 'account_type' => Auth::getAuthParam('account_type'), 'teachers_tests' => $teachers_tests));
+                        return $this->render('FrontFrontBundle:Ajax:board_wb2.html.twig', array('text_list' => $text_list, 'account_type' => Auth::getAuthParam('account_type')));
                     } elseif ($board == 'draw') {
                         return $this->render('FrontFrontBundle:Ajax:board_wb1.html.twig');
                     } elseif ($board == 'presentation') {
@@ -32,6 +31,12 @@ class AjaxController extends Controller {
                             $presentation_list = $em->getRepository('FrontFrontBundle:Teachers')->getTeacherPresentationList(Auth::getAuthParam('id'));
                         }
                         return $this->render('FrontFrontBundle:Ajax:board_wb4.html.twig', array('presentation_list' => $presentation_list));
+                    } elseif ($board == 'tests') {
+                        $teachers_tests = array();
+                        if (Auth::getAuthParam('account_type') == 'teacher') {
+                            $teachers_tests = $em->getRepository('FrontFrontBundle:TeacherTests')->getTeacherTests(Auth::getAuthParam('id'));
+                        }
+                        return $this->render('FrontFrontBundle:Ajax:board_wb5.html.twig', array('teachers_tests' => $teachers_tests, 'account_type' => Auth::getAuthParam('account_type')));
                     }
                 }
                 break;

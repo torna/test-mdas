@@ -1,7 +1,5 @@
-window.wb2_teacher = {
-    editors_list: [], // list of codemirror objects 
-    board_name: 'languages',
-    is_changed_from_socket: false,
+window.wb5 = {
+    board_name: 'tests',
     refresh_history: [], // holds the history when the page is refreshed (all history, when does not exist a client to help)
     current_tabs: [], // holds all created tabs of this board
     history_from_friend: [], // holds the history sent by a client that is on the same course
@@ -14,54 +12,17 @@ window.wb2_teacher = {
     bindEvents: function() {
         // set tab events: close tab, switch tab, rename tab
         this.setTabEvents();
-        jQuery('#add_test_btn').unbind('click');
-        jQuery('#add_test_btn').click(function() {
-            window.wb2_teacher.prepareTestModal();
-        });
-        
-        jQuery('#run_tests').unbind('click');
-        jQuery('#run_tests').click(function() {
-            window.wb2_teacher.runPreparedTests();
-        });
     },
-    runPreparedTests: function() {
-        var students = [];
-        var test = jQuery('#prepared_tests').val();
-        if(test == '') {
-            jQuery('#error_modal_msg').html('Please choose a test.');
-            jQuery('#error_modal').modal();
-            return;
-        }
-        var checked_student = jQuery('input:checkbox[class=users_for_tests]:checked');
-        if(checked_student.length == 0) {
-            jQuery('#error_modal_msg').html('Please choose at least a student.');
-            jQuery('#error_modal').modal();
-            return;
-        }
-        for (var i = 0; i < checked_student.length; i++) {
-            students.push(jQuery(checked_student[i]).attr('value'));
-        }
-        
-        this.sendTestToStudents(test, students, jQuery('#prepared_tests option:selected').text());
-        this.createTestTabsAtTeacher(test, students);
-    },
-    // create the test locally at teachers desk so he can see the progress
-    createTestTabsAtTeacher: function(test, checked_student) {
-        jQuery('#test_modal').modal('hide');
-        for (var i = 0; i < checked_student.length; i++) {
-            this.createTeacherTest(test, window.board_manager.current_users[checked_student[i]]);
-        }
-    },
-    createTeacherTest: function(test, student_data, caller) {
-        var unique_id = student_data.hash+'_'+test;
+    
+    createTeacherTest: function(test, test_name, caller) {
+        var unique_id = test;
         if(jQuery('#file_name_'+unique_id).length > 0) {
             return false;
         }
         this.current_tabs.push(unique_id);
-        var test_name = jQuery('#prepared_tests option:selected').text();
-        jQuery('#wb2_items_tabs').append('<div class="tab_div_wb2" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+test_name+' ('+student_data.f_name+' '+student_data.l_name+')</span> <sup><a href="javascript:;" class="delete_teacher_test">x</a></sup></div>');
-        if(window.wb2_teacher.stored_test_html[test] !== undefined) {
-            window.wb2_teacher.setTabBindings(window.wb2_teacher.stored_test_html[test], unique_id, student_data.hash, test);
+        jQuery('#wb5_items_tabs').append('<div class="tab_div_wb5" data-sheet-id="'+unique_id+'"><span id="file_name_'+unique_id+'">'+test_name+'</span> <sup><a href="javascript:;" class="delete_teacher_test">x</a></sup></div>');
+        if(window.wb5.stored_test_html[test] !== undefined) {
+            window.wb5.setTabBindings(window.wb5.stored_test_html[test], unique_id);
         } else {
             jQuery.ajax({
                 url: "ajax",
@@ -72,27 +33,11 @@ window.wb2_teacher = {
                     // loadior here
                 },
                 success: function(data) {
-                    window.wb2_teacher.stored_test_html[test] = data;
-                    window.wb2_teacher.setTabBindings(data, unique_id, student_data.hash, test);
+                    window.wb5.stored_test_html[test] = data;
+                    window.wb5.setTabBindings(data, unique_id);
                 }
             });
         }
-    },
-    sendTestToStudents: function(test, students, test_name) {
-        window.socket_object.emit('send_test_to_students', {
-            test: test, 
-            test_name: test_name, 
-            students: students
-        });
-    },
-    prepareTestModal: function() {
-        var html = '';
-        var current_users = window.board_manager.current_users;
-        for(var item in current_users) {
-            html += '<input type="checkbox" class="users_for_tests" id="for_'+item+'" value="'+item+'" /> <label style="display:inline;" for="for_'+item+'">' + current_users[item].f_name + ' ' + current_users[item].l_name + '</label><br />';
-        }
-        jQuery('#test_student_list').html(html);
-        jQuery('#test_modal').modal();
     },
     setTabEvents: function() {
         // when tab's x is clicked
@@ -103,40 +48,74 @@ window.wb2_teacher = {
             // generating unique id
             var unique_id = jQuery('#texts_list').val();
             var tab_name = jQuery('#texts_list option:selected').text();
-            window.wb2.createTab(unique_id, tab_name, undefined, 'text');
+            window.wb5.createTab(unique_id, tab_name, undefined, 'text');
         });
     },
     bindDeleteTabEvent:function(sheet_id, caller) {
         jQuery('.delete_teacher_test').unbind('click'); // unbind click from these elements to avoid multiplication of events
         jQuery('.delete_teacher_test').click(function(){
             var sheet_id = jQuery(this).parent().parent().attr('data-sheet-id');
-            window.wb2.deleteTab(sheet_id);
+            window.wb5.deleteTab(sheet_id);
         });
     },
-    deleteTab: function(sheet_id, caller) {
-        if(caller === undefined) {
-            window.socket_object.emit('wb2_tab_delete', {
-                sheet_id: sheet_id
-            });
+    bindTestControls: function(unique_id) {
+        jQuery('.set_test_finished').unbind('change');
+        jQuery('.set_test_finished').change(function() {
+            window.socket_object.emit('test_finished', { test_hash: jQuery(this).attr('data-test-hash'), test_status: jQuery(this).val() });
+        })
+    },
+    sendTestProgress: function(test_hash, caller) {
+        var test_progress = this.getTestProgress(test_hash);
+        window.socket_object.emit('student_test_progress', { test_hash: test_hash, test_progress: test_progress });
+    },
+    getTestProgress: function(test_hash) {
+        var element;
+        var element_type;
+        var element_object;
+        var class_name;
+        var progress_data = [];
+        for (var i = 0; i < jQuery('.test_'+test_hash+' input, .test_'+test_hash+' textarea').length; i++) {
+            element = jQuery('.test_'+test_hash+' input, .test_'+test_hash+' textarea')[i];
+            class_name = jQuery(element).attr('class');
+            element_type = jQuery(element).attr('type');
+            if(jQuery(element).prop('tagName') == 'INPUT') {
+                switch(jQuery(element).attr('type')) {
+                    case 'radio':
+                        element_object = { is_checked: element.checked };
+                        break;
+                    case 'text':
+                        element_object = { value: jQuery(element).val() };
+                        break;
+                    case 'checkbox':
+                        element_object = { is_checked: element.checked };
+                        break;
+                }
+            } else if(jQuery(element).prop('tagName') == 'TEXTAREA') {
+                element_object = { value: jQuery(element).val() };
+            }
+            element_object.el_class = class_name;
+            element_object.el_type = element_type;
+            progress_data.push(element_object);
+            element_object = {};
         }
-        this.deleted_tabs.push(sheet_id);
-        
+        return progress_data;
+    },
+    deleteTab: function(sheet_id, caller) {
         var index = this.current_tabs.indexOf(sheet_id);
         this.current_tabs.splice(index, 1);
         jQuery('#file_name_'+sheet_id).parent().remove(); // delete the tab
         jQuery('#board_item_'+sheet_id).remove();
-        delete window.wb2.editors_list[sheet_id]; // remove object from memory
-        if(jQuery('.active_wp2_tab').length == 0) {
-            var last_tab_sheet_id = jQuery(jQuery('.tab_div_wb2')[jQuery('.tab_div_wb2').length-1]).attr('data-sheet-id');
-            window.wb2.switchTab(last_tab_sheet_id);
+        if(jQuery('.active_wp5_tab').length == 0) {
+            var last_tab_sheet_id = jQuery(jQuery('.tab_div_wb5')[jQuery('.tab_div_wb5').length-1]).attr('data-sheet-id');
+            window.wb5.switchTab(last_tab_sheet_id);
         }
     },
     // switch tabs when clicked
     bindTabSwitcher: function() {
-        jQuery('#wb2_items_tabs div').unbind('click'); // unbind click from these elements to avoid multiplication of events
-        jQuery('#wb2_items_tabs div').click(function() {
+        jQuery('#wb5_items_tabs div').unbind('click'); // unbind click from these elements to avoid multiplication of events
+        jQuery('#wb5_items_tabs div').click(function() {
             var sheet_id = jQuery(this).attr('data-sheet-id');
-            window.wb2_teacher.switchTab(sheet_id);
+            window.wb5.switchTab(sheet_id);
         });
     },
     switchTab: function(sheet_id) {
@@ -146,37 +125,28 @@ window.wb2_teacher = {
 //            if(window.board_manager.teacher_force_sync) {
 //                send_obj.zone_id = sheet_id;
 //            }
-//            window.socket_object.emit('wb2_teacher_tab', send_obj);
+//            window.socket_object.emit('wb5_teacher_tab', send_obj);
 //        }
         // inactivate all tabs
-        jQuery('.active_wp2_tab').removeClass('active_wp2_tab');
+        jQuery('.active_wp5_tab').removeClass('active_wp5_tab');
         // set active the clicked tab
-        jQuery('#file_name_'+sheet_id).parent().addClass('active_wp2_tab');
+        jQuery('#file_name_'+sheet_id).parent().addClass('active_wp5_tab');
         // hidding tab contents
-        jQuery('.wb2_board_item').hide();
+        jQuery('.wb5_board_item').hide();
         // showing contend of selected tab
         jQuery('#board_item_'+sheet_id).show();
     },
-    setTabBindings: function(data, unique_id, user_hash, test_hash) {
+    setTabBindings: function(data, unique_id) {
         // setting zone id, i.e board id, so we could know where are we working
         data = data.replace(/%zone_id%/g, unique_id);
-        data = data.replace(/%user_hash%/g, user_hash);
-        data = data.replace(/%test_hash%/g, test_hash);
-        jQuery('.wb2_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb2_board_item">'+data+'</div>');
-        jQuery('.wb2_board_item').hide(); // hide all wb3 boards
+        data = data.replace(/%test_hash%/g, unique_id);
+        jQuery('.wb5_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb5_board_item">'+data+'</div>');
+        jQuery('.wb5_board_item').hide(); // hide all wb3 boards
         jQuery('#board_item_'+unique_id).show(); // showing created board
         this.bindDeleteTabEvent();
         this.bindTabSwitcher();
         this.switchTab(unique_id);
-        this.bindTestProgressWatcher();
-    },
-    bindTestProgressWatcher: function() {
-        jQuery('.request_test_progress').unbind('click');
-        jQuery('.request_test_progress').click(function() {
-            var user_hash = jQuery(this).attr('data-user-hash')
-            var test_hash = jQuery(this).attr('data-test-hash')
-            window.socket_object.emit('request_test_progress', { user_hash: user_hash, test_hash: test_hash });
-        });
+        this.bindTestControls(unique_id);
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
@@ -184,88 +154,11 @@ window.wb2_teacher = {
     },
     // indicates the active teacher tab
     teacherTabIndicator: function(data) {
-        jQuery('div#wb2_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
+        jQuery('div#wb5_items_tabs > .teacher_active_tab').removeClass('teacher_active_tab');
         jQuery('#file_name_'+data.sheet_id).parent().addClass('teacher_active_tab');
         if(data.zone_id !== undefined) {
             this.switchTab(data.zone_id);
         }
-    },
-    bindLanguageSwitcher: function(zone_id) {
-        window.wb2.createHighlighter(zone_id);
-    },
-    createHighlighter: function(zone_id) {
-        var javascripts = new Array();
-        var existent_scripts = new Array();
-        for (var i = 0; i < jQuery('script').length; i++) {
-            existent_scripts.push(jQuery(jQuery('script')[i]).attr('src'));
-        }
-
-        var loaded_script_counter = 0;
-        var included_scripts_cnt = 0;
-
-        for (var i = 0; i < javascripts.length; i++) {
-            //            if(existent_scripts.indexOf(javascripts[i]) == -1) { // if script doesn't exist in DOM add it
-            included_scripts_cnt++;
-            var script = document.createElement("script");
-            script.type = "text/javascript";
-            script.src = javascripts[i];
-            document.getElementsByTagName("head")[0].appendChild(script); // add script to head
-            script.onload = function() {
-                loaded_script_counter++;
-                if(loaded_script_counter == included_scripts_cnt) { // if all scripts had been loaded successfully do the binding
-                    window.wb2.initHighlighter(zone_id);
-                }
-            }
-        }
-        if(included_scripts_cnt == 0) { // if the scripts are already loaded
-            this.initHighlighter(zone_id);
-        }
-    },
-    initHighlighter: function(zone_id) {
-        if(this.deleted_tabs.indexOf(zone_id) != -1) { // its a deleted tab
-            return;
-        }
-        jQuery('#resizable_'+zone_id+' div[class="CodeMirror cm-s-default"]').remove(); // delete previous codemirror divs before creating new one
-        var editor = window.CodeMirror.fromTextArea(document.getElementById("highlighter_textarea_"+zone_id), {
-            lineNumbers: false,
-            matchBrackets: false,
-            mode: '',
-            indentUnit: 4,
-            indentWithTabs: true,
-            enterMode: "keep",
-            tabMode: "shift",
-            smartIndent: false,
-            dragDrop: false,
-            readOnly: true
-        });
-        
-        editor.on('cursorActivity', function(instance) {
-            //            console.log(instance.getSelection()); // returns selected string
-            //            console.log(instance.getSelection()); // cursor movement
-            })
-        editor.on('viewportChange', function(instance) {
-            //            console.log('Viewport change'+instance);
-            })
-        
-        this.editors_list[zone_id] = editor;
-        // if there are keystrokes in memory (from history) apply them
-        this.setDataFromFrindHistory(zone_id);
-        
-        jQuery('#board_item_'+zone_id+' .CodeMirror-lines:first-child').css('line-height', '22px');
-    },
-    // used when data comes from history
-    allEditorsBinded: function() {
-        var unique_id = null;
-        for (var i = 0; i < this.refresh_history.length; i++) {
-            if(this.refresh_history[i] !== undefined && this.refresh_history[i].act_name == 'wb3_set_language') {
-                unique_id = this.refresh_history[i].obj_id;
-                if(this.refresh_history_initialized_editors.indexOf(unique_id) == -1) { // some editor not initialized yet
-                    console.log('id not found: '+unique_id);
-                    return false;
-                }
-            }
-        }
-        return true;
     },
     setDataFromFrindHistory: function(zone_id) {
         if(this.history_from_friend[zone_id] === null) {
@@ -392,14 +285,14 @@ window.wb2_teacher = {
                 //                    window.board_manager.deleteBoard(main_data.board_type, 'history');
                 //                    break;
                 case 'wb3_tab_create':
-                    window.wb2.createTab(data[i].obj_id, main_data.tab_name, 'history', main_data.file_name);
+                    window.wb5.createTab(data[i].obj_id, main_data.tab_name, 'history', main_data.file_name);
                     break;
                 case 'wb3_tab_delete':
-                    window.wb2.deleteTab(data[i].obj_id, 'history');
+                    window.wb5.deleteTab(data[i].obj_id, 'history');
                     break;
                 case 'wb3_set_language':
-                    window.wb2.bindLanguageSwitcher(main_data.chosen_language, main_data.mime, data[i].obj_id, 'history'); // actual setter
-                    window.wb2.bindLanguageSwitcher(); // binder
+                    window.wb5.bindLanguageSwitcher(main_data.chosen_language, main_data.mime, data[i].obj_id, 'history'); // actual setter
+                    window.wb5.bindLanguageSwitcher(); // binder
                     contains_editors = true;
                     break;
                 case 'wb3_file_name_change':

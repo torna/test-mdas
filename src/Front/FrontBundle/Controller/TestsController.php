@@ -114,7 +114,7 @@ class TestsController extends Controller {
                 case 'save_question':
                     $question_type = $request->get('question_type');
                     if ($test_details['test_type'] == 'quiz') {
-                        if (!in_array($question_type, array('radio', 'text', 'checkboxes'))) {
+                        if (!in_array($question_type, array('radio', 'text', 'checkboxes', 'textarea'))) {
                             $this->get('session')->setFlash('error', 'Wrong question type.');
                             return $this->redirect($request->headers->get('referer'));
                         }

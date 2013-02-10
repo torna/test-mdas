@@ -72,6 +72,7 @@ window.board_manager = {
         window.wb2.closeBoard();
         window.wb3.closeBoard();
         window.wb4.closeBoard();
+        window.wb5.closeBoard();
         this.is_refresh = true;
         this.historyRequest();
     },
@@ -185,13 +186,16 @@ window.board_manager = {
                 window.wb3.createTab('1', 'New file');
             }
         }
+        if(board_type == 'languages') {
+            window.wb2.init();
+        }
         if(board_type == 'presentation') {
             window.wb4.init();
         }
-        if(board_type == 'languages') {
-            window.wb2.init();
+        if(board_type == 'tests') {
+            window.wb5.init();
             if(this.is_teacher) {
-                window.wb2_teacher.init();
+                window.wb5_teacher.init();
             }
         }
     },

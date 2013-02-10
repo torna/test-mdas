@@ -42,4 +42,18 @@ class TeacherQuestionOptionsRepository extends EntityRepository {
         $result = $q->fetchAll(2);
         return $result;
     }
+    
+    public function getQuestionOptionsByQuestionId($question_id) {
+        $query = "
+            SELECT tqo.*
+            FROM teacher_tests tt, teacher_test_questions ttq, teacher_question_options tqo
+            WHERE ttq.id=:question_id
+            AND ttq.test_id=tt.id
+            AND tqo.question_id=ttq.id
+            ORDER BY tqo.option_order ASC
+        ";
+        $q = $this->getEntityManager()->getConnection()->executeQuery($query, array(':question_id' => $question_id));
+        $result = $q->fetchAll(2);
+        return $result;
+    }
 }

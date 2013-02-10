@@ -24,8 +24,9 @@
                 <select name="question_type" id="question_type" required="required">
                     <option value="">[Select]</option>
                     <option value="radio" {% if modify_data.question_data.question_type == 'radio' %}selected="selected"{% endif %} >Radio</option>
-                    <option value="text" {% if modify_data.question_data.question_type == 'text' %}selected="selected"{% endif %} >Text</option>
                     <option value="checkboxes" {% if modify_data.question_data.question_type == 'checkboxes' %}selected="selected"{% endif %} >Checkboxes</option>
+                    <option value="text" {% if modify_data.question_data.question_type == 'text' %}selected="selected"{% endif %} >Text</option>
+                    <option value="textarea" {% if modify_data.question_data.question_type == 'textarea' %}selected="selected"{% endif %} >Textarea</option>
                 </select>
                 <hr />
                 <div class="question_types" id="question_type_radio" style="{% if modify_data.question_data.question_type == 'radio' %}display:block;{% endif %}">

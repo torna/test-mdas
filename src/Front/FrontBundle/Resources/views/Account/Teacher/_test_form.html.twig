@@ -1,31 +1,42 @@
-<div style="height:30px;border:1px solid brown;">
-    {% if is_classroom and account_type == 'teacher' %}
-        <input type="radio" checked="checked" data-user-hash="%user_hash%" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_unshare" class="share_test_to_group" value="unshare" /> <label style="display:inline;" for="ch_%zone_id%_unshare">Unshared</label>
-        <input type="radio" data-user-hash="%user_hash%" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_share" class="share_test_to_group" value="share" /> <label style="display:inline;" for="ch_%zone_id%_share">Shared</label>
-        <input type="button" class="request_test_progress" data-user-hash="%user_hash%" data-test-hash="%test_hash%" value="See progress" />
-    {% elseif is_classroom and account_type == 'student' %}
-        <input type="radio" checked="checked" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_unfinished" class="set_test_finished" value="unfinished" /> <label style="display:inline;" for="ch_%zone_id%_unfinished">Not finished</label>
-        <input type="radio" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_finished" class="set_test_finished" value="finished" /> <label style="display:inline;" for="ch_%zone_id%_finished">Finished</label>
-    {% endif %}
-</div>
+{% if is_classroom %}
+    <div style="height:30px;border:1px solid brown;">
+        {% if account_type == 'teacher' %}
+            <!--<input type="radio" checked="checked" data-user-hash="%user_hash%" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_unshare" class="share_test_to_group" value="unshare" /> <label style="display:inline;" for="ch_%zone_id%_unshare">Unshared</label>-->
+            <!--<input type="radio" data-user-hash="%user_hash%" name="share_test_to_group" data-test-hash="%test_hash%" id="ch_%zone_id%_share" class="share_test_to_group" value="share" /> <label style="display:inline;" for="ch_%zone_id%_share">Shared</label>-->
+            <input type="button" class="request_test_progress" data-user-hash="%user_hash%" data-test-hash="%test_hash%" value="See progress" />
+        {% elseif account_type == 'student' %}
+            <input type="radio" checked="checked" name="set_test_finished" data-test-hash="%test_hash%" id="ch_%zone_id%_unfinished" class="set_test_finished" value="unfinished" /> <label style="display:inline;" for="ch_%zone_id%_unfinished">Not finished</label>
+            <input type="radio" name="set_test_finished" data-test-hash="%test_hash%" id="ch_%zone_id%_finished" class="set_test_finished" value="finished" /> <label style="display:inline;" for="ch_%zone_id%_finished">Finished</label>
+        {% endif %}
+    </div>
+{% endif %}
 <h3 style="margin:0">Preview of "{{ test_details.test_name_public }}" test</h3>
-{% for item in test_questions %}
-    <b>{{ item.question }}</b>
-    <br />
-    {% if item.question_type == 'text' %}
-        <input type="text" name="inp_{{ answers.id }}" class="inp_{{ answers.id }}" value="" />
+<div class="test_%zone_id%">
+    {% for item in test_questions %}
+        <b>{{ item.question }}</b>
         <br />
-    {% elseif item.question_type == 'radio' %}
-        {% for answers in item.answers %}
-            <input type="radio" name="inp_{{ answers.id }}" class="inp_{{ answers.id }}" value="1" /> {{ answers.option_value }}
+        {% if item.question_type == 'text' %}
+            <input type="text" name="inp_{{ item.id }}" class="inp_{{ item.id }}" value="" />
             <br />
-        {% endfor %}
-    {% elseif item.question_type == 'checkboxes' %}
-        {% for answers in item.answers %}
-            <input type="checkbox" class="inp_{{ answers.id }}" class="inp_{{ answers.id }}" value="1" /> {{ answers.option_value }}
+        {% elseif item.question_type == 'radio' %}
+            {% for answers in item.answers %}
+                <input type="radio" name="inp_{{ answers.question_id }}" id="inp_{{ answers.question_id }}" class="inp_{{ answers.id }}" value="1" /> 
+                <label style="display:inline;" for="inp_{{ answers.question_id }}">{{ answers.option_value }}</label>
+                <br />
+            {% endfor %}
+        {% elseif item.question_type == 'checkboxes' %}
+            {% for answers in item.answers %}
+                <input type="checkbox" class="inp_{{ answers.id }}" value="1" /> 
+                <label style="display:inline;" for="inp_{{ answers.question_id }}">{{ answers.option_value }}</label>
+                <br />
+            {% endfor %}
+        {% elseif item.question_type == 'textarea' %}
+            {{ answers.option_value }}
             <br />
-        {% endfor %}
-    {% endif %}
-    <div class="sep"></div>
-{% endfor %}
-{{ test_placeholder|raw }}
+            <textarea class="inp_{{ item.id }}"></textarea>
+            <br />
+        {% endif %}
+        <div class="sep"></div>
+    {% endfor %}
+    {{ test_placeholder|raw }}
+</div>

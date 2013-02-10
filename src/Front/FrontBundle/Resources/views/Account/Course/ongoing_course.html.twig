@@ -26,8 +26,9 @@
         {% else %}
         {% endif %}
         <script src="../js/board/wb2/wb2.js?t={{ now|date('m-d-i-s') }}"></script>
-        <script src="../js/board/wb2/wb2_teacher.js?t={{ now|date('m-d-i-s') }}"></script>
         <script src="../js/board/wb4/wb4.js?t={{ now|date('m-d-i-s') }}"></script>
+        <script src="../js/board/wb5/wb5.js?t={{ now|date('m-d-i-s') }}"></script>
+        <script src="../js/board/wb5/wb5_teacher.js?t={{ now|date('m-d-i-s') }}"></script>
         <script src="../js/highlighter/lib/codemirror.js"></script>
         <script src="../js/board/treeview.js"></script>
         <script src="../js/jNotify.jquery.js"></script>
@@ -64,6 +65,7 @@
                     <option value="programming">Programming</option>
                     <option value="languages">Languages</option>
                     <option value="presentation">Presentation</option>
+                    <option value="tests">Tests</option>
                 </select>
                 <input type="button" id="add_board" value="Add">
             {% endif %}

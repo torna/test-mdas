@@ -82,7 +82,6 @@ window.wb2 = {
         // showing contend of selected tab
         jQuery('#board_item_'+sheet_id).show();
         jQuery('#board_item_'+sheet_id).show();
-        console.log('showing test');
         if(window.wb2.editors_list[sheet_id] !== undefined) {
             window.wb2.editors_list[sheet_id].refresh();
         }
@@ -122,7 +121,6 @@ window.wb2 = {
     createTeacherTest: function(test, test_name, caller) {
         var unique_id = test;
         if(jQuery('#file_name_'+unique_id).length > 0) {
-            console.log('here');
             return false;
         }
         this.current_tabs.push(unique_id);
@@ -148,6 +146,7 @@ window.wb2 = {
     setTabBindings: function(data, unique_id, is_editor) {
         // setting zone id, i.e board id, so we could know where are we working
         data = data.replace(/%zone_id%/g, unique_id);
+        data = data.replace(/%test_hash%/g, unique_id);
         jQuery('.wb2_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb2_board_item">'+data+'</div>');
         jQuery('.wb2_board_item').hide(); // hide all wb2 boards
         jQuery('#board_item_'+unique_id).show(); // showing created board
@@ -156,7 +155,15 @@ window.wb2 = {
         if(is_editor) {
             window.wb2.bindLanguageSwitcher(unique_id);
         }
-//        window.wb2.switchTab(unique_id);
+        window.wb2.switchTab(unique_id);
+        window.wb2.bindTestControls(unique_id);
+        
+    },
+    bindTestControls: function(unique_id) {
+        jQuery('.set_test_finished').unbind('change');
+        jQuery('.set_test_finished').change(function() {
+            window.socket_object.emit('test_finished', { test_hash: jQuery(this).attr('data-test-hash'), test_status: jQuery(this).val() });
+        })
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename

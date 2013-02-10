@@ -219,15 +219,31 @@ window.socket_object = {
             window.wb2.teacherTabIndicator(data);
         });
         
+        /******** TESTS *********/
+        
         // teacher sent test
         this.socket_data.on('test_from_teacher', function(data) {
-            window.wb2.createTeacherTest(data.test, data.test_name, 'socket');
+            window.wb5.createTeacherTest(data.test, data.test_name, 'socket');
         });
         
-        // sent test progress to teacher
+        // send test progress to teacher
         this.socket_data.on('send_test_progress', function(data) {
-            console.log(data);
-//            window.wb2.createTeacherTest(data.test, data.test_name, 'socket');
+            window.wb5.sendTestProgress(data.test_hash, 'socket');
+        });
+        
+        // student sent test progress to teacher
+        this.socket_data.on('student_test_progress', function(data) {
+            window.wb5_teacher.processTestProgress(data, 'socket');
+        });
+        
+        // student finished/unfinished test
+        this.socket_data.on('student_finished_test', function(data) {
+            window.wb5_teacher.setStudentTestStatus(data, 'socket');
+        });
+        
+        // student finished/unfinished test
+        this.socket_data.on('close_test', function(data) {
+            window.wb5.deleteTab(data.test_hash, 'socket');
         });
     },
     emit: function(ident, object) {
