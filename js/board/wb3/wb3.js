@@ -123,18 +123,29 @@ window.wb3 = {
         // setting zone id, i.e board id, so we could know where are we working
         data = data.replace(/%zone_id%/g, unique_id);
         jQuery('.programming_board_subfiles').append('<div id="board_item_'+unique_id+'" class="wb3_board_item">'+data+'</div>');
+        this.setTextareaRawContent(unique_id);
         jQuery('#resizable_'+unique_id).resizable();
         jQuery('.wb3_board_item').hide(); // hide all wb3 boards
         jQuery('#board_item_'+unique_id).show(); // showing created board
-        window.wb3.bindDeleteTabEvent();
-        window.wb3.bindTabSwitcher();
-        window.wb3.bindLanguageSwitcher();
+        this.bindDeleteTabEvent();
+        this.bindTabSwitcher();
+        this.bindLanguageSwitcher();
         window.board_manager.bindTreeviewer();
-        window.wb3.switchTab(unique_id);
+        this.switchTab(unique_id);
     },
     renameTab: function(zone_id, tab_name) {
         jQuery('#file_name_'+zone_id).html(tab_name); // setting tab filename
         window.board_manager.bindTreeviewer();
+    },
+    setTextareaRawContent: function(unique_id) {
+        if(this.refresh_history !== undefined) {
+            for (var i = 0; i < this.refresh_history.length; i++) {
+                if(this.refresh_history[i]['act_name'] == 'editor_content_full' && this.refresh_history[i]['obj_id'] == unique_id) {
+                    var json_data = JSON.parse(this.refresh_history[i]['main_data']);
+                    jQuery('#highlighter_textarea_'+unique_id).val(json_data.editor_content);
+                }
+            }
+        }
     },
     redrawAllEditors: function() {
         for(var i=0; i<window.wb3.current_tabs.length; i++) {
@@ -397,8 +408,8 @@ window.wb3 = {
                 }
             }
         }
-//        jQuery('#board_programming').show();
         this.redrawAllEditors();
+        console.log('all editors binded');
         return true;
     },
     setDataFromFriendHistory: function(zone_id) {
@@ -512,11 +523,12 @@ window.wb3 = {
     }, 
     applyRedrawBoard: function(data) {
         console.log('Boards loaded from HISTORY');
+        console.log(data);
         this.refresh_history = data;
         var cnt = data.length;
         var main_data = new Array();
         var contains_editors = false; // flag
-        jQuery('#board_programming').hide();
+//        jQuery('#board_programming').hide();
         for (var i = 0; i < cnt; i++) {
             main_data = JSON.parse(data[i].main_data);
             switch(data[i].act_name) {
