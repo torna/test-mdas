@@ -91,6 +91,11 @@ window.socket_object = {
             window.board_manager.boardsRedraw();
         });
         
+        // teacher forces student refresh
+        this.socket_data.on('wb3_editor_content', function(data) {
+            window.board_manager.getWb3Editors();
+        });
+        
         /******** HEARTBEAT *********/
         setInterval(function() {
             var last_received_ping_time = (new Date().getTime() - window.socket_object.heartbeat_time)/1000; // dividing to 1000 to convert from miliseconds to seconds
