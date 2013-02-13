@@ -391,5 +391,19 @@ window.board_manager = {
             var user_hash = jQuery(this).attr('data-user-hash');
             window.socket_object.emit('force_refresh_student', { hash: user_hash });
         });
+    },
+    
+    // gets wb3 editors content and sends it to server
+    getWb3Editors: function() {
+        var wb3_tabs_cnt = window.wb3.current_tabs.length;
+        var summary_arr = {};
+        if(wb3_tabs_cnt > 0) {
+            for (var i = 0; i < wb3_tabs_cnt; i++) {
+                if(window.wb3.editors_list[window.wb3.current_tabs[i]] !== undefined) {
+                    summary_arr[window.wb3.current_tabs[i]] = window.wb3.editors_list[window.wb3.current_tabs[i]].getValue();
+                }
+            }
+        }
+        window.socket_object.emit('wb3_editor_content', { data: JSON.stringify(summary_arr) });
     }
 }
